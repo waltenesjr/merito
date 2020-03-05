@@ -1,0 +1,211 @@
+    //Definimos um novo novo para nossa imagem
+      $handle->file_new_name_body = 'nome1';
+ 
+    // Adicionamos um nome no final do arquivo, ou seja no final do nome ele inclui o _data ficando  nome1_data
+      $handle->file_name_body_add = '_data';
+ 
+    // Mudamos a extensão do arquivo para txt ou outro qualquer
+      $handle->file_new_name_ext = 'txt';
+ 
+    // Formata o nome do arquivo (espaço subtituido por _)
+      $handle->file_safe_name = true;
+ 
+    // Sobrescrever o arquivo de mesmo nome, por default é false
+      $handle->file_overwrite = true;
+ 
+    //  Renomear arquivo automaticamente caso existir um mesmo nome de arquivo no servidor, por default é true
+      $handle->file_auto_rename = true;
+ 
+    // Criamos automaticamente o diretória caso não exista no servidor, por default é true
+      $handle->auto_create_dir = true;
+ 
+    // Definimos a permissão no diretório automaticamente, por default é true
+      $handle->dir_auto_chmod = true;
+ 
+    // Definimos o tipo de permissão no diretório, por default é 0777
+      $handle->dir_chmod = 0777;
+ 
+    // Definimos o tamanho máximo do arquivo, por default é usado o mesmo do php.ini
+      $handle->file_max_size = '1024'; // 1KB
+ 
+    // Verificar o Mime-Type para um tipo de imagem
+      $handle->mime_check = false;
+ 
+    // Define se a classe usa mime_magic, por default é false)
+      $handle->mime_magic_check = true;
+ 
+    // Define se a classe testa os arquivos, por default é true 
+      $handle->no_script = false;
+ 
+    // Permitimos array de mime-types, pordefault: check Init
+      $handle->allowed = array('application/pdf','application/msword');
+ 
+    // Converter o tipo de imagem para os ossíveis tipos: ''|'png'|'jpeg'|'gif' default: ''
+      $handle->image_convert = 'jpg';
+ 
+    // Definimos a qualidade da imagem a ser enviada para o servidor, por default é 85
+      $handle->jpeg_quality = 70;
+ 
+    // Se configurado para um tamanho em bytes, a imagem irá aproximar o jpeg_quality, assim a saída da imagem se enquadra dentro do tamanho
+      $handle->jpeg_size = 3072;
+ 
+    // Determina se uma imagem será redimensionada, por default é false
+      $handle->image_resize = true;
+ 
+	// Em caso da opção image_resize == true
+    // Definimos o tamanho da Largura, por default é 150
+      $handle->image_x = 100;
+ 
+    // Definimos o tamanho da altura, por default é 150
+      $handle->image_y = 200;
+ 
+    // Se true, redimensiona a imagem conservar o tamanhos original, utilizando image_x E image_y como tamanhos máximo se true (padrão: falso)
+      $handle->image_ratio = true;
+ 
+    // Corta a imagem
+      $handle->image_ratio_crop = true;
+ 
+    // Se true, redimensiona a imagem conservar o tamanhos original, utilizando image_x E image_y como tamanhos máximo, 
+	// adequando a imagem no espaço e colorir o restante espaço.(padrão: falso)
+      $handle->image_ratio_fill = true;
+ 
+    // Aplicando zoom in  (padrão: falso)
+      $handle->image_ratio_no_zoom_in = true;
+ 
+    // Aplicando zoom out (default: false)
+      $handle->image_ratio_no_zoom_out = true;
+ 
+    // Redimenciona proporcional a imagem original em X (default: false)
+      $handle->image_ratio_x = true;
+ 
+    // Redimenciona proporcional a imagem original em Y (default: false)
+      $handle->image_ratio_y = true;
+ 
+	// Requer GD2+
+    // Aplica na imagem o  brightness. Valores entre -127 e 127 (default: NULL)
+      $handle->image_brightness = 40;
+ 
+    // Aplica contrast na imagem. Valores entre -127 e 127 (default: NULL)
+      $handle->image_contrast = 50;
+ 
+    // Aplica uma cor na imagem, Valores devem ser hexadecimais #FFFFFF (default: NULL)
+      $handle->image_tint_color = '#FF0000';
+ 
+    // Irá adicionar um colorido superposição, Valores devem ser hexadecimais #FFFFFF (padrão: NULL)
+      $handle->image_overlay_color = '#FF0000';
+ 
+    // Se image_overlay_color tiver ativado, determinamos a opacidade (default: 50)
+      $handle->image_overlay_percent = 20;
+ 
+    // Aplicamos o efeito negativo (default: false)
+      $handle->image_negative = true;
+ 
+    // Aplicamos o  greyscale (default: false)
+      $handle->image_greyscale = true;
+ 
+    // Aplicamos o  filtro threshold. Valores devem ser entre -127 e 127 (default: NULL)
+      $handle->image_threshold = 20;
+ 
+    // Aplicamos um texto sobre a imagem (default: NULL)
+      $handle->image_text = 'Revista PHP';
+ 
+    // Determinamos a região da imagem que aplicamos o texto, 'h' horizontal ou 'v' vertical (default: 'h')
+      $handle->image_text_direction = 'v';
+ 
+    // Definimos a cor do texto em hexadecimal (default: #FFFFFF)
+      $handle->image_text_color = '#FF0000';
+ 
+    // Definimos a  opacidade do texto, valores entre 0 e 100 (default: 100)
+      $handle->image_text_percent = 50;
+ 
+    // Aplicamos cor de fundo no texto, em hexadecimal (default: NULL)
+      $handle->image_text_background = '#FFFFFF';
+ 
+    // Definimos a  opacidade do background, valores entre  0 e 100 (default: 100)
+      $handle->image_text_background_percent = 50;
+ 
+    // Tamanho da fonte, valores de 1 a 5. default: 5
+      $handle->image_text_font = 4;
+ 
+    // Região da imagem para mostrar o texto em X (default: NULL)
+      $handle->image_text_x = 5;
+ 
+    // Região da imagem para mostrar o texto em Y (default: NULL)
+      $handle->image_text_y = 5;
+ 
+    // Região da imagem para mostrar o texto, a combinação de 1 ou 2 para 'TBLR': top, bottom, left, right (default: NULL)
+      $handle->image_text_position = 'LR';
+ 
+    // Definimos o espaçamento em X e Y (default: 0)
+      $handle->image_text_padding = 5;
+ 
+    // Definimos o espaçamento em X (default: NULL)
+      $handle->image_text_padding_x = 2;
+ 
+    // Definimos o espaçamento em Y (default: NULL)
+      $handle->image_text_padding_y = 10;
+ 
+    // Alinhamos o texto, 'L', 'C' ou 'R' (default: 'C')
+      $handle->image_text_alignment = 'R';
+ 
+    // Aplicando espaçamento entre as linhas (default: 0)
+      $handle->image_text_line_spacing = 3;
+ 
+    // Aplicamos Flip na imagem 'h' horizontal ou 'v' vertical (default: NULL)
+      $handle->image_flip = 'h';
+ 
+    // Rotacionando a imagem. Valores  90, 180 e 270 (default: NULL)
+      $handle->image_rotate = 90;
+ 
+    // Cortando a imagem em varios pontos. aceita 4, 2 ou 1. Valor  'T R B L' ou 'TB LR' ou 'TBLR'. Dimensão pode ser de 20, ou 20% ou 20px (default: NULL)
+      $handle->image_crop = array(50,40,30,20); // ou '-20 20%'...
+ 
+    // Difinimos a cor de fundo da imagem, em hexadecimal (default: null)
+      $handle->image_background_color = '#FF00FF';
+ 
+    // Aplica aqueles efeitos de borda com relevo. valor em pixel (default: NULL)
+      $handle->image_bevel = 20;
+ 
+    // Aplica aqueles efeitos de borda com relevo com a cor definida, em hexadecimal (default: #FFFFFF)
+	// A color1 devde que será aplicada no lado superior e esquedo
+      $handle->image_bevel_color1 = '#FFFFFF';
+ 
+    // Aplica aqueles efeitos de borda com relevo com a cor definida, em hexadecimal (default: #000000)
+	// A color2 devde que será aplicada no lado inferior e direito
+      $handle->image_bevel_color2 = '#000000';
+ 
+    // Aplicando borda na imagem. Aceita 4, 2 ou 1 valores são 'T R B L' ou 'TB LR' ou 'TBLR'.  Dimensão pode ser de 20, ou 20px ou 20% (default: NULL)
+      $handle->image_border = '3px'; // ou '-20 20%' ou array(3,2)...
+ 
+    // Definimos a cor da borda, em hexadecimal (default: #FFFFFF)
+      $handle->image_border_color = '#FFFFFF';
+ 
+    // Definimos um frame, é igual uma borda com relevo parecendo um quadro mesmo: 1=flat 2=crossed (default: NULL)
+      $handle->image_frame = 2;
+ 
+    // Definimos as cores de cada lado do frame, array ou espaço separado por string (default: '#FFFFFF #999999 #666666 #000000')
+      $handle->image_frame_colors = array('#999999',  '#FF0000', '#666666', '#333333', '#000000');
+ 
+    // Aplicamos uma marca d'agua, o arquivo png deve estar no servidor. Aceita arquivos GIF, JPG, PNG e PNG alpha (default: NULL)
+      $handle->image_watermark = 'watermark.png';
+ 
+    // Define a posição onde colocar a marca d'agua. Valor positivo= esquerda, negativo= direita (default: NULL)
+      $handle->image_watermark_x = 5;
+ 
+    // Define a posição onde colocar a marca d'agua. Valor positivo= superior, negativo= inferior (default: NULL)
+      $handle->image_watermark_y = 5;
+ 
+    // Define a posição onde colocar a marca d'agua, a combinação pode ser 1 ou 2 para 'TBLR': top, bottom, left, right (default: NULL)
+      $handle->image_watermark_position = 'LR';
+ 
+    // Definimos o reflexo com altura. Formato pode ser em pixels ou percentage,  40, '40', '40px' ou '40%' (default: NULL)
+      $handle->image_reflection_height = '25%';
+ 
+    // Define o espaçamento do reflexo a imagem, pode ser negativo (default: NULL)
+      $handle->image_reflection_space = 3;
+ 
+    // Definimos a cor de fundo do reflexo em hexadecimal (default: #FFFFFF)
+      $handle->image_reflection_color = '#000000';
+ 
+    // Definimos o nível de opacidade da cor aplicada no reflexo, valor inteiro de 0 a 100 (default: 60)
+      $handle->image_reflection_opacity = 60;
