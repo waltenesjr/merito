@@ -1,0 +1,623 @@
+
+body{
+    overflow-y: scroll;
+    overflow-x: scroll;
+    /*"DroidSansWeb", "Roboto-LightWeb",*/
+    background: #fff;
+    background-image: url('../imagens/fundologo.jpg');
+    background-size: cover;
+    /*background-repeat:   no-repeat;
+    background-position: center center; */ 
+}
+
+
+.dropdown .fa.arrow:before {
+    content: " >";
+}
+
+
+.dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
+.dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
+.dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+
+.container-login {
+	margin-top: 10%;
+}
+
+.form-signin {
+    margin: 0 auto;
+    max-width: 330px;
+    padding: 15px;
+}
+.form-signin .form-signin-heading, .form-signin .checkbox {
+    margin-bottom: 10px;
+}
+.form-signin .checkbox {
+    font-weight: normal;
+}
+.form-signin .form-control {
+    -moz-box-sizing: border-box;
+    font-size: 16px;
+    height: auto;
+    padding: 10px;
+    position: relative;
+}
+.form-signin .form-control:focus {
+    z-index: 2;
+}
+.form-signin input[type="email"] {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: -1px;
+}
+.form-signin input[type="password"] {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-bottom: 10px;
+}
+
+#wrapper{
+	width: 100%;
+}
+
+#page-wrapper {
+    padding: 0 15px;
+    min-height: 568px;
+    margin-top: 25px;
+    /*background-color: #fff;*/
+}
+
+@media(min-width:768px) {
+    #page-wrapper {
+        position: inherit;
+        /*margin: 0 0 0 250px;*/
+        padding: 0 30px;
+        border-left: 1px solid #e7e7e7;
+    }
+}
+
+#moduloCarregado{
+    width: 95%;
+    
+    padding: 5px;
+    font-weight: bold;
+    font-size: 20px;
+    color: #007FCC;
+    text-shadow: 0.05em 0.05em #ccc;
+}
+
+
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+    background: 0 0;
+}
+
+table.dataTable thead .sorting_asc:after {
+    content: "\f0de";
+    float: right;
+    font-family: fontawesome;
+}
+
+table.dataTable thead .sorting_desc:after {
+    content: "\f0dd";
+    float: right;
+    font-family: fontawesome;
+}
+
+table.dataTable thead .sorting:after {
+    content: "\f0dc";
+    float: right;
+    font-family: fontawesome;
+    color: rgba(50,50,50,.5);
+}
+
+.srvdesk-big-modal {
+	width:60% !important;
+}
+
+.srvdesk-med-modal {
+	width:50% !important;
+}
+
+.srvdesk-small-modal {
+	width:35% !important;
+}
+
+.form-control {
+	/*margin-top:10px !important;*/
+}
+
+.form-group {
+	margin-bottom: 15px;
+}
+
+label {
+	padding-top:7px !important;
+}
+
+.datepicker{z-index:1151 !important;}
+
+/*
+.modal:nth-of-type(even) {
+    z-index: 1042 !important;
+}
+.modal-backdrop.in:nth-of-type(even) {
+    z-index: 1041 !important;
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+/* Radio Box Tabela de Avaliação */
+/* Verde */
+div[class^='radioVerde'], div[class^='radioDiaVerde'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioVerde'] label, div[class^='radioDiaVerde'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioVerde'] label:after, div[class^='radioDiaVerde'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #00bf00;
+
+	background: -webkit-linear-gradient(top, #00bf00 0%, #009400 100%);
+	background: -moz-linear-gradient(top, #00bf00 0%, #009400 100%);
+	background: -o-linear-gradient(top, #00bf00 0%, #009400 100%);
+	background: -ms-linear-gradient(top, #00bf00 0%, #009400 100%);
+	background: linear-gradient(top, #00bf00 0%, #009400 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioVerde'] label:hover::after, div[class^='radioDiaVerde'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioVerde'] input[type=radio]:checked + label:after, div[class^='radioDiaVerde'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+
+
+
+/* Azul */
+div[class^='radioAzul'], div[class^='radioDiaAzul'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioAzul'] label, div[class^='radioDiaAzul'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioAzul'] label:after, div[class^='radioDiaAzul'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #0063C0;
+
+	background: -webkit-linear-gradient(top, #1584EC 0%, #467EAF 100%);
+	background: -moz-linear-gradient(top, #1584EC 0%, #467EAF 100%);
+	background: -o-linear-gradient(top, #1584EC 0%, #467EAF 100%);
+	background: -ms-linear-gradient(top, #1584EC 0%, #467EAF 100%);
+	background: linear-gradient(top, #1584EC 0%, #467EAF 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioAzul'] label:hover::after, div[class^='radioDiaAzul'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioAzul'] input[type=radio]:checked + label:after, div[class^='radioDiaAzul'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+
+
+/* Amarelo */
+div[class^='radioAmarelo'], div[class^='radioDiaAmarelo'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioAmarelo'] label, div[class^='radioDiaAmarelo'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioAmarelo'] label:after, div[class^='radioDiaAmarelo'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #00bf00;
+
+	background: -webkit-linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+	background: -moz-linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+	background: -o-linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+	background: -ms-linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+	background: linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioAmarelo'] label:hover::after, div[class^='radioDiaAmarelo'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioAmarelo'] input[type=radio]:checked + label:after, div[class^='radioDiaAmarelo'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+
+
+/* Laranja */
+div[class^='radioLaranja'], div[class^='radioDiaLaranja'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioLaranja'] label, div[class^='radioDiaLaranja'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioLaranja'] label:after, div[class^='radioDiaLaranja'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #00bf00;
+
+	background: -webkit-linear-gradient(top, #FF8C00 0%, #FF8C00 100%);
+	background: -moz-linear-gradient(top, #FF8C00 0%, #FF8C00 100%);
+	background: -o-linear-gradient(top, #FFCC99 0%, #FF8C00 100%);
+	background: -ms-linear-gradient(top, #FF8C00 0%, #FF8C00 100%);
+	background: linear-gradient(top, #FF8C00 0%, #FF8C00 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioLaranja'] label:hover::after, div[class^='radioDiaLaranja'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioLaranja'] input[type=radio]:checked + label:after, div[class^='radioDiaLaranja'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+
+
+
+/* Vermelho */
+div[class^='radioVermelho'], div[class^='radioDiaVermelho'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioVermelho'] label, div[class^='radioDiaVermelho'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioVermelho'] label:after, div[class^='radioDiaVermelho'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #00bf00;
+
+	background: -webkit-linear-gradient(top, #FF0033 0%, #D94040 100%);
+	background: -moz-linear-gradient(top, #FF0033 0%, #D94040 100%);
+	background: -o-linear-gradient(top, #FF0033 0%, #D94040 100%);
+	background: -ms-linear-gradient(top, #FF0033 0%, #D94040 100%);
+	background: linear-gradient(top, #FF0033 0%, #D94040 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioVermelho'] label:hover::after, div[class^='radioDiaVermelho'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioVermelho'] input[type=radio]:checked + label:after, div[class^='radioDiaVermelho'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+.mensal_azul {
+   background-color: #6600FF  !important;
+}
+.mensal_verde {
+   background-color: #00bf00;
+}
+ .mensal_amarelho {
+   background-color: #FFFF40  !important;
+}
+ .mensal_laranja {
+   background-color: #FFB240 !important;
+}
+ .mensal_vermelho {
+   background-color: #FF0033 !important;
+}

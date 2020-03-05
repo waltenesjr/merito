@@ -1,0 +1,69 @@
+/*Mensagens de Alerta*/
+.alerta-personalizado{
+    top: 10px;
+    right: 2%;
+    position: fixed;
+    z-index: 20000;
+    line-height: 15px;
+}
+.alerta-personalizado-alerta {
+  background-color: #fcf8e3;
+  border: 1px solid #fbeed5;
+  padding: 18px 35px 18px 24px;
+  margin-bottom: 10px;
+  color: #c09853;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  width: 200px;
+  opacity: 0;
+  box-shadow:  0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.alerta-personalizado-alerta strong{
+    font-weight: bold;
+}
+.alerta-personalizado-alerta p {
+  margin: 0;
+}
+.ap-alerta-atencao {
+  color: #C09853;
+  background-color: #FCF8E3;
+  border-color: #C09853;
+}
+.ap-alerta-erro {
+  color: #b94a48;
+  background-color: #f2dede;
+  border-color: #BE4A48;
+}
+.ap-alerta-informacao {
+  color: #3a87ad;
+  background-color: #d9edf7;
+  border-color: #3a87ad;
+}
+.ap-alerta-sucesso {
+  color: #468847;
+  background-color: #dff0d8;
+  border-color: #468847;
+}
+
+.alerta-personalizado-fechar{
+/*    border: 1px solid #dddddd;*/
+    border: none;
+    background: #cccccc;
+    position: absolute;
+    margin-left: 200px;
+    margin-top: -5px;
+    cursor: pointer;
+    background: transparent;
+/*    -webkit-border-radius: 1em;
+    -moz-border-radius: 1em;
+    border-radius: 1em;*/
+}
+
+/*.alerta-personalizado-fechar:hover{
+    background: #0000ff;
+    border-color: #0000ff;
+    color: #fff;
+    box-shadow:  0 1px 0 rgba(255, 255, 255, 0.5);
+}*/

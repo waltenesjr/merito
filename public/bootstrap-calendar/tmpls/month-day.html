@@ -1,0 +1,15 @@
+<div class="cal-month-day <%= cls %>" onclick="mostraAvaliacoesDia('<%= data_day %>', 'calendario')" >
+	<span class="pull-right" data-cal-date="<%= data_day %>" data-cal-view="day" data-toggle="tooltip" title="<%= tooltip %>"><%= day %></span>
+
+	<% if (events.length > 0) { %>
+		<% _.each(events, function(event) { %>
+			<div style="border-radius: 12px 12px 12px 12px; height: 50px;" class="<%= event.class %>">
+				
+			</div>
+		<% }); %>
+	<% } else { %>
+		<div style="border-radius: 12px 12px 12px 12px; height: 50px;" class="mensal_verde">
+		
+		</div>
+	<% } %>
+</div>
