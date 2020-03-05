@@ -1,0 +1,99 @@
+
+<?php
+if (!empty($this->dados['dados'])) {
+
+    $html = $this->doctype();
+    $html .= '
+        <html lang="pt-Br">
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                <title>Mérito</title>
+            </head>
+
+            <body> 
+				<div id="cabecalho">
+                    <table border="0" width="100%">
+                        <thead>                      
+                            <tr>
+                                <td style="width=100%">
+                                    <img src="/imagens/logo.png">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width=100%">
+                                    &nbsp;
+                                </td>
+                            </tr>
+                            
+                        </thead>
+                    </table>
+                    <table border="0" width="100%">
+                        <thead>                      
+                            <tr>
+                                <td style="text-align: center; font-size:11px; width=100%">
+                                    
+                                    <b>RELATÓRIO MANUAL FUNÇÕES </b> 
+                                </td>
+                            </tr>
+                            
+                        </thead>
+                    </table>
+
+                </div>
+                <table id="gridRelat" class="ui-widget-content ui-corner-all" style="width: 100%;">
+                    <thead>
+                        <tr class="ui-widget-header" height="50px"  style="padding: 10px 10px 10px 10px">
+                
+                    </thead>
+                    <tbody id="dadosGridRelat">';
+    
+                    $aux = 0;
+
+                    foreach ($this->dados['dados'] as $item) {
+
+                        if ($aux == 0){
+                            $cor = '#f7f8f8';
+                            $aux = 1;
+                        } else {
+                            $cor = '#ffffff';
+                            $aux = 0;
+                        }
+                        
+                        
+                        
+                        $html .='<tr style="background:'.$cor.'">
+                                    <td>'.$item['atribuicoes_nome'].'</td>
+                                    <td align="justify"> '.$item['atribuicoes_descricao'].'</td>
+                                 </tr>';
+
+                    };
+                    
+            
+           $html .='            
+                </table>
+				<table border="0" width="100%;">
+					<thead>
+						<tr>
+							<td colspan="3">&nbsp;</td>
+						</tr>
+						<tr>
+							<td colspan="3" style="border-top: solid 1px black;"></td>
+						</tr>
+						<tr>
+							<td style="width=33%; font-size:10px;">'.date("d/m/Y").'</td>
+							<td style="width=33%"></td>
+							<td style="width=33%; font-size:10px;text-align:right;">Sistema Mérito - www.srvdesk.com.br (62) 3933 - 3375
+</td>
+						</tr>
+						
+					</thead>
+				</table>
+           </body>
+        </html>';
+
+	echo ($html);
+} else {
+    echo '<script type="text/javascript" charset="utf-8">javascript:alert(\''.utf8_decode($this->dados['alerta']).'\');javascript:window.close();</script>';
+    exit(0);
+}
+?>

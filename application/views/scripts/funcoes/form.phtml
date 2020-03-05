@@ -1,0 +1,80 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo '<p class="msgPermissao alerta">'.$this->permissao["mensagem"].'</p>';
+}else{
+
+?>
+
+<script>
+    $(function(){
+		
+        $('#saveFuncoes').click(function (e){
+			e.preventDefault();
+			
+			var dadosForm = arrayToObject( $('#frmFuncoes').serializeArray() );
+			
+			$.ajax({
+                url: '/funcoes/salvar',
+                data: {dadosForm:dadosForm},
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                     $.map(source, function (val,i){
+                        if(i == 'sucesso'){
+                            tratarMsgRetorno(source);
+                            window.location.href = '/funcoes';
+						}
+						if(i == 'erro'){
+                            tratarMsgRetorno(source);
+                        }
+                     });
+                },
+                error: function(source){
+					console.log(source);
+                }
+            });
+        });
+    });
+
+</script>
+
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Funções</h5>
+    </div>
+</div>
+<div class="widget-list">
+  <div class="row">
+      <div class="col-md-12 widget-holder">
+          <div class="widget-bg">
+              <div class="widget-body clearfix">
+                  <h5 class="box-title mr-b-0">Informações</h5>
+                  <form id="frmFuncoes" name="frmFuncoes">
+                  		<input type="hidden" name="funcoes_id" id="funcoes_id" readonly="readonly" value="<?php echo (isset($this->dados["funcoes_id"]) && $this->dados["funcoes_id"] > 0)?$this->dados["funcoes_id"]:"0"?>"/>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="funcoes_descricao">Descrição</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="funcoes_descricao" name="funcoes_descricao" value="<?php echo (isset($this->dados["funcoes_descricao"]))?$this->dados["funcoes_descricao"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-actions">
+                          <div class="form-group row">
+                              <div class="col-md-9 ml-md-auto btn-list">
+                                  <button class="btn btn-primary btn-rounded" type="button" id="saveFuncoes">Salvar</button>
+                                  <button class="btn btn-outline-default btn-rounded" type="button" onclick="window.location.href = '/funcoes'">Cancelar</button>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+              <!-- /.widget-body -->
+          </div>
+          <!-- /.widget-bg -->
+      </div>
+  </div>
+</div>
+
+<?php
+}
+?>

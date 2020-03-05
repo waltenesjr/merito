@@ -1,0 +1,110 @@
+<script>
+var idRandom = <?php echo $idRandom?>;
+$(function(){
+    ///-- *************************
+    ///-- Grid de Dados
+    ///-- *************************
+    ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    atualizarGridProfissionaisHistorico(null);
+    $("#gridProfissionaisHistorico"+idRandom).kendoGrid({
+        dataSource: {
+          type: "odata",
+          transport: {
+              read: {	
+
+              }
+          },
+          pageSize: 5
+        },
+        rowTemplate: kendo.template($("#rowTemplateProfissionaisHistorico"+idRandom).html()),
+        pageable: {
+            refresh: true,
+            pageSizes: true
+        }
+    });
+
+    ///-- Tooltip 
+   $("#gridProfissionaisHistorico"+idRandom).kendoTooltip({
+        filter: "a",
+        position: "top"
+    }).data("kendoTooltip");
+    
+    $('button[id^="btnAdicionarProfissionaisHistorico"]').click(function (){
+        var id = $('input[id^="profissionais_historico_id"]').val();
+        var data = $('input[id^="profissionais_historico_data"]').val();
+        var descricao = $('input[id^="profissionais_historico_descricao"]').val();
+        var profissionais_id = $('input[id^="profissionais_id"]').val();
+        $.ajax({
+            url: "profissionais-historico/salvar",
+            data: {
+                    profissionais_historico_id: id, 
+                    profissionais_historico_data: data, 
+                    profissionais_historico_descricao: descricao,
+                    fk_profissionais_id: profissionais_id
+                  },
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                $.map(source, function (val,i){
+                   if(i == 'sucesso'){
+                       $('input[id^="profissionais_historico_data"]').val('');
+                       $('input[id^="profissionais_historico_descricao"]').val('');
+                       atualizarGridProfissionaisHistorico(null);
+                   } 
+                });
+                tratarMsgRetorno(source);
+            }
+        });
+    });
+    
+});
+
+function alterarRegistroProfissionaisHistoricoGrid(profissionais_historico_id){
+    $.ajax({
+        url: "profissionais-historico/get-historico-pelo-id",
+        data: { profissionais_historico_id: profissionais_historico_id },
+        dataType: "json",
+        type: "POST",
+        success: function(source){
+            if(typeof source.erro != "undefined" || typeof source.alerta != "undefined")
+                tratarMsgRetorno(source);
+            else{
+                var arr = source.dados[0].profissionais_historico_data.split('-');
+                $('input[id^="profissionais_historico_id"]').val(profissionais_historico_id);
+                $('input[id^="profissionais_historico_data"]').val(arr[2]+'/'+arr[1]+'/'+arr[0]);
+                $('input[id^="profissionais_historico_descricao"]').val(source.dados[0].profissionais_historico_descricao);
+                atualizarGridProfissionaisHistorico(null);
+            }
+        }
+    });
+}
+
+function excluirRegistroProfissionaisHistoricoGrid(profissionais_historico_id){
+    if(confirm("Deseja mesmo excluir este registro?")){
+        $.ajax({
+            url: "profissionais-historico/excluir",
+            data: { id: profissionais_historico_id },
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                tratarMsgRetorno(source);
+                atualizarGridProfissionaisHistorico(null);
+            }
+        });
+    }
+}
+
+function atualizarGridProfissionaisHistorico(dados){
+    $.ajax({
+        url: "profissionais-historico/pesquisar/fk_profissionais_id/"+$('input[id^="profissionais_id"]').val(),
+        data: dados,
+        dataType: "json",
+        type: "POST",
+        success: function(source){
+            $("#gridProfissionaisHistorico"+idRandom).data("kendoGrid").dataSource.data([]);
+            var viewModel = new kendo.observable(source);
+            $("#gridProfissionaisHistorico"+idRandom).data("kendoGrid").dataSource.data(viewModel.dados);
+        }
+    });
+}
+</script>

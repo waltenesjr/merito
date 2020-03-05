@@ -1,0 +1,800 @@
+<style type="text/css">
+/* Radio Box Tabela de Avaliação */
+/* Verde */
+div[class^='radioVerde'], div[class^='radioDiaVerde'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioVerde'] label, div[class^='radioDiaVerde'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioVerde'] label:after, div[class^='radioDiaVerde'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #00bf00;
+
+	background: -webkit-linear-gradient(top, #00bf00 0%, #009400 100%);
+	background: -moz-linear-gradient(top, #00bf00 0%, #009400 100%);
+	background: -o-linear-gradient(top, #00bf00 0%, #009400 100%);
+	background: -ms-linear-gradient(top, #00bf00 0%, #009400 100%);
+	background: linear-gradient(top, #00bf00 0%, #009400 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioVerde'] label:hover::after, div[class^='radioDiaVerde'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioVerde'] input[type=radio]:checked + label:after, div[class^='radioDiaVerde'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+
+
+
+/* Azul */
+div[class^='radioAzul'], div[class^='radioDiaAzul'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioAzul'] label, div[class^='radioDiaAzul'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioAzul'] label:after, div[class^='radioDiaAzul'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #0063C0;
+
+	background: -webkit-linear-gradient(top, #1584EC 0%, #467EAF 100%);
+	background: -moz-linear-gradient(top, #1584EC 0%, #467EAF 100%);
+	background: -o-linear-gradient(top, #1584EC 0%, #467EAF 100%);
+	background: -ms-linear-gradient(top, #1584EC 0%, #467EAF 100%);
+	background: linear-gradient(top, #1584EC 0%, #467EAF 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioAzul'] label:hover::after, div[class^='radioDiaAzul'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioAzul'] input[type=radio]:checked + label:after, div[class^='radioDiaAzul'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+
+
+/* Amarelo */
+div[class^='radioAmarelo'], div[class^='radioDiaAmarelo'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioAmarelo'] label, div[class^='radioDiaAmarelo'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioAmarelo'] label:after, div[class^='radioDiaAmarelo'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #00bf00;
+
+	background: -webkit-linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+	background: -moz-linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+	background: -o-linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+	background: -ms-linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+	background: linear-gradient(top, #FFFFCC 0%, #FFFF40 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioAmarelo'] label:hover::after, div[class^='radioDiaAmarelo'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioAmarelo'] input[type=radio]:checked + label:after, div[class^='radioDiaAmarelo'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+
+
+/* Laranja */
+div[class^='radioLaranja'], div[class^='radioDiaLaranja'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioLaranja'] label, div[class^='radioDiaLaranja'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioLaranja'] label:after, div[class^='radioDiaLaranja'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #00bf00;
+
+	background: -webkit-linear-gradient(top, #FF8C00 0%, #FF8C00 100%);
+	background: -moz-linear-gradient(top, #FF8C00 0%, #FF8C00 100%);
+	background: -o-linear-gradient(top, #FFCC99 0%, #FF8C00 100%);
+	background: -ms-linear-gradient(top, #FF8C00 0%, #FF8C00 100%);
+	background: linear-gradient(top, #FF8C00 0%, #FF8C00 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioLaranja'] label:hover::after, div[class^='radioDiaLaranja'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioLaranja'] input[type=radio]:checked + label:after, div[class^='radioDiaLaranja'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+
+
+
+/* Vermelho */
+div[class^='radioVermelho'], div[class^='radioDiaVermelho'] {
+	width: 18px;
+	height: 18px;
+	background: #fcfff4;
+
+	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+	margin: 10px auto;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+div[class^='radioVermelho'] label, div[class^='radioDiaVermelho'] label {
+	cursor: pointer;
+	position: absolute;
+	width: 14px;
+	height: 14px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	left: 2px;
+	top: 2px;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
+
+	background: -webkit-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -moz-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -o-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: -ms-linear-gradient(top, #bbb 0%, #ccc 100%);
+	background: linear-gradient(top, #bbb 0%, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bbb', endColorstr='#ccc',GradientType=0 );
+}
+
+div[class^='radioVermelho'] label:after, div[class^='radioDiaVermelho'] label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity=0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background: #00bf00;
+
+	background: -webkit-linear-gradient(top, #FF0033 0%, #D94040 100%);
+	background: -moz-linear-gradient(top, #FF0033 0%, #D94040 100%);
+	background: -o-linear-gradient(top, #FF0033 0%, #D94040 100%);
+	background: -ms-linear-gradient(top, #FF0033 0%, #D94040 100%);
+	background: linear-gradient(top, #FF0033 0%, #D94040 100%);
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	top: 1px;
+	left: 1px;
+
+	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+div[class^='radioVermelho'] label:hover::after, div[class^='radioDiaVermelho'] label:hover::after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+	filter: alpha(opacity=30);
+	opacity: 0.5;
+}
+
+div[class^='radioVermelho'] input[type=radio]:checked + label:after, div[class^='radioDiaVermelho'] input[type=radio]:checked + label:after {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: alpha(opacity=100);
+	opacity: 1;
+}
+
+.mensal_azul {
+   background-color: #6600FF  !important;
+}
+.mensal_verde {
+   background-color: #00bf00;
+}
+ .mensal_amarelho {
+   background-color: #FFFF40  !important;
+}
+ .mensal_laranja {
+   background-color: #FFB240 !important;
+}
+ .mensal_vermelho {
+   background-color: #FF0033 !important;
+}
+</style>
+
+<script>
+	var prof_id = "<?php echo ($this->permissao["profissionais_id"]); ?>";
+</script>
+
+
+<?php 
+
+if($this->permissao["profissionais_cargo"] == "funcionario"){	
+	unset ($this->permissao["fk_unidades_id"]);
+	unset ($this->permissao["profissionais_cargo"]);
+	unset ($this->permissao["profissionais_id"]);
+	
+    echo Zend_Json_Encoder::encode($this->permissao);
+
+}else{
+ 
+?>
+
+<?php echo $this->headLink()->appendStylesheet('http://'.$_SERVER["HTTP_HOST"].'/bootstrap-calendar/css/calendar.css'); ?>
+
+
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/bootstrap-calendar/components/underscore/underscore-min.js'); ?>
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/bootstrap-calendar/components/jstimezonedetect/jstz.min.js'); ?>
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/bootstrap-calendar/js/language/pt-BR.js'); ?>        
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/bootstrap-calendar/js/calendar.js'); ?>
+
+<?php 
+    require_once 'js.phtml';
+    
+    //$arr = explode(' ',new Zend_Date());
+    $arr = date("d/m/Y");
+    $arrDt = explode('/',$arr);
+
+?>
+
+<input type="hidden" id="cnpj_atual" value="<?php echo explode('_', $_SESSION["cliente_schema"])[1] ?>">
+
+<input type="hidden" name="tabela_avaliacoes_timestamp" id="tabela_avaliacoes_timestamp" value="<?php echo $arrDt[2].'-'.$arrDt[1].'-'.$arrDt[0];?>"/>
+
+<!-- Page Title Area -->
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Tabela de Avaliação</h5>
+    </div>
+</div>
+<!-- /.page-title -->
+<!-- =================================== -->
+<!-- Different data widgets ============ -->
+<!-- =================================== -->
+<div class="widget-list">
+    <div class="row">
+        <div class="col-md-12 widget-holder">
+            <div class="widget-bg">
+                <div class="widget-heading clearfix">
+                    <h5>Filtro</h5>
+                </div>
+                <!-- /.widget-heading -->
+                <div class="widget-body clearfix">
+                		<div class="row">
+											  <div class="col-lg-1 text-right">
+												   <label>Unidade</label>
+												</div>
+												<div class="col-lg-2">
+													<select class="form-control" name="fk_unidades_id" id="fk_unidades_id">
+														<option></option>
+														<?php
+															if(isset($this->unidades) && sizeof($this->unidades) > 0){
+																foreach($this->unidades as $item){
+																	if ( isset($this->onlyUnidade) ) {
+																		if ($item['unidades_id'] == $this->onlyUnidade) 
+																			echo '<option value="'.$item['unidades_id'].'">'.$item['unidades_nome'].'</option>';
+																	
+																	} else {
+																		echo '<option value="'.$item['unidades_id'].'">'.$item['unidades_nome'].'</option>';
+																	}
+																}
+															}
+														?>
+													</select>
+												</div>
+												<div class="col-lg-1 text-right">
+												   <label>Função</label>
+												</div>
+												<div class="col-lg-3">
+													<select class="form-control" name="fk_funcoes_id" id="fk_funcoes_id">
+													</select>
+												</div>
+												<div class="col-lg-1 text-right">
+												   <label>Profissional</label>
+												</div>
+												<div class="col-lg-3">
+													<select class="form-control" name="fk_profissionais_id" id="fk_profissionais_id">
+													</select>
+												</div>
+												<div class="col-lg-1" style="padding-top: 0px;">
+												   <a id="btnPesquisar" href="#" class="btn btn-primary btn-bitbucket"><i class="fa fa-filter"></i> Pesquisar</a>
+												</div>
+											<!-- /.col-lg-12 -->
+										</div><!-- /row-->
+										<div class="tabs" id="tabela-painel-avaliacoes" style="display: none; margin-top: 20px;">
+                      <ul class="nav nav-tabs">
+                          <li id="btnTarefasDiarias" class="nav-item active"><a class="nav-link" href="#diaria" data-toggle="tab" aria-expanded="true">Diária</a>
+                          </li>
+                          <li id="btnTarefasMensal" class="nav-item"><a class="nav-link" href="#mensal" data-toggle="tab" aria-expanded="true">Mensal</a>
+                          </li>
+                          <li id="btnTarefasTrimestral" class="nav-item"><a class="nav-link" href="#trimestral" data-toggle="tab" aria-expanded="true">Trimestral</a>
+                          </li>
+                          <li id="btnTarefasSimestral" class="nav-item"><a class="nav-link" href="#semestral" data-toggle="tab" aria-expanded="true">Semestral</a>
+                          </li>
+                      </ul>
+                      <!-- /.nav-tabs -->
+                      <div class="tab-content">
+                          <div class="tab-pane active" id="diaria">
+                          	<div class="row">
+                          	<div class="col-lg-9">
+
+
+															<div id="painel-diario">
+																<div style="width: auto; text-align: center; margin:0 auto 0 auto; padding-top: 20px; padding-bottom: 10px;">
+																	Atribuição <span id='data-tratamento-dados'></span> 
+																	
+																	<a id="btnRegistrosAtribuicoes"href="#" class="btn btn-primary btn-xs">
+																	
+																	<i class="fa fa-filter"></i> Registros de Atribuições</a>
+				                                                                                                        
+				                                                                                                        <a id="btnRegistroVerde" href="#" class="btn btn-success btn-xs">
+																	
+																	<i class="fa fa-thumbs-o-up"></i> Dever cumprido!</a>                                                                                                        
+																</div>
+				                                                                                            
+																<div style="border: 1px solid #ccc; height: 320px; padding: 3px; overflow: auto">
+																	
+																	
+																	<!-- 
+																	************************************************
+																	As atribuições são inseridas neste elemento DOM
+																	************************************************
+																	-->
+																	<table width="100%" id="lista-atruibuicoes"></table>
+																	
+																	
+																	
+																</div>
+																<div style="margin-top: 10px;">
+																	<table>
+																		<tr>
+																			<td>Atribuição diária:</td>
+																			<td id="up-nota"></td>
+																			<td id="up-descricao">Ainda não foi definido atribuições.</td>
+																		</tr>
+																	</table>
+																</div>
+															</div>
+
+
+														</div>
+														<div class="col-lg-3">
+
+															<table style="width: 100%; text-align: left">
+																<tr>
+																	<td rowspan="4" style="width: 40%; text-align: center"><img src="/imagens/sem_foto.png" width="130" id="imgProfissional"/></td>
+																	<td align="center">
+																		<input type="hidden" name="idProfissionalSelecionado" id="idProfissionalSelecionado" value="0"/>
+																		<h3 id="nomeProfissional"></h3>
+																	</td>
+																</tr>
+																<tr>
+																	<td></td>
+																</tr>
+																<tr>
+																	<td align="center" id="nomeUnidade"></td>
+																</tr>
+																<tr>
+																	<td align="center" id="nomeFuncao"></td>
+																</tr>
+																<tr>
+																	<td colspan="2"><hr/></td>
+																</tr>
+																<tr>
+																	<td colspan="2">
+																		<div style="padding-top:4px; float:left; width:240px;">Detalhes: <?php echo ($this->profissionais); ?></div>
+																	</td>
+																</tr>
+																<tr><td style="height: 140px"></td></tr>
+																<tr>
+																	<td colspan="2"><hr/></td>
+																</tr>
+																<tr>
+																	<td colspan="2" align="center"><span id='data-tratamento-dados-right'></span></td>
+																</tr>
+																<tr>
+																	<td colspan="2">
+																		<table style="width: 100%; text-align: left" id="tabela-ultimos-itens-avaliados"></table>
+																	</td>
+																</tr>
+															</table>
+
+														</div>
+														</div>
+                          </div>
+                          <div class="tab-pane" id="mensal">
+                          	<!-- 
+														************************************************
+																		PAINEL MENSAL
+														************************************************
+														-->
+														<div id="painel-mensal">
+															
+																<!-- 
+																************************************************
+																As atribuições são inseridas neste elemento DOM
+																************************************************
+																-->
+
+																<div style="width: 100%; text-align: center;" id="lista-atruibuicoes-mensal">
+																	<div style="width: 450px; height: 400px; margin:0 auto 0 auto;" >
+																		<div id="calendario"></div>
+																	</div>
+																</div>
+															
+														</div>
+                          </div>
+                          <div class="tab-pane" id="trimestral">
+                          	<div id="painel-trimestral">
+															<div style="text-align: center;" width="100%" id="lista-atruibuicoes-trimestral">
+																<div style="width: 450px; height: 500px; display: inline-block;" >
+																	<div id="calendario1"></div>
+																</div>
+																<div style="width: 450px; height: 500px; display: inline-block; margin-left: 25px; margin-right: 25px;" >
+																	<div id="calendario2"></div>
+																</div>
+																<div style=" width: 450px; height: 500px; display: inline-block;" >
+																	<div id="calendario3"></div>
+																</div>
+															</div>
+														</div>
+                          </div>
+                          <div class="tab-pane" id="semestral">
+                          	<div id="painel-simestral">
+											
+															<table style="width: 100%;">
+																<tr>
+																	<td style="text-align: left">
+																		<button class="k-button" id="btnBackCalendar">&lt;</button>
+																	</td>
+																	<td style="text-align: right">
+																		<button class="k-button" id="btnForwardCalendar">&gt;</button>
+																	</td>
+																</tr>
+															</table>											
+															
+															<div style="text-align: center;" width="100%" id="lista-atruibuicoes-trimestral">
+																<div>
+																	<div style="width: 450px; height: 450px; display: inline-block;" >
+																		<div id="calendario11"></div>
+																	</div>
+																	<div style="width: 450px; height: 450px; display: inline-block; margin-left: 25px; margin-right: 25px;" >
+																		<div id="calendario12"></div>
+																	</div>
+																	<div style="width: 450px; height: 450px; display: inline-block;" >
+																		<div id="calendario13"></div>
+																	</div>
+																</div>
+																<div>
+																	<div style="width: 450px; height: 450px; display: inline-block;" >
+																		<div id="calendario14"></div>
+																	</div>
+																	<div style="width: 450px; height: 450px; display: inline-block; margin-left: 25px; margin-right: 25px;" >
+																		<div id="calendario15"></div>
+																	</div>
+																	<div style="width: 450px; height: 450px; display: inline-block;" >
+																		<div id="calendario16"></div>
+																	</div>
+																</div>
+															</div>
+														</div>
+                          </div>
+                      </div>
+                    </div>
+                </div>
+                <!-- /.widget-body -->
+            </div>
+            <!-- /.widget-bg -->
+        </div>
+        <!-- /.widget-holder -->
+    </div>
+    <!-- /.row -->
+</div>
+
+
+
+	<a id="btDetalhes" data-toggle="modal" href="#" data-target="#modalDetalhes" style="display:none;"></a>
+
+
+
+	<a id="btJusti" data-toggle="modal" href="#" data-target="#modalJusti" style="display:none;"></a>
+
+	<div class="modal" id="modalJusti">
+	  <div class="modal-dialog srvdesk-med-modal">
+		<div class="modal-content">
+
+		</div>
+	  </div>
+	</div>
+
+	<a id="btnRegistrosAtribuicoesBT" data-toggle="modal" href="#" data-target="#modalRegistroAtri" style="display:none;"></a>
+
+	<div class="modal" id="modalRegistroAtri">
+	  <div class="modal-dialog srvdesk-med-modal">
+		<div class="modal-content">
+
+		</div>
+	  </div>
+	</div>
+
+	<a id="btnAtriDia" data-toggle="modal" href="#" data-target="#modalAtriDia" style="display:none;"></a>
+
+	<div class="modal" id="modalAtriDia">
+	  <div class="modal-dialog srvdesk-med-modal">
+		<div class="modal-content">
+
+		</div>
+	  </div>
+	</div>
+	
+	<div class="modal" id="modalDetalhes">
+	  <div class="modal-dialog srvdesk-small-modal">
+		<div class="modal-content">
+
+		</div>
+	  </div>
+	</div>
+
+<?php
+}
+?>

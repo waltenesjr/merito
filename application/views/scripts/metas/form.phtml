@@ -1,0 +1,30 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo '<p class="msgPermissao alerta">'.$this->permissao["mensagem"].'</p>';
+}else{
+   
+?>
+<div>
+    <form name="frmMetas" id="frmMetas">
+        <input type="hidden" name="metas_id" id="metas_id" readonly="readonly" value="<?php echo (isset($this->dados["metas_id"]) && $this->dados["metas_id"] > 0)?$this->dados["metas_id"]:"0"?>"/>
+        <fieldset class="fd-form"><legend>Dados Gerais:</legend>
+            <table style="width: 100%">
+                <tr>
+                    <td style="width: 10%">Nome:</td>
+                    <td>
+                        <input class="k-textbox" type="text" name="metas_nome" id="metas_nome" style="width: 100%" value="<?php echo (isset($this->dados["metas_nome"]))?$this->dados["metas_nome"]:""?>" maxlength="50"/>
+                        <input type="hidden" name="metas_status" id="metas_status" value="Ativo"/>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+        <div style="text-align: right">
+            <button class="k-button" id="btnSalvarMetas">Salvar</button>
+            <button class="k-button" id="btnCancelarMetas">Cancelar</button>
+        </div>
+    </form>
+</div>
+<?php
+}
+?>

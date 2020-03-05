@@ -1,0 +1,130 @@
+
+        <script type="text/javascript" charset="utf-8"> 
+
+		function imprimirProfAval (valores) {
+				var largura  = 1200;
+				var altura   = 850;
+				var esquerda = (screen.width - largura) / 2;
+				var topo     = (screen.height - altura) / 2;
+
+				window.open('relatorios/imprimir-prof-aval/'+valores, 'Relatório', 'scrollbars=yes,width='+largura+',height='+altura+',top='+topo+',left='+esquerda);					
+			}
+
+            $(function() {
+                $('form').submit(function () { return false; });
+				
+				$('#btnGerarProfAval').click(function(){
+					if ( $("#data_ini").val() != "" && $("#data_fim").val() != "" ) {
+						var data_ini = new Date ($("#data_ini").val());
+						var data_fim = new Date ($("#data_fim").val());
+					}					
+					if ($("#data_ini").val() == "") {
+						$().msgbox('alerta', 'Informe a data inicial.');
+					} else if ($("#data_fim").val() == "") {
+						$().msgbox('alerta', 'Informe a data final.');
+					} else if (data_ini.getTime() > data_fim.getTime()) {
+						$().msgbox('alerta', 'Data inicial maior que a data final.');
+					} else {
+						var valores = $('#relatorio_prof_aval').serialize();
+						
+						valores = valores.replace(/%2F/g,'-');
+                        valores = valores.replace(/&/g,'/');
+                        valores = valores.replace(/=/g,'/');
+						
+						imprimirProfAval (valores) ;
+					}
+					
+				});
+				
+				
+            });
+        </script>
+
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Relatórios - Avaliação Profissionais</h5>
+    </div>
+</div>
+<div class="widget-list">
+  <div class="row">
+      <div class="col-md-12 widget-holder">
+          <div class="widget-bg">
+          		<form role="form" name="relatorio_prof_aval" id="relatorio_prof_aval">
+
+									
+									<div class="form-group row">
+										<div class="col-md-2">
+											<label>Período:</label>
+										</div>
+										<div class="col-md-5">
+											<input class="form-control datepicker" data-date-format="dd/mm/yyyy" type="text"  name="data_ini" id="data_ini" /> 
+										</div>	
+										<div class="col-md-5">
+											<input class="form-control datepicker" data-date-format="dd/mm/yyyy" type="text"  name="data_fim" id="data_fim" /> 
+										</div>	
+									</div>			
+									<div class="form-group row">
+										<div class="col-md-2">
+											<label>Avaliaçoes:</label>
+										</div>
+										<div class="col-md-10">
+											<select name="nota" id="nota" class="form-control">
+												<option></option>
+												<?php
+													if(isset($this->aval) && sizeof($this->aval) > 0){
+														foreach($this->aval as $id => $item){
+															echo '<option value="'.$id.'">'.$item.'</option>';
+														}
+													}
+												?>
+											</select>
+										</div>	
+									</div>				
+									<div class="form-actions">
+                      <div class="form-group row">
+                          <div class="col-md-9 ml-md-auto btn-list">
+                              <button class="btn btn-primary btn-rounded" type="button" id="btnGerarProfAval">Gerar</button>
+                              <button class="btn btn-outline-default btn-rounded" type="button" onclick="window.location.href = '/relatorios'">Cancelar</button>
+                          </div>
+                      </div>
+                  </div>
+							</form>
+          <!-- /.widget-body -->
+          </div>
+          <!-- /.widget-bg -->
+      </div>
+  </div>
+</div>
+
+
+<script>
+
+$(function(){
+	$('#data_ini').datepicker({
+          dateFormat: 'dd/mm/yy',
+           dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+           dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S', 'D'],
+           dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+           monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+           monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+           nextText: 'Proximo',
+           prevText: 'Anterior'
+        });
+	$('#data_fim').datepicker({
+          dateFormat: 'dd/mm/yy',
+           dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+           dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S', 'D'],
+           dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+           monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+           monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+           nextText: 'Proximo',
+           prevText: 'Anterior'
+        });
+
+	$(".datepicker").on('changeDate', function(){
+		$(this).datepicker('hide');
+	});
+	
+});
+</script>
+

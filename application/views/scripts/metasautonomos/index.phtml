@@ -1,0 +1,65 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo Zend_Json_Encoder::encode($this->permissao);
+}else{
+    $idRandom = rand(0,999999);
+?>
+<?php require_once 'js.phtml'; ?>
+
+<div id="botoesModuloMetasautonomos<?php echo $idRandom?>"></div><br/>
+<!-- Grid de dados do módulo -->
+<table id="gridMetasautonomos<?php echo $idRandom?>">
+    <colgroup>
+        <col width="60"/>
+        <col width="50"/>
+        <col width="50"/>
+        <col width="50"/>
+        
+        <col width="50"/>
+        <col width="35"/>
+        <col width="35"/>
+        <col width="35"/>
+       
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Gestor</th>
+            <th>Data e Hora</th>
+            <th>Meta para</th>
+            <th>Descri&ccedil;&atilde;o</th>
+            
+            <th>Upload</th>
+            <th>Visualizar</th>
+            <th>Alterar</th>
+            <th>Excluir</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="4"></td>
+        </tr>
+    </tbody>
+</table>
+<script id="rowTemplateMetasautonomos<?php echo $idRandom?>" type="text/x-kendo-tmpl">
+        <tr>
+            <td>#: fk_usuario_id #</td>
+            <td>#: data_creacao #</td>
+            <td>#: data_para #</td>
+            <td>#: metasautonomos_nome #</td>
+            <td align="center">
+				# if (metasautonomos_file == "") { #
+					<input class="k-icon k-i-folder-add" type="button" name="SelecionarFileMeta[]" id="btnSelecionarFile_#= metasautonomos_id #_#= metasautonomos_nome#_#= fk_autonomos_id #" />
+				# } else { #
+					<a target="_blank" href="#= metasautonomos_file #">Descarregar</a>
+				# } #
+			
+			</td>
+            <td align="center"><a class="k-button" title="Visualizar" onclick="imprimirMeta('#: metasautonomos_id #')"><span class="k-icon k-i-search"></span></a></td>
+            <td align="center"><a class="k-button" title="Alterar" onclick="alterarRegistroGridMetasautonomos('#: metasautonomos_id #')"><span class="k-icon k-i-pencil"></span></a></td>
+            <td align="center"><a class="k-button" title="Excluir" onclick="excluirRegistroGridMetasautonomos('#: metasautonomos_id #')"><span class="k-icon k-i-close"></span></a></td>
+       </tr>
+</script>
+<?php
+}
+?>

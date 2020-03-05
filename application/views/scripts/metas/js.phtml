@@ -1,0 +1,178 @@
+<script>
+    var idRandom = <?php echo $idRandom?>;
+    //Esta variável controla quando vai ser selecionado o formulário para novo registro ou alterar registros
+    var idFormMetas = 0
+    
+    /**
+     *@method alterarRegistroGridMetas(id);
+     **/
+    function alterarRegistroGridMetas(idSelecionado){
+        idFormMetas = idSelecionado;
+        $("a[id='btnFormularioMetas']").click();
+        
+    }
+    
+    /**
+     *@method excluirRegistroGridMetas(id);
+     **/
+    function excluirRegistroGridMetas(idSelecionado){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            $.ajax({
+                url: "/metas/excluir",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           atualizarGridMetas(null);
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+
+                    /*var viewModel = new kendo.observable(source);
+                    $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);*/
+                }
+            });
+        }
+    }
+    function atualizarGridMetas(dados){
+        $.ajax({
+            url: "metas/pesquisar",
+            data: dados,
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                $("#gridMetas"+idRandom).data("kendoGrid").dataSource.data([ ]);
+                var viewModel = new kendo.observable(source);
+                $("#gridMetas"+idRandom).data("kendoGrid").dataSource.data(viewModel.dados);
+            }
+        });
+    }
+    
+    $(function(){
+        var winMetas = null;
+        
+        ///-- Carregando os botões padrões do módulo
+        
+        ///-- *************************
+        ///-- Botão Formulário
+        ///-- *************************
+        var btnFormulario = $('<a/>',{
+            addClass: 'k-button',
+            text: ' Novo',
+            id: 'btnFormularioMetas',
+            click: function (){
+                //var idRandom = (Math.floor((Math.random()*1000)+1)).toString()+ (Math.floor((Math.random()*1000)+1)).toString();
+                $('body').append('<div id="inputWindow'+idRandom+'"/>');
+                winMetas = $("#inputWindow"+idRandom)
+                .kendoWindow({
+                    content: 'metas/form/metas_id/'+idFormMetas,
+                    actions: ["Close"],
+                    width: 400,
+                    modal: true,
+                    title: "Formulário - Metas",
+                    visible: false,
+                    animation: {
+                        open: {
+                            effects: "slideIn:down fadeIn",
+                            duration: 500
+                        },
+                        close: {
+                            effects: "slide:up fadeOut",
+                            duration: 500
+                        }
+                    },
+                    activate: function(){
+                        $(this).html('');
+                        //Tratamentos diversos ao formulário
+                        $('form').submit(function () { return false; });
+                        
+                        //Define os botões de ações dentro da win
+                        /// Botão Salvar
+                        $("button[id^='btnSalvarMetas']").click(function (){
+                            //Carrega os dados do formulário
+                            var dadosForm = arrayToObject( $('form[id^="frmMetas"]').serializeArray() );
+                            console.log(dadosForm);
+                            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                            $.ajax({
+                                url: "metas/salvar",
+                                data: {dadosForm: dadosForm},
+                                dataType: "json",
+                                type: "POST",
+                                success: function(source){
+                                    $.map(source, function (val,i){
+                                       if(i == 'sucesso'){
+                                           winMetas.close();
+                                           atualizarGridMetas(null);
+                                       } 
+                                    });
+                                    tratarMsgRetorno(source);
+                                    
+                                    /*var viewModel = new kendo.observable(source);
+                                    $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);*/
+                                }
+                            });
+                            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                            
+                            
+                        }).prepend($('<span/> ',{addClass: 'k-icon k-i-tick'}));
+                        /// Botão Cancelar
+                        $("button[id^='btnCancelarMetas']").click(function (){
+                            winMetas.close();
+                            
+                            
+                            
+                        }).prepend($('<span/> ',{addClass: 'k-icon k-i-close'}));
+                    }
+                })
+                .data("kendoWindow")
+                .center();
+                
+                //Tratamento para o top
+                var wrapper = winMetas.wrapper;
+                wrapper.css({top: 25});
+                
+                winMetas.open();    
+                
+                idFormMetas = 0;
+                
+                
+            }
+        //Adicionado o icone
+        }).prepend($('<span/>',{addClass: 'k-icon k-i-plus'}));
+        
+        $("div[id^='botoesModuloMetas']").html('');
+        //Limpa e Adiciona os botões no local indicado
+        $("#botoesModuloMetas"+idRandom).html(btnFormulario);
+        
+        
+        
+        ///-- *************************
+        ///-- Grid de Dados
+        ///-- *************************
+        ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        atualizarGridMetas();
+        $("#gridMetas"+idRandom).kendoGrid({
+            dataSource: {
+              type: "odata",
+              transport: {
+                  read: {
+                      
+                  }
+              },
+              pageSize: 5
+            },
+            rowTemplate: kendo.template($("#rowTemplateMetas"+idRandom).html()),
+            pageable: true
+        });
+        
+        ///-- Tooltip 
+       $("#gridMetas"+idRandom).kendoTooltip({
+            filter: "a",
+            position: "top"
+        }).data("kendoTooltip");
+    });
+</script>

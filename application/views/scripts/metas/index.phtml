@@ -1,0 +1,43 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo Zend_Json_Encoder::encode($this->permissao);
+}else{
+    $idRandom = rand(0,999999);
+?>
+<?php require_once 'js.phtml'; ?>
+
+<div id="botoesModuloMetas<?php echo $idRandom?>"></div><br/>
+<!-- Grid de dados do módulo -->
+<table id="gridMetas<?php echo $idRandom?>">
+    <colgroup>
+        <col width="60px"/>
+        <col width="40%"/>
+        <col width="50px"/>
+        <col width="50px"/>
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Alterar</th>
+            <th>Excluir</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="4"></td>
+        </tr>
+    </tbody>
+</table>
+<script id="rowTemplateMetas<?php echo $idRandom?>" type="text/x-kendo-tmpl">
+        <tr>
+            <td>#: metas_id #</td>
+            <td>#: metas_nome #</td>
+            <td align="center"><a class="k-button" title="Alterar" onclick="alterarRegistroGridMetas('#: metas_id #')"><span class="k-icon k-i-pencil"></span></a></td>
+            <td align="center"><a class="k-button" title="Excluir" onclick="excluirRegistroGridMetas('#: metas_id #')"><span class="k-icon k-i-close"></span></a></td>
+       </tr>
+</script>
+<?php
+}
+?>

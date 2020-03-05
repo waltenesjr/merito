@@ -1,0 +1,43 @@
+<script>
+    $(function(){
+        $('#usuario').mask("999.999.999-99");
+        //$('#senha').keypress(function (e){
+            //if(e.keyCode == 13){
+             //   $('#btnLogin').click();
+            //}
+        //});
+        $('#btnLogin').click(function (e){
+			
+			e.preventDefault();
+			
+            var form = _getFieldsContainer('form');
+            
+            
+            
+            $.ajax({
+                url: '/login/auth',
+                data: {dados:form},
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                     $.map(source, function (val,i){
+                        if(i == 'status_login' && val == 'liberado')
+                            window.location.href = './';
+                        if(i == 'erro'){
+                            tratarMsgRetorno(source);
+                        } 
+                     });
+                },
+                error: function(source){
+                    console.log(source);
+                }
+            });
+        });
+        
+        $('#identificador').focus();
+
+        <?php if(isset($_GET['solicitado'])): ?>
+        $().msgbox('sucesso', 'Acesso solicitado com sucesso!');
+        <?php endif; ?>
+    });
+</script>

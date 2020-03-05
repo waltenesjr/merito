@@ -1,0 +1,313 @@
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/jquery.maskedinput.min.js'); ?>
+<script>
+
+	$(document).ready(function() {
+
+		
+		 $("#saveProfissinal").click(function (){			
+		 	var $this = $(this);
+
+		 	$this.html('Processando...').attr('disabled', true);		
+			
+			//Carrega os dados do formulário
+			var dadosForm = arrayToObject( $('#frmUsuarios').serializeArray() );
+
+			///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			$.ajax({
+				url: "/admin_clientes/salvar",
+				data: {dadosForm: dadosForm},
+				dataType: "json",
+				type: "POST",
+				success: function(source){
+					$this.html('Salvar').attr('disabled', false);		
+					$.map(source, function (val,i){
+					   if(i == 'sucesso'){
+						   window.location.href = '/admin_clientes';
+					   } 
+					});
+					tratarMsgRetorno(source);
+				},
+				error: function(){
+					$this.html('Salvar').attr('disabled', false);	
+					$().msgbox("erro", "Desculpe! Não foi possível realizar a operação solicitada.");
+				}
+			});
+			///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			
+			
+		});
+
+		$("input[id^='clientes_telefone']").mask("(99) 9999-9999");
+
+		$("input[id^='clientes_cep']").mask("99999-999");
+
+		$("input[id^='clientes_cnpj']").mask("99.999.999/9999-99");
+
+		$('#clientes_cep').keyup(function() {
+			
+			press = this.value;
+			press = press.replace(/_/g,'');
+			
+			if (press.length == 9) {
+				$.ajax({
+					url:'/cep/busca',
+					data: { cep : press },
+					dataType:'html',
+					type:'POST',
+					beforeSend:function(){
+						
+						//mostrarCarregando();
+						
+						$('#clientes_logradouro').val('Aguarde...');
+						$('#clientes_bairro').val('Aguarde...');
+						// $('#fk_municipios_codigo_ibge').val('Aguarde...');
+						
+					},
+					success: function(data, textStatus){
+						
+						var obj = $.parseJSON(data);
+						console.log(obj);
+						
+						if(obj.ok) {
+							$('#clientes_logradouro').val(obj.dados.tipo+' '+obj.dados.logradouro);
+							$('#clientes_bairro').val(obj.dados.bairro);
+							$('#clientes_uf').val(obj.dados.uf).trigger('change');
+							setTimeout(function(){
+								$('#municipios_codigo_ibge option').each(function(){
+									if($(this).html().normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase() == obj.dados.cidade.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()){
+										$(this).prop('selected', true);
+										$('#fk_municipios_codigo_ibge').val($(this).val());
+									}
+								});
+							}, 500);
+							
+							$('#profissionais_uf').val(obj.dados.uf);
+							
+						} else if (obj.alerta) {
+							
+							//notificacao(obj.alerta,'alerta');
+							
+							$().msgbox("erro", obj.alerta);
+							
+							// $('#clientes_logradouro').val('');
+							// $('#clientes_bairro').val('');
+							// $('#fk_municipios_codigo_ibge').val('');
+							
+						} else if (obj.erro) {
+							notificacao(obj.erro,'erro');
+						}
+					},
+					error: function(xhr, er){
+						//notificacao('Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.','erro');
+						$().msgbox("erro", 'Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.');
+					},
+					complete: function() {
+						//sumirCarregando();
+					}
+				});
+			}
+		});
+
+		$('#clientes_uf').change(function() {
+			
+			$.ajax({
+				url:'/municipios/getMunicipios',
+				data: { uf : this.value },
+				dataType:'html',
+				type:'POST',
+				beforeSend:function(){
+				},
+				success: function(data, textStatus){
+
+					var obj = $.parseJSON(data);
+					
+					if(obj.dados) {
+						$('#municipios_codigo_ibge option:not([value=""])').remove();
+						obj.dados.forEach(function(cidade){
+							$('#municipios_codigo_ibge').append($('<option/>').html(cidade.municipios_descricao).val(cidade.municipios_codigo_ibge));
+						});
+						
+					} else if (obj.alerta) {
+						
+						$().msgbox("erro", obj.alerta);
+						
+					} else if (obj.erro) {
+						notificacao(obj.erro,'erro');
+					}
+				},
+				error: function(xhr, er){
+					//notificacao('Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.','erro');
+					$().msgbox("erro", 'Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.');
+				},
+				complete: function() {
+					//sumirCarregando();
+				}
+			});
+
+		});
+
+		$('#municipios_codigo_ibge').change(function() { 
+			$('#fk_municipios_codigo_ibge').val(this.value);
+		});
+
+		function nomalizeStr(str){
+			return str.toLowerCase().replace(/ /g, '').replace(/[^\w\s]/gi, '').normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+		}
+
+		$('#clientes_empresa').change(function(){
+			$('#clientes_identificador').val(nomalizeStr(this.value));
+		});
+		$('#clientes_identificador').change(function(){
+			$(this).val(nomalizeStr(this.value));
+		});
+
+
+	});
+<?php
+	//$this->dados["clientes_id"] = 1 ;
+?>
+
+</script>
+
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Clientes</h5>
+    </div>
+</div>
+<div class="widget-list">
+  <div class="row">
+      <div class="col-md-12 widget-holder">
+          <div class="widget-bg">
+              <div class="widget-body clearfix">
+                  <h5 class="box-title mr-b-0">Informações do Representante</h5>
+                  <form id="frmUsuarios" name="frmUsuarios">
+                  		<input type="hidden" name="clientes_id" id="clientes_id" readonly="readonly" value="<?php echo (isset($this->dados["clientes_id"]) && $this->dados["clientes_id"] > 0)?$this->dados["clientes_id"]:"0"?>"/>
+
+                  		<div class="form-group row">
+												<label for="clientes_nome" class="control-label col-sm-2">Nome:</label>
+												<div class="col-md-10">
+													<input class="form-control" maxlength="100" name="clientes_nome" id="clientes_nome" value="<?php echo (isset($this->dados["clientes_nome"]))?$this->dados["clientes_nome"]:""?>"/>
+												</div>
+											</div>
+											<div class="form-group row">
+												<label for="clientes_email" class="control-label col-sm-2">Email:</label>
+												<div class="col-md-10">
+													<input class="form-control" maxlength="100" name="clientes_email" id="clientes_email" value="<?php echo (isset($this->dados["clientes_email"]))?$this->dados["clientes_email"]:""?>"/>
+												</div>
+											</div>
+											<div class="form-group row">
+												<label for="clientes_telefone" class="control-label col-sm-2">Telefone:</label>
+												<div class="col-md-10">
+													<input class="form-control" maxlength="100" name="clientes_telefone" id="clientes_telefone" value="<?php echo (isset($this->dados["clientes_telefone"]))?$this->dados["clientes_telefone"]:""?>"/>
+												</div>
+											</div>
+											<h5 class="box-title mr-b-0">Empresa</h5>
+											<div class="form-group row">
+												<label for="clientes_empresa" class="control-label col-sm-2">Nome:</label>
+												<div class="col-md-10">
+													<input class="form-control" maxlength="100" name="clientes_empresa" id="clientes_empresa" value="<?php echo (isset($this->dados["clientes_empresa"]))?$this->dados["clientes_empresa"]:""?>"/>
+												</div>
+											</div>
+											<div class="form-group row">
+												<label for="clientes_cnpj" class="control-label col-sm-2">CNPJ:</label>
+												<div class="col-md-10">
+													<input class="form-control" maxlength="100" name="clientes_cnpj" id="clientes_cnpj" value="<?php echo (isset($this->dados["clientes_cnpj"]))?$this->dados["clientes_cnpj"]:""?>" <?php if($this->dados['clientes_id'] != 0) echo 'disabled' ?>/>
+												</div>
+											</div>
+											<div class="form-group row">
+													<label for="clientes_identificador" class="control-label col-sm-2">Identificador:</label>
+												<div class="col-md-10">
+													<input class="form-control" name="clientes_identificador" maxlength="14" id="clientes_identificador" value="<?php echo (isset($this->dados["clientes_identificador"]))?$this->dados["clientes_identificador"]:""?>"/>
+													<small>* este identificador será utilizado na url para acesso ao sistema</small>
+												</div>
+											</div>
+											<h5 class="box-title mr-b-0">Endereço</h5>
+											<div class="form-group row">
+												<label for="clientes_cep" class="control-label col-sm-2">CEP:</label>
+												<div class="col-md-10">
+													<input class="form-control" maxlength="100" name="clientes_cep" id="clientes_cep" value="<?php echo (isset($this->dados["clientes_cep"]))?$this->dados["clientes_cep"]:""?>"/>
+												</div>
+											</div>
+											<div class="form-group row">
+												<label for="clientes_bairro" class="control-label col-sm-2">Bairro:</label>
+												<div class="col-md-10">
+													<input class="form-control" maxlength="100" name="clientes_bairro" id="clientes_bairro" value="<?php echo (isset($this->dados["clientes_bairro"]))?$this->dados["clientes_bairro"]:""?>"/>
+												</div>
+											</div>
+											<div class="form-group row">
+												<label for="clientes_logradouro" class="control-label col-sm-2">Logradouro:</label>
+												<div class="col-md-10">
+													<input class="form-control" maxlength="100" name="clientes_logradouro" id="clientes_logradouro" value="<?php echo (isset($this->dados["clientes_logradouro"]))?$this->dados["clientes_logradouro"]:""?>"/>
+												</div>
+											</div>
+											<div class="form-group row">
+												<label for="clientes_complemento" class="control-label col-sm-2">Complemento:</label>
+												<div class="col-md-10">
+													<input class="form-control" maxlength="100" name="clientes_complemento" id="clientes_complemento" value="<?php echo (isset($this->dados["clientes_complemento"]))?$this->dados["clientes_complemento"]:""?>"/>
+												</div>
+											</div>
+											<div class="form-group row">
+                          <label for="clientes_uf" class="control-label col-sm-2">UF:</label>
+                          <div class="col-md-10">
+                              <select class="form-control" name="clientes_uf" id="clientes_uf">
+                                  <option option="">Selecione a UF</option>
+                                  <?php
+                                      if(isset($this->municipios_uf)){
+                                          foreach($this->municipios_uf as $uf){
+                                              $selected = ($uf['municipios_uf'] == $this->uf)?"selected='selected'":"";
+                                              echo "<option value='".$uf['municipios_uf']."' ".$selected.">".$uf['municipios_uf']."</option>";
+                                          }
+                                      }
+                                  ?>
+                              </select>
+                          </div>  
+                      </div>
+                      <div class="form-group row">
+                          <label for="fk_municipios_codigo_ibge" class="control-label col-sm-2">Cidade:</label>
+                          <div class="col-md-10">
+                              <input type="hidden" name="fk_municipios_codigo_ibge" id="fk_municipios_codigo_ibge" value="<?php echo $this->codigoIbge?>" />
+                              <select class="form-control" name="municipios_codigo_ibge" id="municipios_codigo_ibge">
+                                  <option value="">Selecione a Cidade</option>
+                                  <?php
+                                      if(isset($this->municipios_codigo_ibge)){
+                                          foreach($this->municipios_codigo_ibge as $codigoIbge){
+                                              $selected = ($codigoIbge['municipios_codigo_ibge'] == $this->codigoIbge)?"selected='selected'":"";
+                                              echo "<option value='".$codigoIbge['municipios_codigo_ibge']."' ".$selected.">".$codigoIbge['municipios_descricao']."</option>";
+                                          }
+                                      }
+                                  ?>
+                              </select>
+                          </div>
+                      </div>
+											<div class="form-group row">
+												<label class="control-label col-sm-2">Status:</label>
+												<div class="col-md-10">
+													<select class="form-control" name="clientes_status" id="clientes_status">
+														<option value="Ativo" <?php echo (isset($this->dados["clientes_status"]) && $this->dados["clientes_status"] == 'Ativo')?"selected='selected'":""?>>Ativo</option>
+														<option value="Bloqueado" <?php echo (isset($this->dados["clientes_status"]) && $this->dados["clientes_status"] == 'Bloqueado')?"selected='selected'":""?>>Bloqueado</option>
+													</select>
+												</div>
+											</div>
+                      
+                      <div class="form-actions">
+                          <div class="form-group row">
+                              <div class="col-md-9 ml-md-auto btn-list">
+                                  <button class="btn btn-primary btn-rounded" type="button" id="saveProfissinal">Salvar</button>
+                                  <button class="btn btn-outline-default btn-rounded" type="button" onclick="window.location.href = '/admin_clientes'">Cancelar</button>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+              <!-- /.widget-body -->
+          </div>
+          <!-- /.widget-bg -->
+      </div>
+  </div>
+</div>
+
+<script>
+
+$(function(){
+});
+</script>

@@ -1,0 +1,43 @@
+
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title">Detalhes de Atribui&ccedil;&tilde;o</h4>
+          </div>
+          <div class="modal-body">
+			<form role="form" id="frmAtribuicoes" name="frmAtribuicoes">
+
+				<input type="hidden" name="atribuicoes_id" id="atribuicoes_id" readonly="readonly" value="<?php echo (isset($this->dados["atribuicoes_id"]) && $this->dados["atribuicoes_id"] > 0)?$this->dados["atribuicoes_id"]:"0"?>"/>
+
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						Dados Gerais:
+					</div>
+					<div class="panel-body">
+						
+						<div class="form-group">
+							<div class="col-md-2">
+								<label>Nome:</label>
+							</div>
+							<div class="col-md-10">
+		                        <input class="form-control" name="atribuicoes_nome" id="atribuicoes_nome" value="<?php echo (isset($this->dados["atribuicoes_nome"]))?$this->dados["atribuicoes_nome"]:""?>"/>
+							</div>	
+						</div>
+						
+						<div class="form-group">
+							<div class="col-md-2">
+								<label>Descrição:</label>
+							</div>
+							<div class="col-md-10">
+		                        <textarea class="form-control"name="atribuicoes_descricao" rows="10" id="atribuicoes_descricao"><?php echo (isset($this->dados["atribuicoes_descricao"]))?$this->dados["atribuicoes_descricao"]:""?></textarea>
+							</div>	
+						</div>
+						
+					</div>
+				</div>
+			</form>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-default">Cancelar</button>
+          </div>
+

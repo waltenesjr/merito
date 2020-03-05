@@ -1,0 +1,94 @@
+<script>
+    var profissionais_tipo = '<?php echo $this->profissionais_tipo;?>';
+    
+    var tpTable;
+    
+    //Esta variável controla quando vai ser selecionado o formulário para novo registro ou alterar registros
+    var idForm = 0;
+<?php
+
+	$arr = explode(' ',new Zend_Date());
+    $arrDt = explode('/',$arr[0]);
+
+?>
+
+    $(document).ready(function() {
+		
+		
+		
+        tpTable = $('#dataTables-profissionais').dataTable( 
+
+			{
+				"bPaginate": true,
+				"iDisplayLength" : 10,
+				"sPaginationType": "full_numbers",
+				"oLanguage": {
+					"sLengthMenu":   "Mostrar &nbsp;_MENU_ &nbsp;registros",
+					"sZeroRecords":  "N&atilde;o foram encontrados resultados",
+					"sInfo": "Mostrando registros de _START_ a _END_ de um total de _TOTAL_ registros",
+					"sInfoEmpty": "Nenhum registro para exibir",
+					"sSearch" : "Pesquisar: &nbsp;",
+					"sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+					"oPaginate": {
+					"sFirst":    null,
+					"sPrevious": "Anterior",
+					"sNext":     "Seguinte",
+					"sLast":     null
+					}
+
+				}
+			}
+
+		);
+    
+		$('#btFunc').click(function (){
+			window.location.href = '/profissionais/index/profissionais_cargo/funcionario';
+		});
+		$('#btAdm').click(function (){
+			window.location.href = '/profissionais/index/profissionais_cargo/administrador';
+		});
+		$('#btGer').click(function (){
+			window.location.href = '/profissionais/index/profissionais_cargo/gerente';
+		});
+		
+		$('#btSup').click(function (){
+			window.location.href = '/profissionais/index/profissionais_cargo/supervisor';
+		});
+		$('#btIna').click(function (){
+			window.location.href = '/profissionais/index/profissionais_status/Bloqueado';
+		});
+		
+		$(document).on("hidden.bs.modal", function (e) {
+			$(e.target).removeData("bs.modal").find(".modal-content").empty();
+		});
+
+    });
+
+    function excluirRegistroGrid(idSelecionado){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            $.ajax({
+                url: "/profissionais/excluir",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+						   window.location.href = '/profissionais';
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+
+                }
+            });
+        }
+    }
+
+    function mostarAvaliacao_2(idSelecionado, idFuncao){
+		window.location.href = '/tabela-avaliacao/index/fk_profissionais_id/' + idSelecionado + '/';
+    }
+
+
+</script>

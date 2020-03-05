@@ -1,0 +1,236 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo '<p class="msgPermissao alerta">'.$this->permissao["mensagem"].'</p>';
+}else{
+   
+?>
+
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/jquery.maskedinput.min.js'); ?>
+<script>
+    $(function(){
+
+		$("input[id^='unidades_fixo'], input[id^='unidades_cel']").mask("(99) 9999-9999");
+		
+        $('#saveUnidade').click(function (e){
+			e.preventDefault();
+			
+			var dadosForm = arrayToObject( $('#frmUnidades').serializeArray() );
+			
+			
+			$.ajax({
+                url: '/unidades/salvar',
+                data: {dados:dadosForm},
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                     $.map(source, function (val,i){
+						 
+                        if(i == 'sucesso')
+                            window.location.href = './unidades';
+						if(i == 'erro'){
+                            tratarMsgRetorno(source);
+                        }
+                     });
+                },
+                error: function(source){
+					console.log(source);
+                }
+            });
+			
+        });
+
+		$("input[id^='unidades_cep']").mask("99999-999");
+
+		$('#unidades_cep').keyup(function() {
+			
+			press = this.value;
+			press = press.replace(/_/g,'');
+			
+			if (press.length == 9) {
+				$.ajax({
+					url:'/cep/busca',
+					data: { cep : press },
+					dataType:'html',
+					type:'POST',
+					beforeSend:function(){
+						
+						//mostrarCarregando();
+						
+						$('#unidades_logradouro').val('Aguarde...');
+						$('#unidades_bairro').val('Aguarde...');
+						$('#fk_municipios_codigo_ibge').val('Aguarde...');
+						$('#unidades_uf').val('Aguarde...');
+						
+					},
+					success: function(data, textStatus){
+						
+						var obj = $.parseJSON(data);
+						
+						if(obj.ok) {
+							$('#unidades_logradouro').val(obj.dados.tipo+' '+obj.dados.logradouro);
+							$('#unidades_bairro').val(obj.dados.bairro);
+							$('#fk_municipios_codigo_ibge').val(obj.dados.cidade);
+							
+							$('#profissionais_uf').val(obj.dados.uf);
+							
+						} else if (obj.alerta) {
+							
+							//notificacao(obj.alerta,'alerta');
+							
+							$().msgbox("erro", obj.alerta);
+							
+							$('#unidades_logradouro').val('');
+							$('#unidades_bairro').val('');
+							$('#fk_municipios_codigo_ibge').val('');
+							$('#unidades_uf').val('');
+							
+						} else if (obj.erro) {
+							notificacao(obj.erro,'erro');
+						}
+					},
+					error: function(xhr, er){
+						//notificacao('Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.','erro');
+						$().msgbox("erro", 'Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.');
+					},
+					complete: function() {
+						//sumirCarregando();
+					}
+				});
+			}
+		});
+
+    });
+</script>
+
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Unidades</h5>
+    </div>
+</div>
+<div class="widget-list">
+  <div class="row">
+      <div class="col-md-12 widget-holder">
+          <div class="widget-bg">
+              <div class="widget-body clearfix">
+                  <h5 class="box-title mr-b-0">Informações</h5>
+                  <form id="frmUnidades" name="frmUnidades">
+                  		<input type="hidden" name="unidades_id" id="unidades_id" readonly="readonly" value="<?php echo (isset($this->dados["unidades_id"]) && $this->dados["unidades_id"] > 0)?$this->dados["unidades_id"]:"0"?>"/>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_nome">Nome</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="unidades_nome" name="unidades_nome" value="<?php echo (isset($this->dados["unidades_nome"]))?$this->dados["unidades_nome"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_status">Status</label>
+                          <div class="col-md-9">
+                              <select class="form-control" id="unidades_status" name="unidades_status">
+                                  <option value="Ativo" <?php echo (isset($this->dados["unidades_status"]) && $this->dados["unidades_status"] == 'Ativo')?"selected='selected'":""?>>Ativo</option>
+																	<option value="Bloqueado" <?php echo (isset($this->dados["unidades_status"]) && $this->dados["unidades_status"] == 'Bloqueado')?"selected='selected'":""?>>Bloqueado</option>
+                              </select>
+                          </div>
+                      </div>
+                      <h5 class="box-title mr-b-0">Tefones</h5>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_fixo_1">Fixo 1</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="unidades_fixo_1" name="unidades_fixo_1" value="<?php echo (isset($this->dados["unidades_fixo_1"]))?$this->dados["unidades_fixo_1"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_fixo_2">Fixo 2</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="unidades_fixo_2" name="unidades_fixo_2" value="<?php echo (isset($this->dados["unidades_fixo_2"]))?$this->dados["unidades_fixo_2"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_cel_1">Cel. 1</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="unidades_cel_1" name="unidades_cel_1" value="<?php echo (isset($this->dados["unidades_cel_1"]))?$this->dados["unidades_cel_1"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_cel_2">Cel. 2</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="unidades_cel_2" name="unidades_cel_2" value="<?php echo (isset($this->dados["unidades_cel_2"]))?$this->dados["unidades_cel_2"]:""?>">
+                          </div>
+                      </div>
+                      <h5 class="box-title mr-b-0">Endereço</h5>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_cep">CEP</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="unidades_cep" name="unidades_cep" value="<?php echo (isset($this->dados["unidades_cep"]))?$this->dados["unidades_cep"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_logradouro">Logradouro</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="unidades_logradouro" name="unidades_logradouro" value="<?php echo (isset($this->dados["unidades_logradouro"]))?$this->dados["unidades_logradouro"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_bairro">Bairro</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="unidades_bairro" name="unidades_bairro" value="<?php echo (isset($this->dados["unidades_bairro"]))?$this->dados["unidades_bairro"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="unidades_complemento">Complemento</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="unidades_complemento" name="unidades_complemento" value="<?php echo (isset($this->dados["unidades_complemento"]))?$this->dados["unidades_complemento"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="municipios_uf">UF</label>
+                          <div class="col-md-9">
+                              <select class="form-control" id="municipios_uf" name="municipios_uf">
+                                  <option option="">Selecione a UF</option>
+																	<?php
+																		if(isset($this->municipios_uf)){
+																			foreach($this->municipios_uf as $uf){
+																				$selected = ($uf['municipios_uf'] == $this->uf)?"selected='selected'":"";
+																				echo "<option value='".$uf['municipios_uf']."' ".$selected.">".$uf['municipios_uf']."</option>";
+																			}
+																		}
+																	?>
+                              </select>
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="municipios_codigo_ibge">Cidade</label>
+                          <div class="col-md-9">
+                          		<input type="hidden" name="fk_municipios_codigo_ibge" id="fk_municipios_codigo_ibge" value="<?php echo $this->codigoIbge?>" />
+                              <select class="form-control" id="municipios_codigo_ibge" name="municipios_codigo_ibge">
+                                  <option option="">Selecione a Cidade</option>
+																	<?php
+																		if(isset($this->municipios_codigo_ibge)){
+																			foreach($this->municipios_codigo_ibge as $codigoIbge){
+																				$selected = ($codigoIbge['municipios_codigo_ibge'] == $this->codigoIbge)?"selected='selected'":"";
+																				echo "<option value='".$codigoIbge['municipios_codigo_ibge']."' ".$selected.">".$codigoIbge['municipios_descricao']."</option>";
+																			}
+																		}
+																	?>
+                              </select>
+                          </div>
+                      </div>
+                      <div class="form-actions">
+                          <div class="form-group row">
+                              <div class="col-md-9 ml-md-auto btn-list">
+                                  <button class="btn btn-primary btn-rounded" type="button" id="saveUnidade">Salvar</button>
+                                  <button class="btn btn-outline-default btn-rounded" type="button" onclick="window.location.href = '/unidades'">Cancelar</button>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+              <!-- /.widget-body -->
+          </div>
+          <!-- /.widget-bg -->
+      </div>
+  </div>
+</div>
+
+<?php
+}
+?>

@@ -1,0 +1,54 @@
+<div>
+    <form name="frmFiltrosAutonomos" id="frmFiltrosAutonomos">
+        <ul class="ulFiltros">
+            <li>Código:</li>
+            <li><input class="k-textbox" type="text" name="autonomos_id" id="autonomos_id"/></li>
+            <li>Nome:</li>
+            <li><input class="k-textbox" type="text" name="autonomos_nome" id="autonomos_nome" style="width: 100%"/></li>
+            <tr>
+                <td>Unidade:</td>
+                   <td colspan="3">
+                      <select name="fk_unidades_id" id="fk_unidades_id" style="width: 100%">
+                      <option>Selecione uma unidade</option>
+                      <?php
+                        if(sizeof($this->unidades) > 0){
+                        foreach($this->unidades as $key=>$unidade){
+                        $selected = ($unidade["unidades_id"] == $this->dados['fk_unidades_id'])?"selected='selected'":"";
+                        echo "<option value='".$unidade["unidades_id"]."' ".$selected.">".$unidade["unidades_nome"]."</option>";
+                                 }
+                            }
+                        ?>
+                      </select>
+                   </td>
+            </tr>
+            <tr>
+                <td>Função:</td>
+                   <td>
+                   <select name="fk_funcoes_id" id="fk_funcoes_id" style="width: 100%">
+                      <option>Selecione uma função</option>
+                          <?php
+                             if(sizeof($this->funcoes) > 0){
+                             foreach($this->funcoes as $key=>$funcoes){
+                             $selected = ($funcoes["funcoes_id"] == $this->dados['fk_funcoes_id'])?"selected='selected'":"";
+                             echo "<option value='".$funcoes["funcoes_id"]."' ".$selected.">".$funcoes["funcoes_descricao"]."</option>";
+                                  }
+                              }
+                          ?>
+                    </select>
+                    </td>
+                </tr>
+            <li>Status:</li>
+            <li>
+                <select name="autonomos_status" id="autonomos_status">
+                    <option value="">Todos</option>
+                    <option value="Ativo">Ativo</option>
+                    <option value="Bloqueado">Bloqueado</option>
+                </select>
+            </li>
+            <li style="text-align: right">
+                <button class="k-button" id="btnFiltrar">Filtrar</button>
+                <button class="k-button" id="btnFechar">Fechar</button>
+            </li>
+        </ul>
+    </form>
+</div>

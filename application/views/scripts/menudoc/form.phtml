@@ -1,0 +1,483 @@
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/ajaxupload.3.5.js'); ?>
+<script>
+	$(function(){
+		
+		$("#saveMenu").click(function (){
+			
+			var dadosForm = arrayToObject( $('#frmMenu').serializeArray() );
+			$.ajax({
+				url: "/menudoc/salvar",
+				data: {dadosForm: dadosForm},
+				dataType: "json",
+				type: "POST",
+				success: function(source){
+					$.map(source, function (val,i){
+					   if(i == 'sucesso'){
+						   //window.location.href = '/menudoc';
+					   } 
+					});
+					tratarMsgRetorno(source);
+
+				}
+			});
+		});
+		
+		$("#btnSalvarSub").click(function (){
+			
+			var dadosFormSub = arrayToObject( $('#frmMenuDoc').serializeArray() );
+			
+			$.ajax({
+				url: "/menudoc/salvar-sub",
+				data: {dadosForm: dadosFormSub},
+				dataType: "json",
+				type: "POST",
+				success: function(source){
+					$.map(source, function (val,i){
+					   if(i == 'sucesso'){
+
+						   //window.location.href = '/menudoc';
+					   } 
+					});
+					tratarMsgRetorno(source);
+
+				}
+			});
+		
+		})
+
+		$('input[name="SelecionarFileMenu[]"]').each(function() {
+		  
+				var btnUpload=$(this);
+				
+				var tmp = $(this).attr("id");
+				var res = tmp.split("_");
+				
+				new AjaxUpload(btnUpload, {
+
+				action: '/menudoc/carregar-file-menu/menu_id/' + res[1] + '/menu_text/' + res[2],
+
+				name: 'uploadfile',
+				onSubmit: function(file, ext){
+						if (!(ext && /^(pdf)$/.test(ext))){ 
+							$.toast({
+                  heading: 'Alerta',
+                  text: "Somente PDF são permitidas.",
+                  position: 'top-right',
+                  icon: 'warning'
+              });
+							return false;
+						}
+						$('#progressbar_menu_' + res[1]).html('Enviando...');
+				},
+				onComplete: function(file, response){
+					
+					var obj = $.parseJSON(response);
+					$.map(obj, function (val,i){
+
+					   if(i == 'sucesso'){
+
+                            $.ajax({
+                                url: "/menudoc/salvar-menu-file",
+                                data: {menu_id: res[1], menu_url:res[2]},
+                                dataType: "json",
+                                type: "POST",
+                                success: function(source){
+
+									//window.location.href = '/menudoc';
+
+									
+
+                                }
+                            });
+
+						   $('#progressbar_menu_'+ res[1]).html('PDF carregado com sucesso.');
+					   } 
+					});
+					tratarMsgRetorno(obj);
+					
+				}
+			});
+
+		});
+		
+
+		$('input[name="SelecionarFile[]"]').each(function() { 
+		  
+			var btnUpload=$(this);
+			
+				var tmp = $(this).attr("id");
+				var res = tmp.split("_");
+				
+				new AjaxUpload(btnUpload, {
+
+				action: '/menudoc/carregar-file/menusub_id/' + res[1] + '/menusub_text/' + res[2],
+
+				name: 'uploadfile',
+				onSubmit: function(file, ext){
+						if (!(ext && /^(pdf)$/.test(ext))){ 
+							$.toast({
+                  heading: 'Alerta',
+                  text: "Somente PDF são permitidas.",
+                  position: 'top-right',
+                  icon: 'warning'
+              });
+							return false;
+						}
+						$('#progressbar_' + res[1]).html('Enviando...');
+				},
+				onComplete: function(file, response){
+					var obj = $.parseJSON(response);
+					$.map(obj, function (val,i){
+
+					   if(i == 'sucesso'){
+										   
+							$.ajax({
+								url: "/menudoc/salvar-menusub-file",
+								data: {menusub_id: res[1], menusub_url:res[2]},
+								dataType: "json",
+								type: "POST",
+								success: function(source){
+
+									//window.location.href = '/menudoc';
+
+								}
+							});
+						   
+						   $('#progressbar_'+ res[1]).html('PDF carregado com sucesso.');
+					   } 
+					});
+					tratarMsgRetorno(obj);
+					
+				}
+			});
+
+		});
+
+	});
+</script>
+
+
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Documentos</h5>
+    </div>
+</div>
+<div class="widget-list">
+  <div class="row">
+      <div class="col-md-12 widget-holder">
+          <div class="widget-bg">
+              <div class="widget-body clearfix">
+              		<form role="form" id="frmMenu" name="frmMenu" class="form-horizontal">
+											<input type="hidden" name="menu_id" id="menu_id" readonly="readonly" value="<?php echo (isset($this->dados["menu_id"]) && $this->dados["menu_id"] > 0)?$this->dados["menu_id"]:"0"?>"/>
+											<div class="tabs">
+                      		<ul class="nav nav-tabs">
+                      				<li class="nav-item active"><a class="nav-link" href="#menu" data-toggle="tab" aria-expanded="true">Menu</a></li>
+                      				<?php if (isset($this->dados["menu_tem_sub"]) && $this->dados["menu_tem_sub"] == 1) { ?>
+                      				<li class="nav-item"><a class="nav-link" href="#sub" data-toggle="tab" aria-expanded="true">Sub Menus</a></li>
+                      				<?php } ?>
+                      				<?php if (isset($this->dados["menu_tem_sub"]) && $this->dados["menu_tem_sub"] == 0) { ?>
+                      				<li class="nav-item"><a class="nav-link" href="#upload" data-toggle="tab" aria-expanded="true">Upload</a></li>
+                      				<?php } ?>
+                      		</ul>
+                      		<div class="tab-content">
+		                          <div class="tab-pane active" id="menu">
+		                          	<div class="form-group">
+																		<label class="control-label col-sm-3">Nome:</label>
+																	<div class="col-md-9">
+																		<input class="form-control" name="menu_text" id="menu_text" value="<?php echo (isset($this->dados["menu_text"]))?$this->dados["menu_text"]:""?>"/>
+																	</div>	
+																</div>
+																<?php if (!isset($this->dados["menu_tem_sub"]) || $this->dados["menu_tem_sub"] == "1") { ?>
+																<div class="form-group">
+																		<label class="control-label col-sm-3">Tem Sub Menus:</label>
+																	<div class="col-md-9" style="padding-top: 6px;">
+																		<input class="form-control" type="checkbox" <?php echo ((isset($this->dados["menu_tem_sub"]) && $this->dados["menu_tem_sub"] == 1))?"checked":""?> id="menu_tem_sub" name="menu_tem_sub" value="1"/>
+																	</div>	
+																</div>
+																<?php } ?>
+		                          </div>
+		                          <div class="tab-pane" id="sub">
+		                          	<div class="row">
+																	<div class="col-lg-12">
+																		<div class="panel panel-info">
+																			<div class="panel-body">
+																				<?php
+																					
+																					//echo '<table><tr><td>';
+																					if (isset($this->subMenus) && count($this->subMenus) > 0){
+																						echo('<div class="well">');
+																						foreach ($this->subMenus as $item => $value) {
+																							//echo ('<fieldset class="fd-form">');
+																							echo('<div>');
+																							echo('<form name="frmSubMenu'.$value['menusub_id'].'" id="frmSubMenu'.$value['menusub_id'].'" enctype="multipart/form-data" class="form-horizontal">');
+																							echo('<div class="row">');
+																							echo('<input type="hidden" name="menusub_id" id="menusub_id" readonly="readonly" value="'.$value['menusub_id'].'"/>');
+																							//echo '<table>';
+																							echo ('<div class="form-group"><label class="control-label col-sm-3">'.$value['menusub_text'].'</label>');
+																							
+																							if ($value['menusub_url'] == ""){
+																								echo ('<div class="col-md-9">');
+																							?>
+																							
+																								<div class="col-md-6">
+															<input  class="btn btn-primary" type="button" name="SelecionarFile[]" id="btnSelecionarFile_<?php echo ($value['menusub_id']); ?>_<?php echo (str_replace(" ", "", $value['menusub_text'])); ?>_<?php echo ($value['fk_menu_id']); ?>" value="Selecione a Arquivo"/>
+																								</div>
+																								<div class="col-md-5" style="padding-top: 3px;">
+																									<div id="progressbar_<?php echo ($value['menusub_id']); ?>" style="border: 1px solid #ccc; background: #fcfcfc; height: 20px"></div>
+																								</div>
+																								<div class="col-md-1">
+																							<a href="#" onclick="excluirSubMenu('<?php echo ($value['menusub_id']); ?>', '<?php echo ($value['fk_menu_id']); ?>')"><i class="fa fa-eraser fa-fw" data-toggle="tooltip" data-placement="right" title="Excluir"></i></a>
+																							
+																								</div>
+																							
+																							<?php	
+																								echo("</div></div>");
+																							} else {
+																								echo ('<div class="col-md-8" style="padding-top: 5px; padding-left: 32px;"><a href="'.$value["menusub_url"].'">Descarregar '.$value["menusub_text"].'.pdf</a></div>');
+																								echo ('<div class="col-md-1" style="padding-top: 3px;"><a href="#" onclick="excluirSubMenu(\''.$value['menusub_id'].'\', \''.$value['fk_menu_id'].'\')"><i class="fa fa-eraser fa-fw" data-toggle="tooltip" data-placement="right" title="Excluir"></i></a></div>');
+																								echo ('</div>');
+
+																							}
+																							echo('</div>');
+																							echo("</form>");
+																							echo('</div>');
+																						}
+																						echo("</div>");
+																					}
+																					
+																				?>
+																				<div class="well">
+																					<div class="row">
+																						<form name="frmMenuDoc" id="frmMenuDoc" role="form" class="form-horizontal">
+																							<input type="hidden" name="menu_id" id="menu_id" value="<?php echo (isset($this->dados["menu_id"]) && $this->dados["menu_id"] > 0)?$this->dados["menu_id"]:"0"?>"/>
+																								<label class="control-label col-sm-2">Nome:</label>
+																								<div class="col-md-6">
+																									<input class="form-control" maxlength="100" type="text" name="menusub_text" id="menusub_text" value="<?php echo (isset($this->dados["menusub_text"]))?$this->dados["menusub_text"]:""?>"/>
+																								</div>
+																								<div class="col-md-4" style="text-align: right;">
+																									<button type="button" data-dismiss="modal" class="btn btn-primary" id="btnSalvarSub">Novo Sub Menu</button>
+																								</div>
+																						</form>						
+																					</div>					
+																				</div>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+		                          </div>
+		                          <div class="tab-pane" id="upload">
+		                          	<div class="row">
+																	<div class="col-lg-12">
+																		<div class="panel panel-info">
+																			<div class="panel-body">
+																				<div class="form-group">
+
+																				</div>
+																				<div class="form-group">
+																					<?php if ( isset($this->dados["menu_url"]) && $this->dados["menu_url"] == "") { ?>	
+																																				<div class="col-lg-4">
+																						<input type="button"  class="btn btn-primary" name="SelecionarFileMenu[]" id="btnSelecionarFileMenu_<?php echo ($this->dados['menu_id']); ?>_<?php echo (str_replace(" ", "", $this->dados['menu_text'])); ?>_<?php echo ($this->dados['menu_id']); ?>" value="Selecione a Arquivo" class="k-button" />
+																																				</div>
+																																				<div class="col-lg-8" style="padding-top: 7px;">
+																						<div id="progressbar_menu_<?php echo ($this->dados['menu_id']); ?>" style="border: 1px solid #ccc; background: #fcfcfc; height: 20px"></div>
+																																				</div>
+																					<?php } else if (isset($this->dados["menu_url"])) { ?>
+																					<div class="col-md-12" style="text-align: center;">
+																						<a href="<?php echo ($this->dados["menu_url"]); ?>">Descarregar <?php echo ($this->dados["menu_text"]); ?>.pdf</a>
+																					</div>
+																					<?php } ?>
+																				</div>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+		                          </div>
+                        	</div>
+                      </div>
+                      <div class="form-actions">
+                          <div class="form-group row">
+                              <div class="col-md-9 ml-md-auto btn-list">
+                                  <button class="btn btn-primary btn-rounded" type="button" id="saveMenu">Salvar</button>
+                                  <button class="btn btn-outline-default btn-rounded" type="button" onclick="//window.location.href = '/menudoc'">Cancelar</button>
+                              </div>
+                          </div>
+                      </div>
+									</form>
+              </div>
+              <!-- /.widget-body -->
+          </div>
+          <!-- /.widget-bg -->
+      </div>
+  </div>
+</div>
+
+
+          <!-- <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title"><div id="moduloCarregado">Formulário - Menu</div></h4>
+          </div>
+          <div class="modal-body">
+			<form role="form" id="frmMenu" name="frmMenu" class="form-horizontal">
+				<input type="hidden" name="menu_id" id="menu_id" readonly="readonly" value="<?php echo (isset($this->dados["menu_id"]) && $this->dados["menu_id"] > 0)?$this->dados["menu_id"]:"0"?>"/>
+
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<ul class="nav nav-tabs">
+									<li class="active"><a data-toggle="tab" href="#menu">Menu</a></li>
+									
+								<?php if (isset($this->dados["menu_tem_sub"]) && $this->dados["menu_tem_sub"] == 1) { ?>
+									<li><a data-toggle="tab" href="#sub">Sub Menus</a></li>
+								<?php } ?>
+								<?php if (isset($this->dados["menu_tem_sub"]) && $this->dados["menu_tem_sub"] == 0) { ?>
+									<li><a data-toggle="tab" href="#upload">Upload</a></li>
+								<?php } ?>
+								
+								</ul>
+								<div class="tab-content">
+									
+									<div id="menu" class="tab-pane fade in active">
+										<div class="row">
+											<div class="col-lg-12">
+												<div class="panel panel-info">
+													<div class="panel-body">
+
+<div class="form-group">
+		<label class="control-label col-sm-3">Nome:</label>
+	<div class="col-md-9">
+		<input class="form-control" name="menu_text" id="menu_text" value="<?php echo (isset($this->dados["menu_text"]))?$this->dados["menu_text"]:""?>"/>
+	</div>	
+</div>
+
+
+<?php if (!isset($this->dados["menu_tem_sub"]) || $this->dados["menu_tem_sub"] == "1") { ?>
+<div class="form-group">
+		<label class="control-label col-sm-3">Tem Sub Menus:</label>
+	<div class="col-md-9" style="padding-top: 6px;">
+		<input class="form-control" type="checkbox" <?php echo ((isset($this->dados["menu_tem_sub"]) && $this->dados["menu_tem_sub"] == 1))?"checked":""?> id="menu_tem_sub" name="menu_tem_sub" value="1"/>
+	</div>	
+</div>
+<?php } ?>
+
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+				</form>
+									<div id="sub" class="tab-pane fade">
+										<div class="row">
+											<div class="col-lg-12">
+												<div class="panel panel-info">
+													<div class="panel-body">
+														
+
+					<?php
+						
+						//echo '<table><tr><td>';
+						if (isset($this->subMenus) && count($this->subMenus) > 0){
+							echo('<div class="well">');
+							foreach ($this->subMenus as $item => $value) {
+								//echo ('<fieldset class="fd-form">');
+								echo('<div>');
+								echo('<form name="frmSubMenu'.$value['menusub_id'].'" id="frmSubMenu'.$value['menusub_id'].'" enctype="multipart/form-data" class="form-horizontal">');
+								echo('<input type="hidden" name="menusub_id" id="menusub_id" readonly="readonly" value="'.$value['menusub_id'].'"/>');
+								//echo '<table>';
+								echo ('<div class="form-group"><label class="control-label col-sm-3">'.$value['menusub_text'].'</label>');
+								
+								if ($value['menusub_url'] == ""){
+									echo ('<div class="col-md-9">');
+								?>
+								
+									<div class="col-md-6">
+<input  class="btn btn-primary" type="button" name="SelecionarFile[]" id="btnSelecionarFile_<?php echo ($value['menusub_id']); ?>_<?php echo (str_replace(" ", "", $value['menusub_text'])); ?>_<?php echo ($value['fk_menu_id']); ?>" value="Selecione a Arquivo"/>
+									</div>
+									<div class="col-md-5" style="padding-top: 3px;">
+										<div id="progressbar_<?php echo ($value['menusub_id']); ?>" style="border: 1px solid #ccc; background: #fcfcfc; height: 20px"></div>
+									</div>
+									<div class="col-md-1">
+								<a href="#" onclick="excluirSubMenu('<?php echo ($value['menusub_id']); ?>', '<?php echo ($value['fk_menu_id']); ?>')"><i class="fa fa-eraser fa-fw" data-toggle="tooltip" data-placement="right" title="Excluir"></i></a>
+								
+									</div>
+								
+								<?php	
+									echo("</div></div>");
+								} else {
+									echo ('<div class="col-md-8" style="padding-top: 5px; padding-left: 32px;"><a href="'.$value["menusub_url"].'">Descarregar '.$value["menusub_text"].'.pdf</a></div>');
+									echo ('<div class="col-md-1" style="padding-top: 3px;"><a href="#" onclick="excluirSubMenu(\''.$value['menusub_id'].'\', \''.$value['fk_menu_id'].'\')"><i class="fa fa-eraser fa-fw" data-toggle="tooltip" data-placement="right" title="Excluir"></i></a></div>');
+									echo ('</div>');
+
+								}
+								echo("</form>");
+								echo('</div>');
+							}
+							echo("</div>");
+						}
+						
+					?>
+
+														
+														<div class="well">
+															<div class="row">
+					<form name="frmMenuDoc" id="frmMenuDoc" role="form" class="form-horizontal">
+						<input type="hidden" name="menu_id" id="menu_id" value="<?php echo (isset($this->dados["menu_id"]) && $this->dados["menu_id"] > 0)?$this->dados["menu_id"]:"0"?>"/>
+							<label class="control-label col-sm-2">Nome:</label>
+							<div class="col-md-6">
+								<input class="form-control" maxlength="100" type="text" name="menusub_text" id="menusub_text" value="<?php echo (isset($this->dados["menusub_text"]))?$this->dados["menusub_text"]:""?>"/>
+							</div>
+							<div class="col-md-4" style="text-align: right;">
+								<button type="button" data-dismiss="modal" class="btn btn-primary" id="btnSalvarSub">Novo Sub Menu</button>
+							</div>
+					</form>									</div>					
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									<div id="upload" class="tab-pane fade">
+										<div class="row">
+											<div class="col-lg-12">
+												<div class="panel panel-info">
+													<div class="panel-body">
+														<div class="form-group">
+
+														</div>
+														<div class="form-group">
+<?php if ( isset($this->dados["menu_url"]) && $this->dados["menu_url"] == "") { ?>	
+															<div class="col-lg-4">
+	<input type="button"  class="btn btn-primary" name="SelecionarFileMenu[]" id="btnSelecionarFileMenu_<?php echo ($this->dados['menu_id']); ?>_<?php echo (str_replace(" ", "", $this->dados['menu_text'])); ?>_<?php echo ($this->dados['menu_id']); ?>" value="Selecione a Arquivo" class="k-button" />
+															</div>
+															<div class="col-lg-8" style="padding-top: 7px;">
+	<div id="progressbar_menu_<?php echo ($this->dados['menu_id']); ?>" style="border: 1px solid #ccc; background: #fcfcfc; height: 20px"></div>
+															</div>
+<?php } else if (isset($this->dados["menu_url"])) { ?>
+<div class="col-md-12" style="text-align: center;">
+	<a href="<?php echo ($this->dados["menu_url"]); ?>">Descarregar <?php echo ($this->dados["menu_text"]); ?>.pdf</a>
+</div>
+<?php } ?>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+								</div>
+							
+						</div>
+					</div>
+				</div>
+
+			
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-default">Cancelar</button>
+            <button type="button" data-dismiss="modal" class="btn btn-primary" id="saveMenu">Salvar</button>
+          </div> -->
+
+   
+

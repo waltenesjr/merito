@@ -1,0 +1,1113 @@
+<script>
+    
+    var bloquearPesquisa = true;
+    
+    var meses_index = 0 ;
+    
+    $(function (){
+
+		$(document).on("hidden.bs.modal", function (e) {
+			$(e.target).removeData("bs.modal").find(".modal-content").empty();
+		});
+
+		$("#fk_unidades_id, #fk_funcoes_id, #fk_profissionais_id").change(function (){
+            $('#tabela-painel-avaliacoes').css('display','none');
+        });
+
+        $("#fk_unidades_id").change(function (){
+            
+            bloquearPesquisa = true;
+            $.ajax({
+                url:'/funcoes/pesquisar',
+                dataType: "json",
+                type: "POST",
+                success: function (source){
+                    tratarMsgRetorno(source);
+                    $('#fk_funcoes_id').empty();
+                    if(source.dados){
+						var options = $("#fk_funcoes_id");
+						options.append(new Option("", "0"));
+						$.map(source.dados, function(data){
+							options.append(new Option(data.funcoes_descricao, data.funcoes_id));
+						});
+                    }
+                }
+            });
+        });
+	
+        $("#fk_funcoes_id").change(function (){
+
+            bloquearPesquisa = true;
+            $.ajax({
+                url:'/profissionais/pesquisar/fk_funcoes_id/'+$(this).val()+'/fk_unidades_id/'+$("#fk_unidades_id").val(),
+                dataType: "json",
+                type: "POST",
+                success: function (source){
+                    tratarMsgRetorno(source);
+                    $('#fk_profissionais_id').empty();
+                    if(source.dados){
+					
+						var options = $("#fk_profissionais_id");
+						options.append(new Option("", "0"));
+						$.map(source.dados, function(data){
+							options.append(new Option(data.profissionais_nome, data.profissionais_id));
+						});
+                    
+                    }
+                }
+            });
+        });
+
+        $('#fk_profissionais_id').change(function (){
+			
+            if($('#fk_profissionais_id').val() > 0) {
+                bloquearPesquisa = false;
+            }
+        });
+        
+        $('#btnPesquisar').click(function (e){
+        	e.preventDefault();
+
+            if(bloquearPesquisa == false ){
+				if (prof_id != $('#fk_profissionais_id').val()) {
+
+				<?php if (isset($this->permissao["fk_unidades_id"])) { ?>	
+
+					if (( $('#fk_unidades_id').val() != "<?php echo ($this->permissao["fk_unidades_id"]) ?>" ) 
+						&& ( ("<?php echo ($this->permissao["profissionais_cargo"]); ?>" != "" ) && ("<?php echo ($this->permissao["profissionais_cargo"]); ?>" != "administrador" ) ) 
+						) {
+						// $().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+					 $.toast({
+              heading: '',
+              text: 'Você não possui permissões para acessar o módulo ou ação solicitada.',
+              position: 'top-right',
+              icon: 'warning'
+            });
+						return false ;
+					}
+				<?php } ?>
+					showPainelDiario () ;
+				} else {
+					// $().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+					$.toast({
+            heading: '',
+            text: 'Você não possui permissões para acessar o módulo ou ação solicitada.',
+            position: 'top-right',
+            icon: 'warning'
+          });
+					return false ;
+				}
+
+            }else{
+                // $().msgbox('alerta', 'Informe os filtros para continuar.');
+                $.toast({
+		              heading: '',
+		              text: 'Informe os filtros para continuar.',
+		              position: 'top-right',
+		              icon: 'warning'
+		            });
+            }
+        });
+
+		$('#btnBackCalendar').click(function (){
+			meses_index -= 1 ;
+			showPaneilSemestral ()
+		});
+
+		$('#btnForwardCalendar').click(function (){
+			meses_index += 1 ;
+			showPaneilSemestral ()
+		});
+
+        $('#btnRegistrosAtribuicoes').click(function (e){
+            
+            e.preventDefault();
+            
+            $("a[id='btnRegistrosAtribuicoesBT']").attr("href", '/tabela-avaliacao/listar-historico-atribuicoes/fk_profissionais_id/'+$('#fk_profissionais_id').val());
+			$("a[id='btnRegistrosAtribuicoesBT']").click();
+            
+        });
+        
+        $('#btnRegistroVerde').click(function (e){
+        	e.preventDefault();
+            
+        var radioVerdeQnt = ($('#painel-diario .radioVerde').length)
+        
+        if (confirm("Esta operação vai registrar: Dever cumprido em todas atribuições, Tem certeza?")){        
+            for (i = 0; i < radioVerdeQnt; i++) { 
+                document.getElementsByClassName('radioVerde')[i].click();
+            }
+        } else {
+            return false;
+        }
+        
+        });
+
+        $('#btnTarefasDiarias,#btnTarefasMensal,#btnTarefasTrimestral,#btnTarefasSimestral').click(function (){
+            //alert ($(this).attr('id'));
+            if($(this).attr('id') == 'btnTarefasDiarias')
+                $('#painel-diario').css('display','');
+            else if($(this).attr('id') == 'btnTarefasMensal') {
+				showPaneilMensal () ;
+            } else if($(this).attr('id') == 'btnTarefasTrimestral'){
+				showPaneilsTrimestral () ;
+
+            } else {
+				meses_index = 0 ;
+				showPaneilSemestral ();
+
+			}            
+
+        });
+        
+<?php if (isset($this->fk_profissionais_id)){ ?>
+		
+		var profId, nomeProf, nomeUnidade, nomeFuncao, funcaoId, unidadeId;
+		
+		$.ajax({
+			url:'/profissionais/get-prof/',
+			data:{ fk_profissionais_id: "<?php echo($this->fk_profissionais_id); ?>" },
+			dataType: "json",
+			type: "POST",
+			success: function (source){
+				$.map(source, function (val, i){
+					if (i=="profissionais_id") profId = val;
+					if (i=="profissionais_nome") nomeProf = val;
+					if (i=="unidades_nome") nomeUnidade = val;
+					if (i=="funcoes_descricao") nomeFuncao = val;
+					if (i=="fk_funcoes_id") funcaoId = val;
+					if (i=="fk_unidades_id") unidadeId = val;
+				});
+				
+				$("#fk_unidades_id").val(unidadeId);
+				
+				bloquearPesquisa = true;
+				$.ajax({
+					url:'/funcoes/pesquisar',
+					dataType: "json",
+					type: "POST",
+					success: function (source){
+						$('#fk_funcoes_id').empty();
+						if(source.dados){
+							var options = $("#fk_funcoes_id");
+							options.append(new Option("", "0"));
+							$.map(source.dados, function(data){
+								options.append(new Option(data.funcoes_descricao, data.funcoes_id));
+							});
+							
+							$("#fk_funcoes_id").val(funcaoId);
+							
+							$.ajax({
+								url:'/profissionais/pesquisar/fk_funcoes_id/'+$("#fk_funcoes_id").val()+'/fk_unidades_id/'+$("#fk_unidades_id").val(),
+								dataType: "json",
+								type: "POST",
+								success: function (source){
+									$('#fk_profissionais_id').empty();
+									if(source.dados){
+									
+										var options = $("#fk_profissionais_id");
+										options.append(new Option("", "0"));
+										$.map(source.dados, function(data){
+											options.append(new Option(data.profissionais_nome, data.profissionais_id));
+										});
+									
+										$("#fk_profissionais_id").val(profId);
+										bloquearPesquisa = false;
+										$("#btnPesquisar").click();
+									
+									}
+								}
+							});
+							
+						}
+					}
+				});
+				
+			}
+		});							
+		
+<?php } ?>        
+
+	});
+        
+	function showPainelDiario () {
+		$('#tabela-painel-avaliacoes').css('display','none');
+		if($('#fk_profissionais_id').val() > 0){
+			$.ajax({
+				url:'/tabela-avaliacao/pesquisar/',
+				data:{ tabela_avaliacoes_timestamp: $('#tabela_avaliacoes_timestamp').val(), fk_profissionais_id: $('#fk_profissionais_id').val(), fk_funcoes_id: $('#fk_funcoes_id').val() },
+				dataType: "json",
+				type: "POST",
+				success: function (source){
+					tratarMsgRetorno(source);
+					if(typeof source.dados === 'object'){
+						montarTabelaAvaliacoesProfissional(source);
+					}
+				}                    
+			});
+		}else{
+			$().msgbox('alerta', 'Informe o profissional para pesquisar.');
+		}
+	}
+
+	function showPaneilMensal () {
+
+		var avaliacoes = new Array();
+
+		var today = new Date();
+		today.setMonth(today.getMonth() - 0);
+		var dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month ;
+                
+		var fecha = today.getFullYear()+"-"+month+"-"+ dia;
+
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-mensal/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				//alert("Title: " + this.getTitle());
+				$('.page-header h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar = $('#calendario').calendar(options);
+	
+	}
+
+	function showPaneilsTrimestral () {
+
+		var today_search = new Date();
+
+
+		var today = new Date();
+		today.setMonth(today.getMonth() - 2);
+		var dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month ;
+		
+
+		var fecha = today.getFullYear()+"-"+month+"-"+ dia;
+
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-trimestral/mes/'+(today_search.getMonth()-1)+'/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			mes: month,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				$('.page-header'+month+' h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar1 = $('#calendario1').calendar(options);
+
+		today = new Date();
+		today.setMonth(today.getMonth() - 1);
+		dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month ;
+
+		fecha = today.getFullYear()+"-"+month+"-"+ dia;
+		
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-trimestral/mes/'+(today_search.getMonth())+'/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			mes: month,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				$('.page-header'+month+' h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar2 = $('#calendario2').calendar(options);
+
+		today = new Date();
+		dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month ;
+
+		fecha = today.getFullYear()+"-"+month+"-"+ dia;
+
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-trimestral/mes/'+(today_search.getMonth()+1)+'/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			mes: month,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				$('.page-header'+month+' h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar3 = $('#calendario3').calendar(options);
+		
+	}
+
+	function showPaneilSemestral () {
+		
+		var today_search = new Date();
+		
+		$('#calendario11').empty().html("");
+		$('#calendario12').empty().html("");
+		$('#calendario13').empty().html("");
+		$('#calendario14').empty().html("");
+		$('#calendario15').empty().html("");
+		$('#calendario16').empty().html("");
+	
+		var today = new Date();
+		today.setMonth(today.getMonth() - 5 + meses_index);
+		var dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month;
+
+		var fecha = today.getFullYear()+"-"+month+"-"+ dia;
+
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-semestral/mes/'+(today_search.getMonth()-4 + meses_index)+'/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			mes: month,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				//alert("Title: " + this.getTitle());
+				$('.page-header'+month+' h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar11 = $('#calendario11').calendar(options);
+
+		today = new Date();
+		today.setMonth(today.getMonth() - 4 + meses_index);
+		dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month;
+
+		fecha = today.getFullYear()+"-"+month+"-"+ dia;
+		
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-semestral/mes/'+(today_search.getMonth()-3 + meses_index)+'/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			mes: month,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				$('.page-header'+month+' h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar12 = $('#calendario12').calendar(options);
+
+		today = new Date();
+		today.setMonth(today.getMonth() - 3 + meses_index);
+		dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month;
+
+		fecha = today.getFullYear()+"-"+month+"-"+ dia;
+		
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-semestral/mes/'+(today_search.getMonth()-2 + meses_index)+'/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			mes: month,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				//alert("Title: " + this.getTitle());
+				$('.page-header'+month+' h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar13 = $('#calendario13').calendar(options);
+		
+		today = new Date();
+		today.setMonth(today.getMonth() - 2 + meses_index);
+		dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month;
+
+		fecha = today.getFullYear()+"-"+month+"-"+ dia;
+		
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-semestral/mes/'+(today_search.getMonth()-1 + meses_index)+'/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			mes: month,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				$('.page-header'+month+' h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar14 = $('#calendario14').calendar(options);
+
+		today = new Date();
+		today.setMonth(today.getMonth() - 1 + meses_index);
+		dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month ;
+
+		fecha = today.getFullYear()+"-"+month+"-"+ dia;
+				
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-semestral/mes/'+(today_search.getMonth() + meses_index)+'/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			mes: month,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				$('.page-header'+month+' h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar15 = $('#calendario15').calendar(options);
+
+		today = new Date();
+		today.setMonth(today.getMonth() + meses_index);
+		dia = today.getDate().toString();
+		if (dia.length == 1)
+			dia = "0" + dia ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month ;
+
+		fecha = today.getFullYear()+"-"+month+"-"+ dia;
+		
+		var options = {
+			events_source: '/tabela-avaliacao/pesquisar-semestral/mes/'+(today_search.getMonth()+1 + meses_index)+'/tabela_avaliacoes_timestamp/'+$('#tabela_avaliacoes_timestamp').val()+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val()+'/',
+			view: 'month',
+			tmpl_path: '/bootstrap-calendar/tmpls/',
+			tmpl_cache: false,
+			day: fecha,
+			mes: month,
+			language:'pt-BR' ,
+			onAfterEventsLoad: function(events) {
+				if(!events) {
+					return;
+				}
+				var list = $('#eventlist');
+				list.html('');
+
+				$.each(events, function(key, val) {
+					$(document.createElement('li'))
+						.html('<a href="' + val.url + '">' + val.title + '</a>')
+						.appendTo(list);
+				});
+			},
+			onAfterViewLoad: function(view) {
+				$('.page-header'+month+' h3').text(this.getTitle());
+				$('.btn-group button').removeClass('active');
+				$('button[data-calendar-view="' + view + '"]').addClass('active');
+			},
+			classes: {
+				months: {
+					general: 'label'
+				}
+			}
+		};
+
+		var calendar16 = $('#calendario16').calendar(options);
+		
+
+		
+	}
+
+    function mostrarDadosAtribuicao(id){
+		
+		$("a[id='btDetalhes']").attr("href", '/atribuicoes/mostrar/atribuicoes_id/'+id);
+        $("a[id='btDetalhes']").click();
+
+    }
+    
+    function montarTabelaAvaliacoesProfissional(source){
+        $('#tabela-painel-avaliacoes').css('display','');
+        
+        //Tratamento para data atual selecionada
+        var arrTimestamp = (source.timestamp.split(" "))[0].split('-');
+        $('#data-tratamento-dados, #data-tratamento-dados-right').html(arrTimestamp[0]+' de '+toMes(arrTimestamp[1] - 1)+' de '+arrTimestamp[2]);
+        
+        
+        //**********************************************************************
+        //Montar a lista de atribuições
+        //**********************************************************************
+        if(source.dados.length > 0){
+            var trs = '';
+            var corLinha = '';
+            var menor = 100;
+            $.map(source.dados, function (d){
+                //Menor nota
+                if(d.nota < menor) menor = d.nota;
+                
+                corLinha = (corLinha == '#fff')?'#fcfcfc':'#fff';
+                //Montando a linha da atribuição
+                trs += '<tr bgcolor="'+corLinha+'">';
+                trs += '   <td width="60%">'+d.atribuicoes_nome+'</td>';
+                trs += '    <td align="center"><button class="k-button" onclick="mostrarDadosAtribuicao('+d.atribuicoes_id+')"><i class="fa fa-exclamation"></i></button></td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioVermelho_'+d.atribuicoes_id+'" data-toggle="tooltip" data-placement="right" title="Falha Grave!">';
+                trs += '            <input type="radio"'+((d.nota == 0)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'"'+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa(this,\'0\')"':'onclick="return false;"')+' id="radioVermelho_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioVermelho_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioLaranja_'+d.atribuicoes_id+'" data-toggle="tooltip" data-placement="right" title="Alerta (Erro cometido mais vezes)">';
+                trs += '            <input type="radio"'+((d.nota == 25)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa(this,\'25\')"':'onclick="return false;"')+' id="radioLaranja_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioLaranja_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioAmarelo_'+d.atribuicoes_id+'" data-toggle="tooltip" data-placement="right" title="Atenção (Corrgir de forma educativa)">';
+                trs += '            <input type="radio"'+((d.nota == 50)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa(this,\'50\')"':'onclick="return false;"')+' id="radioAmarelo_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioAmarelo_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center"> ';
+                trs += '        <div class="radioVerde_'+d.atribuicoes_id+'" data-toggle="tooltip" data-placement="right" title="Dever cumprido!">';
+                trs += '            <input type="radio"'+((d.nota == 75)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtribuicaoProfissional(this,\'75\')"':'onclick="return false;"')+' id="radioVerde_'+d.atribuicoes_id+'" class="radioVerde" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioVerde_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioAzul_'+d.atribuicoes_id+'" data-toggle="tooltip" data-placement="right" title="Ótimo, Parabéns, Excelente!">';
+                trs += '            <input type="radio"'+((d.nota == 100)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa(this,\'100\')"':'onclick="return false;"')+' id="radioAzul_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioAzul_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center"><button onclick="adicionarJustificativas('+d.id+')" class="k-button"><i class="fa fa-filter"></i></button></td>';
+                trs += '</tr>';
+            });
+            $('#lista-atruibuicoes').html(trs);
+            
+            $('#div_radio_x').removeClass();
+            $('#div_radio_x').addClass(getClassRadioAtribuicoes(menor)+'_x');
+            
+            //Busca os Últmos inseridos
+            buscarUltimasAtribuicoesInseridas(3);
+        }
+        
+        //**********************************************************************
+        //Montar a lista de informações do profissional a direita
+        //**********************************************************************
+        $('#tabela_avaliacoes_timestamp').val(arrTimestamp[2]+'-'+arrTimestamp[1]+'-'+arrTimestamp[0]);
+        //Montar a imagem
+        $('#imgProfissional').attr('src','/imagens/profissionais/'+$('#cnpj_atual').val()+'_profissional_'+$('#fk_profissionais_id').val()+'.jpg');
+        //Nome do profissional
+        $('#nomeProfissional').html($('#fk_profissionais_id option:selected').text());
+        $('#idProfissionalSelecionado').val($('#fk_profissionais_id').val());
+        //Nome da Unidade
+        $('#nomeUnidade').html($('#fk_unidades_id option:selected').text()); 
+        //Nome da Função
+        $('#nomeFuncao').html($('#fk_funcoes_id option:selected').text()); 
+    }
+    
+    function adicionarJustificativas(id){
+        
+        $("a[id='btJusti']").attr("href", '/tabela-avaliacao/justificativas/fk_tabela_avaliacoes_id/'+id);
+        $("a[id='btJusti']").click();
+
+    }
+    
+    function definirAtribuicaoProfissional(obj,valor){
+        var arr = $(obj).attr('id').split('_');
+        var fk_atribuicoes_id = arr[1];
+        var fk_profissionais_id = $('#idProfissionalSelecionado').val();
+
+        $.ajax({
+            url:'/tabela-avaliacao/set-atribuicao',
+            data: {tabela_avaliacoes_timestamp: $('#tabela_avaliacoes_timestamp').val() ,fk_atribuicoes_id: fk_atribuicoes_id, fk_profissionais_id: fk_profissionais_id, tabela_avaliacoes_nota: valor},
+            dataType: "json",
+            type: "POST",
+            success: function (source){
+                buscarUltimasAtribuicoesInseridas(3);
+                
+                if(source.alerta || source.sucesso || source.erro)
+                    tratarMsgRetorno(source);
+            }
+        });
+    }
+    
+    
+    
+    function definirAtrbutacaoProfissionalMaisJustificativa(obj, valor) {
+        //Montagem da janela
+        var arr = $(obj).attr('id').split('_');
+        var fk_atribuicoes_id = arr[1];
+        var fk_profissionais_id = $('#idProfissionalSelecionado').val();
+
+		$("a[id='btDetalhes']").attr("href", '/tabela-avaliacao/justificativas/fk_tabela_avaliacoes_id/0/nota/'+valor+'/fk_atribuicoes_id/'+fk_atribuicoes_id+'/fk_profissionais_id/'+fk_profissionais_id+'/tabela_avaliacoes_timestamp/'+$("#tabela_avaliacoes_timestamp").val());
+        $("a[id='btDetalhes']").click();
+
+    }
+    
+    function getClassRadioAtribuicoes(nota){
+        if(nota == 0)
+            return 'radioVermelho';
+        else if(nota == 25)
+            return 'radioLaranjado';
+        else if(nota == 50)
+            return 'radioAmarelo';
+        else if(nota == 75)
+            return 'radioVerde';
+        else if(nota == 100)
+            return 'radioAzul';
+    }
+    
+    function buscarUltimasAtribuicoesInseridas(qtde){
+        $.ajax({
+            url:'/tabela-avaliacao/get-ultimos-inseridos/',
+            data:{ tabela_avaliacoes_historico_timestamp: $('#tabela_avaliacoes_timestamp').val(), fk_profissionais_id: $('#fk_profissionais_id').val(), qtde: qtde },
+            dataType: "json",
+            type: "POST",
+            success: function (source){
+                tratarMsgRetorno(source);
+                
+                if(typeof source.dados === 'object')
+                    montarUltimasAtribuicoesInseridas(source.dados);
+            }
+        });
+    }
+    
+    function montarUltimasAtribuicoesInseridas(ultimos_inseridos){
+        var utrs = '';
+        var ultimoResponsavel = [];
+        if(ultimos_inseridos){
+                utrs += '<tr style="border: 1px solid #aaa; background: #666666; color: #fff;">';
+                utrs +=     '<td style="padding: 5px">Itens Avaliados</td>';
+                utrs +=     '<td style="padding: 5px" align="center">Atribuições</td>';
+                utrs += '</tr>';
+
+            var valor = '';
+            var cont = 0;
+            $.map(ultimos_inseridos, function(obj){
+                
+                //Armazena os dados do último profissional que atribuiu a nota para o profissional selecionado
+                if(cont++ == 0){
+                    ultimoResponsavel['tabela_avaliacoes_historico_nota']   = obj.tabela_avaliacoes_historico_nota;
+                    ultimoResponsavel['profissionais_nome']                 = obj.profissionais_nome;
+                    ultimoResponsavel['funcoes_descricao']                  = obj.funcoes_descricao;
+                    ultimoResponsavel['unidades_nome']                      = obj.unidades_nome;
+                }
+                
+                valor = getClassRadioAtribuicoes(obj.tabela_avaliacoes_historico_nota)+'_'+obj.tabela_avaliacoes_historico_id;
+                utrs += '<tr>';
+                utrs +=     '<td style="color: #000">'+obj.atribuicoes_nome+'</td>';
+                utrs +=     '<td align="center">';
+                utrs +=         '<div class="'+valor+'a">';
+                utrs +=             '<input type="radio" value="0" id="'+valor+'a" name="'+valor+'a" checked="checked" />';
+                utrs +=             '<label for="'+valor+'"></label>';
+                utrs +=         '</div>';
+                utrs +=     '</td>';
+                utrs += '</tr>';
+            });
+            
+                utrs += '<tr style="border: 1px solid #aaa; background: #666666; color: #fff;">';
+                utrs +=     '<td style="padding: 5px">&nbsp;</td>';
+                utrs +=     '<td style="padding: 5px" align="center">&nbsp;</td>';
+                utrs += '</tr>';
+        }else{
+            utrs = '<tr><td>Não foi definido atribuições para este profissional na data informada.</td></tr>';
+        }
+
+        $('#tabela-ultimos-itens-avaliados').html(utrs);
+        
+        if(ultimoResponsavel['profissionais_nome'] != ''){
+            var valor = getClassRadioAtribuicoes(ultimoResponsavel['tabela_avaliacoes_historico_nota'])+'_x';
+            var nota = '';
+                nota +=         '<div class="'+valor+'">';
+                nota +=             '<input type="radio" value="0" id="'+valor+'" name="'+valor+'" checked="checked" />';
+                nota +=             '<label for="'+valor+'"></label>';
+                nota +=         '</div>';
+            $('#up-nota').html(nota);
+            $('#up-descricao').html(' para '+ultimoResponsavel['profissionais_nome']+', '+ultimoResponsavel['funcoes_descricao']+', '+ultimoResponsavel['unidades_nome']);
+        }else{
+           $('#up-nota').html('');
+            $('#up-descricao').html('Não foi definido atribuições para este profissional na data informada.'); 
+        }
+        
+    }
+
+
+    function mostraAvaliacoesDia(dia, calendar_str) {
+		today = new Date();
+		today.setMonth(today.getMonth() + meses_index);
+		hoje = today.getDate().toString();
+		if (hoje.length == 1)
+			hoje = "0" + hoje ;
+		var month = (today.getMonth()+1).toString();
+		if (month.length == 1)
+			month = "0" + month ;
+
+		fecha = today.getFullYear()+"-"+month+"-"+ hoje;
+//		<?php
+			if ($this->permissao["profissionais_cargo"] == "master" || $this->permissao["profissionais_cargo"] == "administrador" || $this->permissao["profissionais_cargo"] == ""){
+				// Leave them alone . . . . 
+			} else { ?>//
+//				$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+//                                return false ;
+//		<?php } ?>
+		
+		
+		if ("<?php echo $this->permissao["profissionais_cargo"] ?>" ==="master" || "<?php echo $this->permissao["profissionais_cargo"] ?>" ==="administrador" || "<?php echo $this->permissao["profissionais_cargo"] ?>" ==="") {
+		//Deixa avaliar em qualquer data
+		} else {
+		//Verifica a data atual e compara com a data que deseja avaliar.
+		diaclicado = parseInt(dia.match(/\d/g).join(''));
+		diaatual = parseInt(fecha.match(/\d/g).join(''));
+
+		if (((diaclicado - diaatual) == -1) || ((diaclicado - diaatual) == 0)){
+		} else {
+			$().msgbox('alerta', 'Você não possui permissões para acessar avaliação com mais de um dia de atraso.');
+			return false ;
+		    }
+		};
+		
+		var calendar = $("#" + calendar_str);
+		
+		var str = dia;
+		var res = str.split("-");
+		
+		var ano = res[0] ;
+		var mes = res[1] ;
+		var dia = res[2] ;
+		
+		$("a[id='btnAtriDia']").attr("href", '/tabela-avaliacao/mostrar-dia/tabela_avaliacoes_timestamp/'+ano+'-'+mes+'-'+dia+'/fk_profissionais_id/'+$('#fk_profissionais_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val());
+		$("a[id='btnAtriDia']").click();
+		
+	
+    }
+
+
+    function montarTabelaAvaliacoesDiaProfissionalDATA(source, data){
+
+        //**********************************************************************
+        //Montar a lista de atribuições
+        //**********************************************************************
+        if(source.dados.length > 0){
+            var trs = '';
+            var corLinha = '';
+            var menor = 100;
+            $.map(source.dados, function (d){
+                //Menor nota
+                if(d.nota < menor) menor = d.nota;
+                
+                corLinha = (corLinha == '#fff')?'#fcfcfc':'#fff';
+                //Montando a linha da atribuição
+                trs += '<tr bgcolor="'+corLinha+'">';
+                trs += '   <td width="60%">'+d.atribuicoes_nome+'</td>';
+                trs += '    <td align="center"><button class="k-button" onclick="mostrarDadosAtribuicao('+d.atribuicoes_id+')"><i class="fa fa-exclamation"></i></td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioDiaVermelho_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 0)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'"'+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa_DATA(this,\'0\', var_data)"':'onclick="return false;"')+' id="radioDiaVermelho_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaVermelho_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioDiaLaranja_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 25)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa_DATA(this,\'25\', var_data)"':'onclick="return false;"')+' id="radioDiaLaranja_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaLaranja_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioDiaAmarelo_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 50)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa_DATA(this,\'50\', var_data)"':'onclick="return false;"')+' id="radioDiaAmarelo_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaAmarelo_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center"> ';
+                trs += '        <div class="radioDiaVerde_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 75)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtribuicaoProfissional_DATA(this,\'75\', var_data)"':'onclick="return false;"')+' id="radioDiaVerde_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaVerde_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioDiaAzul_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 100)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtribuicaoProfissional_DATA(this,\'100\', var_data)"':'onclick="return false;"')+' id="radioDiaAzul_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaAzul_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center"><button onclick="adicionarJustificativas('+d.id+')" class="k-button"><i class="fa fa-filter"></i></button></td>';
+                trs += '</tr>';
+            });
+            $('#lista-atruibuicoes-dia').html(trs);
+
+            $('#div_radio_x').removeClass();
+
+            $('#div_radio_x').addClass(getClassRadioDiaAtribuicoes(menor)+'_x');
+
+        }
+        
+    }
+
+    function definirAtribuicaoProfissional_DATA(obj,valor, data){
+
+        var arr = $(obj).attr('id').split('_');
+        var fk_atribuicoes_id = arr[1];
+        var fk_profissionais_id = $('#idProfissionalSelecionado').val();
+
+        $.ajax({
+            url:'/tabela-avaliacao/set-atribuicao-dia',
+            data: {tabela_avaliacoes_timestamp: data ,fk_atribuicoes_id: fk_atribuicoes_id, fk_profissionais_id: fk_profissionais_id, tabela_avaliacoes_nota: valor},
+            dataType: "json",
+            type: "POST",
+            success: function (source){
+                 
+                if(source.alerta || source.sucesso || source.erro)
+                    tratarMsgRetorno(source);
+            }
+        });
+ 
+  }
+
+    function definirAtrbutacaoProfissionalMaisJustificativa_DATA(obj, valor, data) {
+
+        var arr = $(obj).attr('id').split('_');
+        var fk_atribuicoes_id = arr[1];
+        var fk_profissionais_id = $('#idProfissionalSelecionado').val();
+
+		$("a[id='btDetalhes']").attr("href", '/tabela-avaliacao/justificativas/fk_tabela_avaliacoes_id/0/nota/'+valor+'/fk_atribuicoes_id/'+fk_atribuicoes_id+'/fk_profissionais_id/'+fk_profissionais_id+'/tabela_avaliacoes_timestamp/'+data);
+        $("a[id='btDetalhes']").click();
+
+    }
+
+    function getClassRadioDiaAtribuicoes(nota){
+        if(nota ==0)
+            return 'radioDiaVermelho';
+        else if(nota == 25)
+            return 'radioDiaLaranjado';
+        else if(nota == 50)
+            return 'radioDiaAmarelo';
+        else if(nota == 75)
+            return 'radioDiaVerde';
+        else if(nota == 100)
+            return 'radioDiaAzul';
+    }
+
+</script>

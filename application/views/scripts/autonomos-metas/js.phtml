@@ -1,0 +1,170 @@
+<script>
+    var idRandom = <?php echo $idRandom?>;
+    //Esta variável controla quando vai ser selecionado o formulário para novo registro ou alterar registros
+    var idFormAutonomosMetas = 0
+    
+    /**
+     *@method alterarRegistroGridAutonomosMetas(id);
+     **/
+    function alterarRegistroGridAutonomosMetas(idSelecionado){
+        idFormAutonomosMetas = idSelecionado;
+        $("a[id='btnFormularioAutonomosMetas']").click();
+        
+    }
+    
+    function atualizarGridAutonomosMetas(dados){
+        $.ajax({
+            url: "autonomos-metas/pesquisar",
+            data: {dados: dados, fk_autonomos_id: $('#fk_autonomos_id').val()},
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                //verifica se possui algum erro ou alerta
+                var errAlert = false
+                $.map(source, function (val,i){
+                   if(i == 'alerta' || i == 'erro'){
+                       errAlert = true;
+                   } 
+                });
+                if(errAlert){
+                    //Mostra os Alertas e Erros se houver
+                    tratarMsgRetorno(source);
+                }
+                
+                $("#gridAutonomosMetas"+idRandom).data("kendoGrid").dataSource.data([ ]);
+                var viewModel = new kendo.observable(source);
+                $("#gridAutonomosMetas"+idRandom).data("kendoGrid").dataSource.data(viewModel.dados);
+            }
+        });
+    }
+    
+    $(function(){
+        var winAutonomosMetas = null;
+        
+        ///-- Carregando os botões padrões do módulo
+        
+        ///-- *************************
+        ///-- Botão Formulário
+        ///-- *************************
+        var btnFormulario = $('<a/>',{
+            addClass: 'k-button',
+            text: ' Novo',
+            id: 'btnFormularioAutonomosMetas',
+            click: function (){
+                var idRandom = (Math.floor((Math.random()*1000)+1)).toString() + (Math.floor((Math.random()*1000)+1)).toString();
+                $('body').append('<div id="inputWindow'+idRandom+'"/>');
+                winAutonomosMetas = $("#inputWindow"+idRandom)
+                .kendoWindow({
+                    content: 'autonomos-metas/form/autonomos_metas_id/'+idFormAutonomosMetas+'/fk_autonomos_id/'+$('#fk_autonomos_id').val(),
+                    actions: ["Close"],
+                    width: 500,
+                    modal: true,
+                    title: "Formulário - Autonomos e Metas",
+                    visible: false,
+                    animation: {
+                        open: {
+                            effects: "slideIn:down fadeIn",
+                            duration: 500
+                        },
+                        close: {
+                            effects: "slide:up fadeOut",
+                            duration: 500
+                        }
+                    },
+                    activate: function(){
+                        $(this).html('');
+                        //Tratamentos diversos ao formulário
+                        $('form').submit(function () { return false; });
+                        $("select[id^='fk_metas_id']").kendoComboBox();
+                        $("#autonomos_metas_cota, #autonomos_metas_total_quinzena, #autonomos_metas_total_mes").kendoNumericTextBox({
+                            min: 0,
+                            max: 1000,
+                            step: 1,
+                            format: "#"
+                        });
+                        
+                        //Define os botões de ações dentro da win
+                        /// Botão Salvar
+                        $("button[id^='btnSalvarAutonomosMetas']").click(function (){
+                            //Carrega os dados do formulário
+                            var dadosForm = arrayToObject( $('form[id^="frmAutonomosMetas"]').serializeArray() );
+                            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                            $.ajax({
+                                url: "autonomos-metas/salvar",
+                                data: {dadosForm: dadosForm},
+                                dataType: "json",
+                                type: "POST",
+                                success: function(source){
+                                    $.map(source, function (val,i){
+                                       if(i == 'sucesso'){
+                                           winAutonomosMetas.close();
+                                           atualizarGridAutonomosMetas(null);
+                                       } 
+                                    });
+                                    tratarMsgRetorno(source);
+                                    
+                                    /*var viewModel = new kendo.observable(source);
+                                    $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);*/
+                                }
+                            });
+                            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                            
+                            
+                        }).prepend($('<span/> ',{addClass: 'k-icon k-i-tick'}));
+                        /// Botão Cancelar
+                        $("button[id^='btnCancelarAutonomosMetas']").click(function (){
+                            winAutonomosMetas.close();
+                            
+                            
+                            
+                        }).appendTo($('<span/> ',{addClass: 'k-icon k-i-close'}));
+                    }
+                })
+                .data("kendoWindow")
+                .center();
+                
+                //Tratamento para o top
+                var wrapper = winAutonomosMetas.wrapper;
+                wrapper.css({top: 25});
+                
+                winAutonomosMetas.open();    
+                
+                idFormAutonomosMetas = 0;
+                
+                
+            }
+        //Adicionado o icone
+        }).prepend($('<span/>',{addClass: 'k-icon k-i-plus'}));
+        
+        $("div[id^='botoesModuloAutonomosMetas']").html('');
+        //Limpa e Adiciona os botões no local indicado
+        $("#botoesModuloAutonomosMetas"+idRandom).html(btnFormulario);
+        
+        
+        
+        ///-- *************************
+        ///-- Grid de Dados
+        ///-- *************************
+        ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        atualizarGridAutonomosMetas();
+        $("#gridAutonomosMetas"+idRandom).kendoGrid({
+            dataSource: {
+              type: "odata",
+              transport: {
+                  read: {	
+                      
+                  }
+              },
+              pageSize: 5
+            },
+            rowTemplate: kendo.template($("#rowTemplateAutonomosMetas"+idRandom).html()),
+            pageable: true
+        });
+        
+        ///-- Tooltip 
+       $("#gridAutonomosMetas"+idRandom).kendoTooltip({
+            filter: "a",
+            position: "top"
+        }).data("kendoTooltip");
+    });
+</script>

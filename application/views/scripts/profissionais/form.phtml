@@ -1,0 +1,924 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo '<p class="msgPermissao alerta">'.$this->permissao["mensagem"].'</p>';
+}else{
+   $idRandom = rand(0, 999999);
+?>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.15/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.15/js/jquery.dataTables.min.js"></script>
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/jquery.maskedinput.min.js'); ?>
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/ajaxupload.3.5.js'); ?>
+
+<?php $this->headLink()->appendStylesheet('http://'.$_SERVER["HTTP_HOST"].'/css/datepicker.css'); ?>
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/bootstrap-datepicker.js'); ?>
+<script>
+var thpTable;
+var idRandom = <?php echo $idRandom?>;
+
+var tpsTable;
+
+	$(document).ready(function() {
+
+        tpsTable = $('#dataTables-profissionais-supervidor').dataTable( 
+
+			{
+				"bPaginate": false,
+				"bFilter" : false,
+				"iDisplayLength" : 10,
+				"sPaginationType": "full_numbers",
+				"oLanguage": {
+					"sLengthMenu":   "Mostrar &nbsp;_MENU_ &nbsp;registros",
+					"sZeroRecords":  "N&atilde;o foram encontrados resultados",
+					"sInfo": "Mostrando registros de _START_ a _END_ de um total de _TOTAL_ registros",
+					"sInfoEmpty": "Nenhum registro para exibir",
+					"sSearch" : "Pesquisar: &nbsp;",
+					"sInfoFiltered": "(filtrado de _MAX_ registros no total)"
+					/*,
+					"oPaginate": {
+					"sFirst":    null,
+					"sPrevious": "Anterior",
+					"sNext":     "Seguinte",
+					"sLast":     null
+					}*/
+
+				}
+			}
+
+		);
+		
+		$("#profissionais_unidade").change(function (){	
+			
+			
+			if ($("#profissionais_unidade").val() != "0") {
+				if(confirm("Deseja mesmo adicionar " + $("#profissionais_unidade").find("option:selected").text()+ " ?")){
+					//alert($("#profissionais_unidade").val() + " - " + $("#profissionais_unidade").find("option:selected").text());
+					$.ajax({
+						url: "/profissionais/salvar-profissional-supervisor",
+						data: {profissional: $("#profissionais_unidade").val(), nome:  $("#profissionais_unidade").find("option:selected").text(), supervisor: "<?php echo ($this->dados['profissionais_id']) ;?>"},
+						dataType: "json",
+						type: "POST",
+						success: function(source){
+							$.map(source, function (val,i){
+							   if(i == 'sucesso'){
+									
+									atualizarGridProfissionaisSupervisor();
+							   } 
+							});
+							tratarMsgRetorno(source);
+						},
+						error: function(){
+							$.toast({
+			                    heading: '',
+			                    text: "Desculpe! Não foi possível realizar a operação solicitada.",
+			                    position: 'top-right',
+			                    icon: "error"
+			                });
+						}
+					});					
+					
+				}
+			}
+		});
+		
+		$("#profissionais_cpf").mask("999.999.999-99");
+		$("input[id^='profissionais_cep']").mask("99999-999");
+		
+		$("input[id^='profissionais_fixo'], input[id^='profissionais_cel']").mask("(99) 9999-9999");
+		
+		 $("#saveProfissinal").click(function (){					
+
+			if(!validarCpf($('#profissionais_cpf').val())){
+				$.toast({
+                    heading: '',
+                    text: "Informe um CPF válido.",
+                    position: 'top-right',
+                    icon: "info"
+                });
+				return false;
+			}
+			
+			//Carrega os dados do formulário
+			var dadosForm = arrayToObject( $('#frmProfissionais').serializeArray() );
+			var permissoes = [];
+			if($('input[id^="permissao_"]:checked' ).length > 0){
+				$.map($('input[id^="permissao_"]:checked' ),function (val,i){
+					permissoes.push($(val).val());
+				});
+			}
+			
+			///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			$.ajax({
+				url: "/profissionais/salvar",
+				data: {dadosForm: dadosForm, permissoes: permissoes},
+				dataType: "json",
+				type: "POST",
+				success: function(source){
+					$.map(source, function (val,i){
+					   if(i == 'sucesso'){
+						   window.location.href = '/profissionais/index/profissionais_tipo/colaborador';
+					   } 
+					});
+					tratarMsgRetorno(source);
+				},
+				error: function(){
+					$.toast({
+	                    heading: '',
+	                    text: "Desculpe! Não foi possível realizar a operação solicitada.",
+	                    position: 'top-right',
+	                    icon: "error"
+	                });
+				}
+			});
+			///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			
+			
+		});
+
+
+		$('#profissionais_cep').keyup(function() {
+			
+			press = this.value;
+			press = press.replace(/_/g,'');
+			
+			if (press.length == 9) {
+				$.ajax({
+					url:'/cep/busca',
+					data: { cep : press },
+					dataType:'html',
+					type:'POST',
+					beforeSend:function(){
+						
+						//mostrarCarregando();
+						
+						$('#profissionais_logradouro').val('Aguarde...');
+						$('#profissionais_bairro').val('Aguarde...');
+						$('#fk_municipios_codigo_ibge').val('Aguarde...');
+						$('#profissionais_uf').val('Aguarde...');
+						
+					},
+					success: function(data, textStatus){
+						
+						var obj = $.parseJSON(data);
+						
+						if(obj.ok) {
+							$('#profissionais_logradouro').val(obj.dados.tipo+' '+obj.dados.logradouro);
+							$('#profissionais_bairro').val(obj.dados.bairro);
+							$('#fk_municipios_codigo_ibge').val(obj.dados.cidade);
+							
+							$('#profissionais_uf').val(obj.dados.uf);
+							
+						} else if (obj.alerta) {
+							
+							//notificacao(obj.alerta,'alerta');
+							
+							$.toast({
+			                    heading: '',
+			                    text: obj.alerta,
+			                    position: 'top-right',
+			                    icon: "error"
+			                });
+							
+							$('#profissionais_logradouro').val('');
+							$('#profissionais_bairro').val('');
+							$('#fk_municipios_codigo_ibge').val('');
+							$('#profissionais_uf').val('');
+							
+						} else if (obj.erro) {
+							notificacao(obj.erro,'erro');
+						}
+					},
+					error: function(xhr, er){
+						//notificacao('Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.','erro');
+						// $().msgbox("erro", 'Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.');
+						$.toast({
+		                    heading: '',
+		                    text: 'Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.',
+		                    position: 'top-right',
+		                    icon: "error"
+		                });
+					},
+					complete: function() {
+						//sumirCarregando();
+					}
+				});
+			}
+		});
+
+		thpTable = $('#dataTables-historico-profissionais').dataTable( 
+			{
+				"bPaginate": true,
+				"iDisplayLength" : 25,
+				"sPaginationType": "full_numbers",
+				"oLanguage": {
+					"sLengthMenu":   "Mostrar _MENU_ registros",
+					"sZeroRecords":  "N&atilde;o foram encontrados resultados",
+					"sInfo": "Mostrando registros de _START_ a _END_ de um total de _TOTAL_ registros",
+					"sInfoEmpty": "Nenhum registro para exibir",
+					"sSearch" : "Pesquisar",
+					"sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+					"oPaginate": {
+					"sFirst":    null,
+					"sPrevious": "Anterior",
+					"sNext":     "Seguinte",
+					"sLast":     null
+					}
+				}
+			}
+		
+		);
+		
+		<?php if (isset($this->dados["profissionais_id"]) && $this->dados["profissionais_id"] > 0) { ?>                    
+			var btnUpload=$('#btnSelecionarImagem');
+			var status=$('#progressbar');
+			new AjaxUpload(btnUpload, {
+					//Controler que irá tratar o upload
+					action: '/profissionais/carregar-imagens/profissionais_id/'+$('#profissionais_id').val(),
+					//Nome da caixa de entrada do arquivo
+					name: 'uploadfile',
+					onSubmit: function(file, ext){
+							if (!(ext && /^(jpg|png|jpeg|gif)$/.test(ext))){ 
+								// verificar a extensão de arquivo válido
+								//console.log('Somente JPG, PNG ou GIF são permitidas');
+								// $().msgbox("alerta", "Somente JPG, PNG ou GIF são permitidas.");
+								$.toast({
+				                    heading: '',
+				                    text: 'Somente JPG, PNG ou GIF são permitidas.',
+				                    position: 'top-right',
+				                    icon: "info"
+				                });
+								return false;
+							}
+							$('#progressbar').html('Enviando...');
+					},
+					onComplete: function(file, response){
+						var obj = $.parseJSON(response);
+						$.map(obj, function (val,i){
+						   if(i == 'arquivo'){
+							   $('#profissional_img').html('').hide(500,function (){
+									var rid = Math.random();
+									$('#profissional_img').html('<img id="img_prof" src="/imagens/profissionais/'+val+'?rid='+rid+'" class="imgProfissional"/>');
+									$('#profissional_img').toggle(500); 
+							   });                                           
+						   }
+						   if(i == 'sucesso'){
+							   $('#progressbar').html('Imagem carregada com sucesso.');
+						   } 
+						});
+						tratarMsgRetorno(obj);
+					}
+			});
+		<?php } ?>
+
+		$('button[id^="btnAdicionarProfissionaisHistorico"]').click(function (){
+			var id = $('input[id^="profissionais_historico_id"]').val();
+			var data = $('input[id^="profissionais_historico_data"]').val();
+			var descricao = $('input[id^="profissionais_historico_descricao"]').val();
+			var profissionais_id = $('input[id^="profissionais_id"]').val();
+			$.ajax({
+				url: "/profissionais-historico/salvar",
+				data: {
+						profissionais_historico_id: id, 
+						profissionais_historico_data: data, 
+						profissionais_historico_descricao: descricao,
+						fk_profissionais_id: profissionais_id
+					  },
+				dataType: "json",
+				type: "POST",
+				success: function(source){
+					$.map(source, function (val,i){
+					   if(i == 'sucesso'){
+						   $('input[id^="profissionais_historico_id"]').val(0);
+						   $('input[id^="profissionais_historico_data"]').val('');
+						   $('input[id^="profissionais_historico_descricao"]').val('');
+						   atualizarGridProfissionaisHistorico(null);
+					   } 
+					});
+					tratarMsgRetorno(source);
+				}
+			});
+		});
+
+	});
+<?php
+	//$this->dados["profissionais_id"] = 1 ;
+?>
+
+	function atualizarGridProfissionaisHistorico(dados){
+		
+		thpTable.fnClearTable(this);
+		
+		$.ajax({
+			url: "/profissionais-historico/pesquisar/fk_profissionais_id/"+$('input[id^="profissionais_id"]').val(),
+			data: dados,
+			dataType: "json",
+			type: "POST",
+			success: function(source){
+				var oSettings = thpTable.fnSettings();
+				for (var i=0; i<source.dados.length; i++)
+				{
+					var addData = [];
+					addData.push(source.dados[i].profissionais_historico_data);
+					addData.push(source.dados[i].profissionais_historico_descricao);
+					addData.push('<a href="#" onclick="alterarRegistroProfissionaisHistoricoGrid(\''+source.dados[i].profissionais_historico_id+'\')"><i class="fa fa-edit fa-fw"></i></a>');
+					addData.push('<a href="#" onclick="excluirRegistroProfissionaisHistoricoGrid(\''+source.dados[i].profissionais_historico_id+'\')"><i class="fa fa-eraser fa-fw"></i></a>');
+					thpTable.fnAddData(addData);
+				}
+				oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+				thpTable.fnDraw();
+			}
+		});
+	}
+
+	function alterarRegistroProfissionaisHistoricoGrid(profissionais_historico_id){
+		$.ajax({
+			url: "/profissionais-historico/get-historico-pelo-id",
+			data: { profissionais_historico_id: profissionais_historico_id },
+			dataType: "json",
+			type: "POST",
+			success: function(source){
+				if(typeof source.erro != "undefined" || typeof source.alerta != "undefined")
+					tratarMsgRetorno(source);
+				else{
+					var arr = source.dados[0].profissionais_historico_data.split('-');
+					$('input[id^="profissionais_historico_id"]').val(profissionais_historico_id);
+					$('input[id^="profissionais_historico_data"]').val(arr[2]+'/'+arr[1]+'/'+arr[0]);
+					$('input[id^="profissionais_historico_descricao"]').val(source.dados[0].profissionais_historico_descricao);
+					//atualizarGridProfissionaisHistorico(null);
+				}
+			}
+		});
+	}
+
+	function excluirRegistroProfissionaisHistoricoGrid(profissionais_historico_id){
+		if(confirm("Deseja mesmo excluir este registro?")){
+			$.ajax({
+				url: "/profissionais-historico/excluir",
+				data: { id: profissionais_historico_id },
+				dataType: "json",
+				type: "POST",
+				success: function(source){
+					tratarMsgRetorno(source);
+					atualizarGridProfissionaisHistorico(null);
+				}
+			});
+		}
+	}
+
+	function excluirRegistroProfissionaisSupervisor(profissionais_supervisor_id){
+		if(confirm("Deseja mesmo excluir este registro?")){
+			$.ajax({
+				url: "/profissionais/excluir-profissional-supervisor",
+				data: { id: profissionais_supervisor_id },
+				dataType: "json",
+				type: "POST",
+				success: function(source){
+					tratarMsgRetorno(source);
+					atualizarGridProfissionaisSupervisor();
+				}
+			});
+		}
+	}
+
+	function atualizarGridProfissionaisSupervisor () {
+	
+	tpsTable.fnClearTable(this);
+
+$.ajax({
+	url: "/profissionais/get-profissionais-supervisor/fk_profissionais_id/<?php echo ($this->dados['profissionais_id']) ;?>/",
+	dataType: "json",
+	type: "POST",
+	success: function(source){
+
+		var oSettings = tpsTable.fnSettings();
+		for (var i=0; i<source.length; i++)
+		{
+			var addData = [];
+			addData.push(source[i].profissionais_supervisor_nome);
+			addData.push('<a href="#" onclick="excluirRegistroProfissionaisSupervisor(\''+source[i].profissionais_supervisor_id+'\')"><i class="fa fa-eraser fa-fw"></i></a>');
+			tpsTable.fnAddData(addData);
+		}
+		oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+		tpsTable.fnDraw();
+	},
+	error: function(source){
+		console.log(source);
+	}
+});
+		
+	}
+
+</script>
+
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Colaboradores</h5>
+    </div>
+</div>
+<div class="widget-list">
+  <div class="row">
+      <div class="col-md-12 widget-holder">
+          <div class="widget-bg">
+              <div class="widget-body clearfix">
+                <form role="form"  name="frmProfissionais" id="frmProfissionais">
+									<input type="hidden" name="profissionais_id" id="profissionais_id" readonly="readonly" value="<?php echo (isset($this->dados["profissionais_id"]) && $this->dados["profissionais_id"] > 0)?$this->dados["profissionais_id"]:"0"?>"/>
+									<input type="hidden" name="profissionais_tipo" id="profissionais_tipo" readonly="readonly" value="<?php echo $this->profissionais_tipo; ?>"/>
+              		<div class="tabs">
+                      <ul class="nav nav-tabs">
+                          <li class="nav-item active"><a class="nav-link" href="#dados" data-toggle="tab" aria-expanded="true">Dados Pessoais</a>
+                          </li>
+                          <li class="nav-item"><a class="nav-link" href="#acessos" data-toggle="tab" aria-expanded="true">Acessos</a>
+                          </li>
+                          <?php if (isset($this->dados["profissionais_id"]) && $this->dados["profissionais_id"] > 0) { ?>
+													<li class="nav-item"><a data-toggle="tab" class="nav-link" aria-expanded="true" href="#salario">Salário</a></li>
+													<li class="nav-item"><a data-toggle="tab" class="nav-link" aria-expanded="true" href="#foto">Foto Profissional</a></li>
+													<li class="nav-item"><a data-toggle="tab" class="nav-link" aria-expanded="true" href="#hist">Histórico</a></li>
+													<?php if ($this->dados['profissionais_cargo'] == 'supervisor') { ?>
+													<li class="nav-item"><a data-toggle="tab" class="nav-link" aria-expanded="true" href="#users">Profissionais</a></li>
+													<?php } ?>
+													<?php } ?>
+                      </ul>
+                      <!-- /.nav-tabs -->
+                      <div class="tab-content">
+                          <div class="tab-pane active" id="dados">
+                          		<h5 class="box-title mr-b-0">Informações</h5>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="fk_unidades_id">Unidade</label>
+				                          <div class="col-md-9">
+				                              <select class="form-control" id="fk_unidades_id" name="fk_unidades_id">
+				                                  <option value="">Selecione uma unidade</option>
+																					<?php
+																						if(sizeof($this->unidades) > 0){
+																							foreach($this->unidades as $key=>$unidade){
+																								$selected = "" ;
+																								if (isset($this->dados['fk_unidades_id']))
+																									$selected = ($unidade["unidades_id"] == $this->dados['fk_unidades_id'])?"selected='selected'":"";
+																								echo "<option value='".$unidade["unidades_id"]."' ".$selected.">".$unidade["unidades_nome"]."</option>";
+																							}
+																						}
+																					?>
+				                              </select>
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_nome">Nome</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_nome" name="profissionais_nome" value="<?php echo (isset($this->dados["profissionais_nome"]))?$this->dados["profissionais_nome"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_cpf">CPF</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_cpf" name="profissionais_cpf" value="<?php echo (isset($this->dados["profissionais_cpf"]))?$this->dados["profissionais_cpf"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_rg">RG</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_rg" name="profissionais_rg" value="<?php echo (isset($this->dados["profissionais_rg"]))?$this->dados["profissionais_rg"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_sexo">Sexo</label>
+				                          <div class="col-md-9">
+				                          		<select class="form-control" id="profissionais_sexo" name="profissionais_sexo">
+						                              <option value="">Selecione uma opção</option>
+																					<option value='F' <?php echo (isset($this->dados['profissionais_sexo']) && $this->dados['profissionais_sexo'] == 'F')?"selected='selected'":""?>>Feminino</option>
+																					<option value='M' <?php echo (isset($this->dados['profissionais_sexo']) && $this->dados['profissionais_sexo'] == 'M')?"selected='selected'":""?>>Masculino</option>
+																			</select>
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_data_admissao">Data Adm</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control datepicker" data-date-format="dd/mm/yyyy" placeholder="" type="text" id="profissionais_data_admissao" name="profissionais_data_admissao" value="<?php echo (isset($this->dados["profissionais_data_admissao"]))?$this->dados["profissionais_data_admissao"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_data_nascimento">Data Nascimento</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control datepicker" data-date-format="dd/mm/yyyy" placeholder="" type="text" id="profissionais_data_nascimento" name="profissionais_data_nascimento" value="<?php echo (isset($this->dados["profissionais_data_nascimento"]))?$this->dados["profissionais_data_nascimento"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_email">Email</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_email" name="profissionais_email" value="<?php echo (isset($this->dados["profissionais_email"]))?$this->dados["profissionais_email"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="fk_funcoes_id">Função</label>
+				                          <div class="col-md-9">
+				                          		<select class="form-control" id="fk_funcoes_id" name="fk_funcoes_id">
+					                          			<option value="">Selecione uma função</option>
+																					<?php
+																						if(sizeof($this->funcoes) > 0){
+																							foreach($this->funcoes as $key=>$funcoes){
+																								$selected = "" ;
+																								if (isset($this->dados['fk_funcoes_id']))
+																									$selected = ($funcoes["funcoes_id"] == $this->dados['fk_funcoes_id'])?"selected='selected'":"";
+																								
+																								echo "<option value='".$funcoes["funcoes_id"]."' ".$selected.">".$funcoes["funcoes_descricao"]."</option>";
+																							}
+																						}
+																					?>
+				                          		</select>
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_obs">Obs</label>
+				                          <div class="col-md-9">
+				                              <textarea class="form-control" placeholder="" type="text" id="profissionais_obs" name="profissionais_obs"><?php echo (isset($this->dados["profissionais_obs"]))?$this->dados["profissionais_obs"]:""?></textarea>
+				                          </div>
+				                      </div>
+				                      <h5 class="box-title mr-b-0">Telefones</h5>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_fixo_1">Fixo 1</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_fixo_1" name="profissionais_fixo_1" value="<?php echo (isset($this->dados["profissionais_fixo_1"]))?$this->dados["profissionais_fixo_1"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_fixo_2">Fixo 2</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_fixo_2" name="profissionais_fixo_2" value="<?php echo (isset($this->dados["profissionais_fixo_2"]))?$this->dados["profissionais_fixo_2"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_cel_1">Cel. 1</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_cel_1" name="profissionais_cel_1" value="<?php echo (isset($this->dados["profissionais_cel_1"]))?$this->dados["profissionais_cel_1"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_cel_2">Cel. 2</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_cel_2" name="profissionais_cel_2" value="<?php echo (isset($this->dados["profissionais_cel_2"]))?$this->dados["profissionais_cel_2"]:""?>">
+				                          </div>
+				                      </div>
+				                      <h5 class="box-title mr-b-0">Endereço</h5>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_cep">CEP</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_cep" name="profissionais_cep" value="<?php echo (isset($this->dados["profissionais_cep"]))?$this->dados["profissionais_cep"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_logradouro">Logradouro</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_logradouro" name="profissionais_logradouro" value="<?php echo (isset($this->dados["profissionais_logradouro"]))?$this->dados["profissionais_logradouro"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_bairro">Bairro</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_bairro" name="profissionais_bairro" value="<?php echo (isset($this->dados["profissionais_bairro"]))?$this->dados["profissionais_bairro"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_complemento">Complemento</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_complemento" name="profissionais_complemento" value="<?php echo (isset($this->dados["profissionais_complemento"]))?$this->dados["profissionais_complemento"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_uf">UF</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_uf" name="profissionais_uf" value="<?php echo (isset($this->dados["profissionais_uf"]))?$this->dados["profissionais_uf"]:""?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="fk_municipios_codigo_ibge">Cidade</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="fk_municipios_codigo_ibge" name="fk_municipios_codigo_ibge" value="<?php echo (isset($this->dados["fk_municipios_codigo_ibge"]))?$this->dados["fk_municipios_codigo_ibge"]:""?>">
+				                          </div>
+				                      </div>
+				                      <h5 class="box-title mr-b-0">Outros</h5>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_status">Status</label>
+				                          <div class="col-md-9">
+				                              <select class="form-control" id="profissionais_status" name="profissionais_status">
+				                                  <option value="Ativo" <?php echo (isset($this->dados["profissionais_status"]) && $this->dados["profissionais_status"] == 'Ativo')?"selected='selected'":""?>>Ativo</option>
+																					<option value="Bloqueado" <?php echo (isset($this->dados["profissionais_status"]) && $this->dados["profissionais_status"] == 'Bloqueado')?"selected='selected'":""?>>Bloqueado</option>
+				                              </select>
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_senha">Senha</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="password" id="profissionais_senha" name="profissionais_senha">
+				                          </div>
+				                      </div>
+                          </div>
+                          <div class="tab-pane" id="acessos">
+                              <h5 class="box-title mr-b-0">Profissional</h5>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_cargo">Cargo</label>
+				                          <div class="col-md-9">
+				                              <select class="form-control" id="profissionais_cargo" name="profissionais_cargo">
+				                                  <option value="funcionario" <?php echo (isset($this->dados['profissionais_cargo']) && $this->dados['profissionais_cargo'] == 'funcionario')?"selected='selected'":""?>>Funcionário</option>
+																					<option value="administrador" <?php echo (isset($this->dados['profissionais_cargo']) && $this->dados['profissionais_cargo'] == 'administrador')?"selected='selected'":""?>>Administrador</option>
+																					<option value="gerente" <?php echo (isset($this->dados['profissionais_cargo']) && $this->dados['profissionais_cargo'] == 'gerente')?"selected='selected'":""?>>Gerente</option>
+																					<option value="supervisor" <?php echo (isset($this->dados['profissionais_cargo']) && $this->dados['profissionais_cargo'] == 'supervisor')?"selected='selected'":""?>>Supervisor</option>
+				                              </select>
+				                          </div>
+				                      </div>
+				                      <h5 class="box-title mr-b-0">Permissões</h5>
+				                      <div class="accordion" id="accordion-2" role="tablist" aria-multiselectable="true">
+				                      <?php
+	                        		if(isset($this->permissoes) && sizeof($this->permissoes) > 0){
+			                            $ultimaPermissao = '';
+																	$cnt = 0 ;
+								                  foreach($this->permissoes as $permissao){
+			                                if($ultimaPermissao != $permissao["permissoes_modulo"]){
+			                                		if($ultimaPermissao != ''){
+			                                        echo '</div>
+																										</div>
+																										</div>';
+			                                    }
+			                                    $ultimaPermissao = $permissao["permissoes_modulo"];
+			                                    echo '<div class="card card-outline-info">
+			                                    <div class="card-header" role="tab" id="heading7">
+                                            	<h5 class="m-0"><a role="button" data-toggle="collapse" data-parent="#accordion-2" href="#collapse'.$cnt.'" aria-expanded="false" aria-controls="collapse31">'.$permissao["permissoes_modulo"].'</a></h5>
+                                          </div>
+                                          <div id="collapse'.$cnt.'" class="card-collapse collapse" role="tabpanel" aria-labelledby="heading7">
+                                          <div class="card-body">';
+						                          }
+			                                $selected = '';
+			                                if (isset($this->profissionais_permissoes) && is_array($this->profissionais_permissoes)) {
+																				reset($this->profissionais_permissoes);
+											                                
+																				foreach($this->profissionais_permissoes as $i){
+																					if($i['permissoes_modulo'] == $permissao['permissoes_modulo'] && $i['permissoes_nome'] == $permissao['permissoes_nome']){
+																						$selected = 'checked="checked"';
+																					}
+																				}
+																			}
+									                      echo '
+									                      <div class="">
+																					  <label>
+																								<input type="checkbox" id="permissao_'.$permissao['permissoes_id'].'" value="'.$permissao['permissoes_id'].'" '.$selected.'>
+																								<span class="labelCheck'.$permissao['permissoes_id'].'">'.$permissao['permissoes_nome'].'</span>
+																					  </label>
+																			  </div>
+																		  	' ;
+																			$cnt += 1 ;
+											            }
+											            echo '</div>
+																				</div>
+																				</div>';
+							                  }
+						                    ?>
+						                  	</div>
+                          </div>
+                          <div class="tab-pane" id="salario">
+		                        	<div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_salario">Salário</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_salario" name="profissionais_salario" value="<?php echo number_format((isset($this->dados["profissionais_salario"]))?$this->dados["profissionais_salario"]:0,2,",",".")?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_transporte">Transporte</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_transporte" name="profissionais_transporte" value="<?php echo number_format((isset($this->dados["profissionais_transporte"]))?$this->dados["profissionais_transporte"]:0,2,",",".")?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_alimentacao">Alimentação</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_alimentacao" name="profissionais_alimentacao" value="<?php echo number_format((isset($this->dados["profissionais_alimentacao"]))?$this->dados["profissionais_alimentacao"]:0,2,",",".")?>">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_impostos">Imposto</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_impostos" name="profissionais_impostos" value="<?php echo number_format((isset($this->dados["profissionais_impostos"]))?$this->dados["profissionais_impostos"]:0,2,",",".")?>">
+				                          </div>
+				                      </div>
+                          </div>
+                          <div class="tab-pane" id="foto">
+
+                          		<div class="form-group row">
+				                          <div class="col-md-3">
+																			<input type="button" class="btn btn-info" id="btnSelecionarImagem" value="Selecione a Imagem" class="form-control" />
+																	</div>
+																	<div class="col-md-9">
+																			<div id="progressbar" style="border: 1px solid #ccc; background: #fcfcfc; height: 15px"></div>
+																	</div>
+				                      </div>
+				                      <div class="form-group">
+																	<div align="center" class="col-md-12" id="profissional_img">
+																			<img id="img_prof" src="<?php echo (file_exists("imagens/profissionais/".explode('_', $_SESSION["cliente_schema"])[1]."_profissional_".$this->dados["profissionais_id"].".jpg"))?"/imagens/profissionais/".explode('_', $_SESSION["cliente_schema"])[1]."_profissional_".$this->dados["profissionais_id"].".jpg?rid=".rand(0,9999999)."":"/imagens/sem_foto.png"?>" class="imgProfissional"/>
+																	</div>
+															</div>
+<!-- 
+                          		<div class="row">
+																<div class="col-lg-12">
+																	<div class="panel panel-info">
+																		<div class="panel-heading">Foto Profissional:</div>
+																		<div class="panel-body">
+																			<div class="form-group">
+
+																				<div class="col-md-3">
+																					<input type="button" id="btnSelecionarImagem" value="Selecione a Imagem" class="form-control" />
+																				</div>
+																				<div class="col-md-9">
+																					<div id="progressbar" style="border: 1px solid #ccc; background: #fcfcfc; height: 15px"></div>
+																				</div>
+																			</div>
+
+																			<div class="form-group">
+																				<div align="center" class="col-md-12" id="profissional_img">
+																					<img id="img_prof" src="<?php echo (file_exists("imagens/profissionais/profissional_".$this->dados["profissionais_id"].".jpg"))?"/imagens/profissionais/profissional_".$this->dados["profissionais_id"].".jpg?rid=".rand(0,9999999)."":"/imagens/sem_foto.png"?>" class="imgProfissional"/>
+																				</div>
+
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															</div> -->
+
+                          </div>
+                          <div class="tab-pane" id="hist">
+                          		<div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_historico_descricao">Descrição</label>
+				                          <div class="col-md-9">
+				                              <input class="form-control" placeholder="" type="text" id="profissionais_historico_descricao" name="profissionais_historico_descricao">
+				                          </div>
+				                      </div>
+				                      <div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_historico_data">Data</label>
+				                          <div class="col-md-4">
+				                              <input class="form-control datepicker" data-date-format="dd/mm/yyyy" placeholder="" type="text" id="profissionais_historico_data" name="profissionais_historico_data">
+				                          </div>
+				                          <div class="col-md-5">
+																		<button id="btnAdicionarProfissionaisHistorico" type="button" class="btn btn-primary btn-sm">Adicionar ao Histórico</button>
+																	</div>
+				                      </div>
+				                      <div class="form-group">
+																<div class="col-md-12">
+																	<table class="table table-striped table-bordered table-hover" id="dataTables-historico-profissionais">
+																		<thead>
+																			<tr>
+																				<th>Data</th>
+																				<th>Descrição</th>
+																				<th>Alterar</th>
+																				<th>Excluir</th>
+																			</tr>
+																		</thead>
+																		<tbody>
+																		<?php if (isset($this->hist) && count($this->hist)) {
+																			foreach($this->hist as $item => $value){ ?>
+																			<tr>
+																				<td><?php echo($value['profissionais_historico_data']); ?></td>
+																				<td><?php echo($value['profissionais_historico_descricao']); ?></td>
+																				<td align="center"><a href="#" onclick="alterarRegistroProfissionaisHistoricoGrid('<?php echo($value['profissionais_historico_id']); ?>')"><i class="fa fa-edit fa-fw" data-toggle="tooltip" data-placement="right" title="Editar"></i></a></td>
+																				<td align="center"><a href="#" onclick="excluirRegistroProfissionaisHistoricoGrid('<?php echo($value['profissionais_historico_id']); ?>')"><i class="fa fa-eraser fa-fw" data-toggle="tooltip" data-placement="right" title="Excluir"></i></a></td>
+																			</tr>		
+																		<?php } 
+																			} ?>
+																		</tbody>
+																	</table>
+																</div>
+															</div>
+                          </div>
+                          <div class="tab-pane" id="users">
+                          		<div class="form-group row">
+				                          <label class="col-md-3 col-form-label" for="profissionais_unidade">Profissionais</label>
+				                          <div class="col-md-9">
+				                              <select class="form-control" id="profissionais_unidade" name="profissionais_unidade">
+				                                  <option value="0">Selecione profissional</option>
+																						<?php foreach($this->profissionais_unidade as $item => $value) { 
+																								$esta = 0 ;
+																								foreach($this->Profissionaissupervisor as $itemS => $valueS)
+																									if ($value['profissionais_id'] == $valueS['fk_usuarios_id'])
+																										$esta = 1 ;
+																									if ($esta == 0 ) {
+																						?>
+																						
+																						<option value="<?php echo ($value['profissionais_id']) ; ?>"><?php echo ($value['profissionais_nome']) ; ?></option>
+																							
+																						<?php }
+																						} ?>
+				                              </select>
+				                          </div>
+				                      </div>
+				                      <div class="form-group">
+																<div class="col-md-12">
+																	<table class="table table-striped table-bordered table-hover" id="dataTables-profissionais-supervidor">
+																		<thead>
+																			<tr>
+																				<th width="85%">Nome</th>
+																				<th width="15%">Excluir</th>
+																			</tr>
+																		</thead>
+																		<tbody>
+																		<?php if (isset($this->Profissionaissupervisor) && count($this->Profissionaissupervisor)) {
+																			foreach($this->Profissionaissupervisor as $item => $value){ ?>
+																			<tr>
+																				<td><?php echo($value['profissionais_nome']); ?></td>
+																				<td align="center"><a href="#" onclick="excluirRegistroProfissionaisSupervisor('<?php echo($value['profissionais_supervisor_id']); ?>')"><i class="fa fa-eraser fa-fw"></i></a></td>
+																			</tr>		
+																		<?php } 
+																			} ?>
+																		</tbody>
+																	</table>
+																</div>
+															</div>
+
+                          		<!-- <div class="row">
+																<div class="col-lg-12">
+																	<div class="panel panel-info">
+																		<div class="panel-heading">Profissionais:</div>
+																		<div class="panel-body">
+																			<div class="form-group">
+																				<label class="control-label col-sm-2">Profissional:</label>
+																				<div class="col-md-10">
+																					<select class="form-control" name="profissionais_unidade" id="profissionais_unidade">
+																						<option value="0">Selecione profissional</option>
+																						<?php foreach($this->profissionais_unidade as $item => $value) { 
+																								$esta = 0 ;
+																								foreach($this->Profissionaissupervisor as $itemS => $valueS)
+																									if ($value['profissionais_id'] == $valueS['fk_usuarios_id'])
+																										$esta = 1 ;
+																									if ($esta == 0 ) {
+																						?>
+																						
+																							<option value="<?php echo ($value['profissionais_id']) ; ?>"><?php echo ($value['profissionais_nome']) ; ?></option>
+																							
+																						<?php 						 }
+																							  } ?>
+																					</select>
+																				</div>
+																				<div class="form-group">
+																					<div class="col-md-12">
+																						<table class="table table-striped table-bordered table-hover" id="dataTables-profissionais-supervidor">
+																							<thead>
+																								<tr>
+																									<th width="85%">Nome</th>
+																									<th width="15%">Excluir</th>
+																								</tr>
+																							</thead>
+																							<tbody>
+																							<?php if (isset($this->Profissionaissupervisor) && count($this->Profissionaissupervisor)) {
+																								foreach($this->Profissionaissupervisor as $item => $value){ ?>
+																								<tr>
+																									<td><?php echo($value['profissionais_nome']); ?></td>
+																									<td align="center"><a href="#" onclick="excluirRegistroProfissionaisSupervisor('<?php echo($value['profissionais_supervisor_id']); ?>')"><i class="fa fa-eraser fa-fw"></i></a></td>
+																								</tr>		
+																							<?php } 
+																								} ?>
+																							</tbody>
+																						</table>
+																					</div>
+																				</div>
+
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															</div> -->
+
+                          </div>
+                      </div>
+                      <!-- /.tab-content -->
+                  </div>
+                      <div class="form-actions">
+                          <div class="form-group row">
+                              <div class="col-md-9 ml-md-auto btn-list">
+                                  <button class="btn btn-primary btn-rounded" type="button" id="saveProfissinal">Salvar</button>
+                                  <button class="btn btn-outline-default btn-rounded" type="button" onclick="window.history.back();">Cancelar</button>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+              <!-- /.widget-body -->
+          </div>
+          <!-- /.widget-bg -->
+      </div>
+  </div>
+</div>
+
+
+<script>
+
+$(function(){
+	$('.datepicker').datepicker({
+          dateFormat: 'dd/mm/yy',
+           dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+           dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S', 'D'],
+           dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+           monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+           monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+           nextText: 'Proximo',
+           prevText: 'Anterior'
+        });
+});
+</script>
+
+<?php 
+}
+?>

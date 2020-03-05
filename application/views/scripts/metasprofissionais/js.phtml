@@ -1,0 +1,235 @@
+<script>
+
+	var tmpTable;
+
+    var idRandom = <?php echo $idRandom?>;
+    var idFormMetasprofissionais = 0
+    var fk_profissionais_id = <?php echo ($this->idProf); ?>;
+    
+    $(document).ready(function() {
+        tmpTable = $('#dataTables-metas-profissionais').dataTable( 
+
+			{
+				"bPaginate": true,
+				"iDisplayLength" : 10,
+				"sPaginationType": "full_numbers",
+				"oLanguage": {
+					"sLengthMenu":   "Mostrar &nbsp;_MENU_&nbsp; registros",
+					"sZeroRecords":  "N&atilde;o foram encontrados resultados",
+					"sInfo": "Mostrando registros de _START_ a _END_ de um total de _TOTAL_ registros",
+					"sInfoEmpty": "Nenhum registro para exibir",
+					"sSearch" : "Pesquisar: &nbsp;",
+					"sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+					"oPaginate": {
+					"sFirst":    null,
+					"sPrevious": "Anterior",
+					"sNext":     "Seguinte",
+					"sLast":     null
+					}
+
+				}
+			}
+
+		);
+
+
+		$(document).on("hidden.bs.modal", function (e) {
+			$(e.target).removeData("bs.modal").find(".modal-content").empty();
+		});
+		
+		
+		$('a[name="SelecionarFileMeta[]"]').each(function() {
+
+				var btnUpload=$(this);
+				
+				var tmp = $(this).attr("id");
+				var res = tmp.split("_");
+				
+				//alert (res[1] + " - " + res[2]+ " - " + res[3]);
+				
+				new AjaxUpload(btnUpload, {
+
+					action: '/metasprofissionais/carregar-imagens/meta_id/' + res[1] + '/meta_nome/' + res[2],
+
+					name: 'uploadfile'+res[1],
+					onSubmit: function(file, ext){
+						
+							if (!(ext && /^(jpg|png|jpeg|gif)$/.test(ext))){ 
+								$().msgbox("alerta", "Somente JPG, PNG ou GIF são permitidas.");
+								return false;
+							}
+
+					},
+					onComplete: function(file, response){
+						var obj = $.parseJSON(response);
+						$.map(obj, function (val,i){
+
+						   if(i == 'sucesso'){
+
+								$.ajax({
+									url: "/metasprofissionais/salvar-file",
+									data: {metasprofissional_id: res[1], meta_nome: res[2]},
+									dataType: "json",
+									type: "POST",
+									success: function(source){
+
+										
+
+									}
+								});
+						   } 
+						});
+						tratarMsgRetorno(obj);
+						
+					}
+			});
+
+		});
+
+
+    });
+    
+	function imprimirMeta (id) {
+		var largura  = 800;
+		var altura   = 850;
+		var esquerda = (screen.width - largura) / 2;
+		var topo     = (screen.height - altura) / 2;
+
+		window.open('/metasprofissionais/imprimir-meta/meta_id/'+id+'/', 'Relatório', 'scrollbars=yes,width='+largura+',height='+altura+',top='+topo+',left='+esquerda);
+		
+	}
+
+    function alterarRegistroGridMetasprofissionais(idSelecionado){
+        idFormMetasprofissionais = idSelecionado;
+		$("a[id='btnFormularioMetasprofissionais']").attr("href", '/metasprofissionais/form/metasprofissional_id/'+idFormMetasprofissionais+'/fk_profissionais_id/'+fk_profissionais_id+'/');
+        $("a[id='btnFormularioMetasprofissionais']").click();
+        
+    }
+
+    function excluirRegistroGridMetasprofissionais(idSelecionado){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            $.ajax({
+                url: "/metasprofissionais/excluir",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           atualizarGridMetasprofissionais(null);
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+
+                }
+            });
+        }
+    }
+    
+    function atualizarGridMetasprofissionais(){
+        $.ajax({
+            url: "/metasprofissionais/pesquisar",
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+
+				tmpTable.fnClearTable(this);
+
+
+				var oSettings = tmpTable.fnSettings();
+				for (var i=0; i<source.dados.length; i++)
+				{
+					var addData = [];
+
+
+/*
+<td align="center">
+	<?php if ($value['metasprofissional_file'] == "") { ?>
+<a name="SelecionarFileMeta[]" id="btnSelecionarFile_<?php echo($value['metasprofissional_id']); ?>_<?php echo($value['metasprofissional_nome']); ?>_<?php echo($value['fk_profissionais_id']); ?>" href="#" class="btn btn-primary btn-xs"><i class="fa fa-filter"></i> Upload</a>
+	<?php } else { ?>
+		<a target="_blank" href="<?php echo($value['metasprofissional_file']); ?>">Descarregar</a>
+	<?php } ?>                                           
+</td>
+
+*/
+
+					addData.push(source.dados[i].fk_usuario_id);
+					addData.push(source.dados[i].data_creacao);
+					addData.push(source.dados[i].data_para);
+					addData.push(source.dados[i].metasprofissional_nome);
+					
+
+
+if (source.dados[i].metasprofissional_file == "") {
+	addData.push('<div style="text-align:center;"><a name="SelecionarFileMeta[]" id="btnSelecionarFile_'+source.dados[i].metasprofissional_id+'_'+source.dados[i].metasprofissional_nome+'_'+source.dados[i].fk_profissionais_id+'" href="#" class="btn btn-primary btn-xs"><i class="fa fa-filter"></i> Upload</a></div>');
+} else {
+	addData.push('<div style="text-align:center;"><a target="_blank" href="'+source.dados[i].metasprofissional_file+'">Descarregar</a></div>');
+}
+
+addData.push('<div style="text-align:center;"><a onclick="imprimirMeta(\''+source.dados[i].metasprofissional_id+'\')" href="#"><i class="fa fa-search fa-fw"></i></a></div>');
+addData.push('<div style="text-align:center;"><a onClick="alterarRegistroGridMetasprofissionais(\''+source.dados[i].metasprofissional_id+'\')" href="#"><i class="fa fa-edit fa-fw"></i></a></div>');
+addData.push('<div style="text-align:center;"><a onclick="excluirRegistroGridMetasprofissionais(\''+source.dados[i].metasprofissional_id+'\')" href="#"><i class="fa fa-eraser fa-fw"></i></a></div>');
+
+					
+					tmpTable.fnAddData(addData);
+				}
+				oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+				tmpTable.fnDraw();
+
+                
+			
+				$('a[name="SelecionarFileMeta[]"]').each(function() {
+
+						var btnUpload=$(this);
+						
+						var tmp = $(this).attr("id");
+						var res = tmp.split("_");
+						
+						//alert (res[1] + " - " + res[2]+ " - " + res[3]);						
+						
+						new AjaxUpload(btnUpload, {
+
+						action: '/metasprofissionais/carregar-imagens/meta_id/' + res[1] + '/meta_nome/' + res[2],
+
+						name: 'uploadfile'+res[1],
+						onSubmit: function(file, ext){
+							if (!(ext && /^(jpg|png|jpeg|gif)$/.test(ext))){ 
+								$().msgbox("alerta", "Somente JPG, PNG ou GIF são permitidas.");
+								return false;
+							}
+						},
+						onComplete: function(file, response){
+							var obj = $.parseJSON(response);
+							$.map(obj, function (val,i){
+
+							   if(i == 'sucesso'){
+
+									$.ajax({
+										url: "/metasprofissionais/salvar-file",
+										data: {metasprofissional_id: res[1], meta_nome: res[2]},
+										dataType: "json",
+										type: "POST",
+										success: function(source){
+
+
+										}
+									});
+
+							   } 
+							});
+							tratarMsgRetorno(obj);
+							
+						}
+					});
+
+				});
+                
+            }
+        });
+    }
+
+
+    
+</script>

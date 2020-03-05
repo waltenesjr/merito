@@ -1,0 +1,65 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo Zend_Json_Encoder::encode($this->permissao);
+}else{
+    $idRandom = rand(0,999999);
+?>
+<?php require_once 'js.phtml'; ?>
+
+<div id="botoesModuloMetasprofissionais<?php echo $idRandom?>"></div><br/>
+<!-- Grid de dados do módulo -->
+<table id="gridMetasprofissionais<?php echo $idRandom?>">
+    <colgroup>
+        <col width="60"/>
+        <col width="50"/>
+        <col width="50"/>
+        <col width="50"/>
+        
+        <col width="50"/>
+        <col width="35"/>
+        <col width="35"/>
+        <col width="35"/>
+       
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Gestor</th>
+            <th>Data e Hora</th>
+            <th>Meta para</th>
+            <th>Descri&ccedil;&atilde;o</th>
+            
+            <th>Upload</th>
+            <th>Visualizar</th>
+            <th>Alterar</th>
+            <th>Excluir</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="4"></td>
+        </tr>
+    </tbody>
+</table>
+<script id="rowTemplateMetasprofissionais<?php echo $idRandom?>" type="text/x-kendo-tmpl">
+        <tr>
+            <td>#: fk_usuario_id #</td>
+            <td>#: data_creacao #</td>
+            <td>#: data_para #</td>
+            <td>#: metasprofissional_nome #</td>
+            <td align="center">
+				# if (metasprofissional_file == "") { #
+					<input class="k-icon k-i-folder-add" type="button" name="SelecionarFileMeta[]" id="btnSelecionarFile_#= metasprofissional_id #_#= metasprofissional_nome#_#= fk_profissionais_id #" />
+				# } else { #
+					<a target="_blank" href="#= metasprofissional_file #">Descarregar</a>
+				# } #
+			
+			</td>
+            <td align="center"><a class="k-button" title="Visualizar" onclick="imprimirMeta('#: metasprofissional_id #')"><span class="k-icon k-i-search"></span></a></td>
+            <td align="center"><a class="k-button" title="Alterar" onclick="alterarRegistroGridMetasprofissionais('#: metasprofissional_id #')"><span class="k-icon k-i-pencil"></span></a></td>
+            <td align="center"><a class="k-button" title="Excluir" onclick="excluirRegistroGridMetasprofissionais('#: metasprofissional_id #')"><span class="k-icon k-i-close"></span></a></td>
+       </tr>
+</script>
+<?php
+}
+?>

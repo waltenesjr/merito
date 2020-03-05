@@ -1,0 +1,147 @@
+<script>
+
+function mostraJanela (url, div, title) {
+	
+	$("a[id='btnRelatorios']").attr("href", url);
+	$("a[id='btnRelatorios']").click();
+
+}
+
+$(function (){
+
+	$(document).on("hidden.bs.modal", function (e) {
+		$(e.target).removeData("bs.modal").find(".modal-content").empty();
+		
+	});
+	
+	$('#relatorio_melhor_prof').submit(function () { return false; });
+	$('#relatorio_melhor_prof_func').submit(function () { return false; });
+	$('#relatorio_pior_prof').submit(function () { return false; });
+	$('#relatorio_pior_prof_func').submit(function () { return false; });
+	$('#relatorio_prof_aval').submit(function () { return false; });
+	$('#relatorio_media_unidades').submit(function () { return false; });
+	$('#relatorio_manual').submit(function () { return false; });
+	
+	$('#btnMelhorProf').click(function(e){
+		e.preventDefault();
+		
+		<?php
+			if ($this->permissao["profissionais_cargo"] == "master" || $this->permissao["profissionais_cargo"] == "administrador"){
+				//if (isset($this->permissao["fk_unidades_id"])) {?>
+					//mostraJanela ('/relatorios/melhor-prof/unidade/<?php //echo ($this->permissao["fk_unidades_id"]) ?>/', 'winRelatorio', 'Relatórios - Maiores Notas');
+				<?php //} else { ?>
+					mostraJanela ('/relatorios/melhor-prof/', 'winRelatorio', 'Relatórios - Maiores Notas');
+				<?php //} ?>
+		
+		<?php } else { ?>
+			$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+			return false ;
+		<?php } ?>
+		
+	});
+
+	$('#btnMelhorProfFunc').click(function(e){
+		e.preventDefault();
+		
+		<?php
+			if ($this->permissao["profissionais_cargo"] == "master" || $this->permissao["profissionais_cargo"] == "administrador"){
+				//if (isset($this->permissao["fk_unidades_id"])) {?>
+					//mostraJanela ('/relatorios/melhor-prof-func/unidade/<?php //echo ($this->permissao["fk_unidades_id"]) ?>/', 'winRelatorio', 'Relatórios - Melhores Notas X Função');
+				<?php //} else { ?>
+					mostraJanela ('/relatorios/melhor-prof-func/', 'winRelatorio', 'Relatórios - Melhores Notas X Função');
+				<?php //} ?>
+		
+		<?php } else { ?>
+			$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+			return false ;
+		<?php } ?>
+	
+	});
+
+	$('#btnPiorProf').click(function(e){
+		e.preventDefault();
+		
+		<?php
+			if ($this->permissao["profissionais_cargo"] == "master" || $this->permissao["profissionais_cargo"] == "administrador"){
+				//if (isset($this->permissao["fk_unidades_id"])) {?>
+					//mostraJanela ('/relatorios/pior-prof/unidade/<?php //echo ($this->permissao["fk_unidades_id"]) ?>/', 'winRelatorio', 'Relatórios - Menores Notas');
+				<?php //} else { ?>
+					mostraJanela ('/relatorios/pior-prof/', 'winRelatorio', 'Relatórios - Menores Notas');
+				<?php //} ?>
+		
+		<?php } else { ?>
+			$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+			return false ;
+		<?php } ?>
+
+	});
+
+	$('#btnPiorProfFunc').click(function(e){
+		e.preventDefault();
+		
+		<?php
+			if ($this->permissao["profissionais_cargo"] == "master" || $this->permissao["profissionais_cargo"] == "administrador"){
+				//if (isset($this->permissao["fk_unidades_id"])) {?>
+					//mostraJanela ('/relatorios/pior-prof-func/unidade/<?php //echo ($this->permissao["fk_unidades_id"]) ?>/', 'winRelatorio', 'Relatórios - Menores Notas X Função');
+				<?php //} else { ?>
+					mostraJanela ('/relatorios/pior-prof-func/', 'winRelatorio', 'Relatórios - Menores Notas X Função');
+				<?php //} ?>
+		
+		<?php } else { ?>
+			$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+			return false ;
+		<?php } ?>
+
+	});
+
+	$('#btnProfAval').click(function(e){
+		e.preventDefault();
+		
+		<?php
+			if ($this->permissao["profissionais_cargo"] == "master" || $this->permissao["profissionais_cargo"] == "administrador"){
+				//if (isset($this->permissao["fk_unidades_id"])) {?>
+					//mostraJanela ('/relatorios/prof-aval/unidade/<?php //echo ($this->permissao["fk_unidades_id"]) ?>/', 'winRelatorio', 'Relatórios - Avaliação Profissionais');
+				<?php //} else { ?>
+					mostraJanela ('/relatorios/prof-aval/', 'winRelatorio', 'Relatórios - Avaliação Profissionais');
+				<?php //} ?>
+		
+		<?php } else { ?>
+			$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+			return false ;
+		<?php } ?>
+	});
+
+	$('#btnMediaUnidades').click(function(e){
+		e.preventDefault();
+		
+		<?php
+			if ($this->permissao["profissionais_cargo"] == "master" || $this->permissao["profissionais_cargo"] == "administrador"){
+				//if (isset($this->permissao["fk_unidades_id"])) {?>
+					//mostraJanela ('/relatorios/media-unidades/unidade/<?php //echo ($this->permissao["fk_unidades_id"]) ?>/', 'winRelatorio', 'Relatórios - Media Avaliação Unidades');
+				<?php //} else { ?>
+					mostraJanela ('/relatorios/media-unidades/', 'winRelatorio', 'Relatórios - Media Avaliação Unidades');
+				<?php //} ?>
+		
+		<?php } else { ?>
+			$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+			return false ;
+		<?php } ?>
+		
+	});
+
+	$('#btnManual').click(function(e){
+		e.preventDefault();
+
+		<?php
+			if ($this->permissao["profissionais_cargo"] == "master" || $this->permissao["profissionais_cargo"] == "administrador"){
+		?>
+				mostraJanela ('/relatorios/manual/', 'winRelatorio', 'Relatórios - Manual');
+
+		<?php } else { ?>
+			$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+			return false ;
+		<?php } ?>
+
+	});
+});
+</script>

@@ -1,0 +1,48 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo Zend_Json_Encoder::encode($this->permissao);
+}else{
+    $idRandom = rand(0,999999);
+?>
+<?php require_once 'js.phtml'; ?>
+
+<div id="botoesModuloProfissionaisMetas<?php echo $idRandom?>"></div><br/>
+<input type="hidden" id="fk_profissionais_id" value="<?php echo $this->fk_profissionais_id?>"/>
+<div><p><b>Profissional: </b><?php echo $this->fk_profissionais_id." - ".$this->profissionais_nome?></p></div>
+<!-- Grid de dados do módulo -->
+<table id="gridProfissionaisMetas<?php echo $idRandom?>">
+    <colgroup>
+        <col width="40%"/>
+        <col width="15%"/>
+        <col width="15%"/>
+        <col width="15%"/>
+        <col width="7%"/>
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Meta</th>
+            <th>Cota</th>
+            <th>Quinzena</th>
+            <th>Mês</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="5"></td>
+        </tr>
+    </tbody>
+</table>
+<script id="rowTemplateProfissionaisMetas<?php echo $idRandom?>" type="text/x-kendo-tmpl">
+        <tr>
+                <td>#: metas_nome #</td>
+                <td>#: profissionais_metas_cota #</td>
+                <td>#: profissionais_metas_total_quinzena #</td>
+                <td>#: profissionais_metas_total_mes #</td>
+                <td><a class="k-button" title="Alterar" onclick="alterarRegistroGridProfissionaisMetas('#: profissionais_metas_id #')"><span class="k-icon k-i-pencil"></span></a></td>
+       </tr>
+</script>
+<?php
+}
+?>

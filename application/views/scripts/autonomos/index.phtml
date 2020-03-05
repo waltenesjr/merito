@@ -1,0 +1,60 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo Zend_Json_Encoder::encode($this->permissao);
+}else{
+   
+?>
+<?php require_once 'js.phtml'; ?>
+<input type="hidden" name="autonomos_tipo" id="autonomos_tipo" value="<?php echo $this->autonomos_tipo?>" />
+<!-- Grid de dados do módulo -->
+<table id="grid">
+    <colgroup>
+        <col width="4%"/>
+        <col width="8%"/>
+        <col width="auto"/>
+        <col width="auto"/>
+        <col width="auto"/>
+        <col width="auto"/>
+        <col width="8%"/>
+        <col width="50px"/>
+        <col width="6%"/>
+        <col width="50px"/>
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Imagem</th>
+            <th>Nome</th>
+            <th>Unidade</th>
+            <th>Função</th>
+            <th>Email</th>
+            <th>Telefone 1</th>
+            <th>Metas</th>
+            <th>Histórico</th>
+            <th>Excluir</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="9"></td>
+        </tr>
+    </tbody>
+</table>
+<script id="rowTemplate" type="text/x-kendo-tmpl">
+        <tr>
+                <td>#: autonomos_id #</td>
+                <td align="center"><img src="#: autonomos_img #" width="80px" class="imgProfissional"  onclick="mostarAvaliacao_2('#: autonomos_id #', '#: funcoes_id #')"/></td>
+                <td>#: autonomos_nome #</td>
+                <td>#: unidades_nome #</td>
+                <td>#: funcoes_descricao #</td>
+                <td>#: autonomos_email #</td>
+                <td>#: autonomos_fixo_1 #</td>
+                <td align="center"><a class="k-button" title="Definir Metas" onclick="definirMetasRegistroGrid('#: autonomos_id #')"><span class="k-icon k-i-custom"></span></a></td>
+                <td align="center"><a class="k-button" title="Alterar" onclick="alterarRegistroGrid('#: autonomos_id #')"><span class="k-icon k-i-pencil"></span></a></td>
+                <td align="center"><a class="k-button" title="Excluir" onclick="excluirRegistroGrid('#: autonomos_id #')"><span class="k-icon k-i-close"></span></a></td>
+       </tr>
+</script>
+<?php
+}
+?>

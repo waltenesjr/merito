@@ -1,0 +1,42 @@
+
+<?php echo $this->doctype() ?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <?php $this->headLink()->appendStylesheet('http://'.$_SERVER["HTTP_HOST"].'/plugins/tAlert/tAlert.css'); ?>
+        
+        <?php $this->headLink()->appendStylesheet('http://'.$_SERVER["HTTP_HOST"].'/bootstrap-3.2.0/css/bootstrap.min.css'); ?>
+        <?php $this->headLink()->appendStylesheet('http://'.$_SERVER["HTTP_HOST"].'/bootstrap-3.2.0/css/bootstrap-theme.min.css'); ?>
+        
+		<?php $this->headLink()->appendStylesheet('http://'.$_SERVER["HTTP_HOST"].'/css/font-awesome.min.css'); ?>
+		<?php $this->headLink()->appendStylesheet('http://'.$_SERVER["HTTP_HOST"].'/css/dataTables.bootstrap.css'); ?>
+		
+		<?php $this->headLink()->appendStylesheet('http://'.$_SERVER["HTTP_HOST"].'/css/css.css'); ?>
+		<?php $this->headLink()->appendStylesheet('http://'.$_SERVER["HTTP_HOST"].'/css/datepicker.css'); ?>
+        
+        <?php echo $this->headLink(); ?>
+        
+        <?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/jquery.min.js'); ?>
+        <?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/bootstrap-3.2.0/js/bootstrap.min.js'); ?>
+        <?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/bootstrap-datepicker.js'); ?>
+        <?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/js.js'); ?>
+        
+        <?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/dataTables/jquery.dataTables.js'); ?>
+        <?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/dataTables/dataTables.bootstrap.js'); ?>
+        <?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/plugins/tAlert/tAlert.js'); ?>
+        <?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/ajaxupload.3.5.js'); ?>
+        
+        
+    </head>
+    <body>
+       
+
+<?php echo $this->layout()->content ?>
+
+    </body>
+</html>
+ 
+
+ 
+

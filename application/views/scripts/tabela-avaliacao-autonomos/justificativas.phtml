@@ -1,0 +1,78 @@
+<?php
+    $idRandom = rand(0,999999);
+?>
+<script>
+    var idRandom = <?php echo $idRandom;?>;
+    $(function (){
+        
+        //Tratamentos diversos ao formulário
+        $('form').submit(function () { return false; });
+                        
+        $('#btnSalvar'+idRandom).click(function (){
+            //Carrega os dados do formulário
+            var dadosForm = arrayToObject( $('#frmJustificativas'+idRandom).serializeArray() );
+            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	   if ( ($('#tabela_avaliacoes_justificativas_porque').val() == "") || ($('#tabela_avaliacoes_justificativas').val() == "")  ) {
+		$().msgbox("erro", "Informe da justificativa.");
+		return false ;
+	   }
+	   var url = "";
+	   // Avaliaçao + Justificativa
+	   if( (typeof dadosForm.nota != "undefined") && (typeof dadosForm.fk_autonomos_id != "undefined") && (typeof dadosForm.fk_atribuicoes_id != "undefined") ) {
+		url = "tabela-avaliacao-autonomos/set-justiaval" ;
+
+	   } else {
+
+		url = "tabela-avaliacao-autonomos/set-justificativas" ;
+	   }
+           $.ajax({
+                   url: url,
+                   data: {dadosForm: dadosForm},
+                   dataType: "json",
+                   type: "POST",
+                   success: function(source){
+               
+                       tratarMsgRetorno(source);
+                       $('#btnCancelar'+idRandom).click();
+                       showPainelDiario () ;
+                 
+                   },
+                   error: function(){
+                       $().msgbox("erro", "Desculpe! Não foi possível realizar a operação solicitada.");
+                   }
+           });
+			
+        });
+        
+        $('#btnCancelar'+idRandom).click(function (){
+            window.parent.$("div[id^='winJustificativas']").data("kendoWindow").close();
+            return false;
+        });
+    });
+</script>
+<form name="frmJustificativas<?php echo $idRandom;?>" id="frmJustificativas<?php echo $idRandom;?>">
+    <input type="hidden" name="fk_tabela_avaliacoes_id" id="fk_tabela_avaliacoes_id" value="<?php echo $this->fk_tabela_avaliacoes_id;?>"/>
+<?php if ( ((isset($this->nota_avaliacao)) && ($this->nota_avaliacao != "")) && ((isset($this->fk_autonomos_id)) && ($this->fk_autonomos_id != "")) && ((isset($this->fk_atribuicoes_id)) && ($this->fk_atribuicoes_id != "")) )
+        {
+?>
+    <input type="hidden" name="nota" id="nota" value="<?php echo $this->nota_avaliacao;?>"/>
+    <input type="hidden" name="fk_autonomos_id" id="fk_autonomos_id" value="<?php echo $this->fk_autonomos_id;?>"/>
+    <input type="hidden" name="fk_atribuicoes_id" id="fk_atribuicoes_id" value="<?php echo $this->fk_atribuicoes_id;?>"/>
+    <input type="hidden" name="tabela_avaliacoes_timestamp" id="tabela_avaliacoes_timestamp" value="<?php echo $this->tabela_avaliacoes_timestamp;?>"/>
+<?php } ?>
+    <table>
+        <tr>
+            <td>Por quê?</td>
+            <td><textarea rows="12" cols="45" maxlength="2000" name="tabela_avaliacoes_justificativas_porque" id="tabela_avaliacoes_justificativas_porque"><?php echo (isset($this->dados[0]['porque']))?$this->dados[0]['porque']:'';?></textarea></td>
+        </tr>
+        <tr>
+            <td>Justificativa?</td>
+            <td><textarea rows="12" cols="45" maxlength="2000" name="tabela_avaliacoes_justificativas" id="tabela_avaliacoes_justificativas"> <?php echo (isset($this->dados[0]['descricao']))?$this->dados[0]['descricao']:'';?></textarea></td>
+        </tr>
+    </table>
+    <div style="text-align: right">
+        <button class="k-button" id="btnSalvar<?php echo $idRandom;?>">Salvar</button>
+        <button class="k-button" id="btnCancelar<?php echo $idRandom;?>">Cancelar</button>
+    </div>
+</form>

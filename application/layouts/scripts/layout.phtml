@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/">
+    <link rel="stylesheet" href="assets/css/pace.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+    <!-- <link rel="icon" type="image/png" sizes="16x16" href="assets/demo/favicon.png"> -->
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Dashboard</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.1/jquery.toast.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/vendors/material-icons/material-icons.css" rel="stylesheet" type="text/css">
+    <link href="assets/vendors/mono-social-icons/monosocialiconsfont.css" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.4/sweetalert2.css" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/4.1.3/mediaelementplayer.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.7.0/css/perfect-scrollbar.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,600,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/vendors/weather-icons-master/weather-icons.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/vendors/weather-icons-master/weather-icons-wind.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.25/daterangepicker.min.css" rel="stylesheet" type="text/css">
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/style.css" rel="stylesheet" type="text/css">
+
+    <!-- Head Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.1/jquery.toast.min.js"></script>
+    <?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/principal.js'); ?>
+</head>
+
+<body class="header-light sidebar-dark sidebar-expand">
+    <div id="wrapper" class="wrapper">
+        <!-- HEADER & TOP NAVIGATION -->
+        <nav class="navbar">
+            <!-- Logo Area -->
+            <div class="navbar-header">
+                <a href="/" class="navbar-brand" style="background-color: #fff;">
+                    <img class="logo-expand" alt="" src="assets/demo/logo-expand-dark.png">
+                    <img class="logo-collapse" alt="" src="assets/demo/logo-collapse.png">
+                    <!-- <p>OSCAR</p> -->
+                </a>
+            </div>
+            <!-- /.navbar-header -->
+            <!-- Left Menu & Sidebar Toggle -->
+            <ul class="nav navbar-nav">
+                <li class="sidebar-toggle"><a href="javascript:void(0)" class="ripple"><i class="material-icons list-icon">menu</i></a>
+                </li>
+            </ul>
+            <!-- /.navbar-search -->
+            <div class="spacer"></div>
+
+            <!-- User Image with Dropdown -->
+            <ul class="nav navbar-nav">
+                <li class="dropdown"><a href="javascript:void(0);" class="dropdown-toggle ripple" data-toggle="dropdown"><span class="avatar thumb-sm"><img src="<?php echo (file_exists("imagens/profissionais/profissional_".$_SESSION['profissionais_id'].".jpg"))?"/imagens/profissionais/profissional_".$_SESSION['profissionais_id'].".jpg?rid=".rand(0,9999999)."":"/assets/demo/users/user-image.png"?>" class="rounded-circle" alt=""> <i class="material-icons list-icon">expand_more</i></span></a>
+                    <div
+                    class="dropdown-menu dropdown-left dropdown-card dropdown-card-wide dropdown-card-dark text-inverse">
+                      <div class="card">
+                          <header class="card-heading-extra">
+                              <div class="row">
+                                  <div class="col-8">
+                                      <h3 class="mr-b-10 sub-heading-font-family fw-300"><?php echo $_SESSION['profissionais_nome'] ?></h3><span class="user--online">Disponível <i class="material-icons list-icon">expand_more</i></span>
+                                  </div>
+                                  <div class="col-4 d-flex justify-content-end"><a href="/login/logout" class="mr-t-10"><i class="material-icons list-icon">power_settings_new</i> Sair</a>
+                                  </div>
+                                  <!-- /.col-4 -->
+                              </div>
+                              <!-- /.row -->
+                          </header>
+                      </div>
+				    			</div>
+				    	</li>
+				    </ul>
+    <!-- /.navbar-right -->
+    </nav>
+    <!-- /.navbar -->
+    <div class="content-wrapper">
+        <!-- SIDEBAR -->
+        <aside class="site-sidebar scrollbar-enabled clearfix">
+            <!-- User Details -->
+            <div class="side-user">
+                <a class="col-sm-12 media clearfix" href="javascript:void(0);">
+                    <figure class="media-left media-middle user--online thumb-sm mr-r-10 mr-b-0">
+                        <img src="<?php echo (file_exists("imagens/profissionais/profissional_".$_SESSION['profissionais_id'].".jpg"))?"/imagens/profissionais/profissional_".$_SESSION['profissionais_id'].".jpg?rid=".rand(0,9999999)."":"/assets/demo/users/user-image.png"?>" class="media-object rounded-circle" alt="">
+                    </figure>
+                    <div class="media-body hide-menu">
+                        <h4 class="media-heading mr-b-5 text-uppercase"><?php echo $_SESSION['profissionais_nome'] ?></h4>
+                    </div>
+                </a>
+                <div class="clearfix"></div>
+            </div>
+            <!-- /.side-user -->
+            <!-- Sidebar Menu -->
+            <nav class="sidebar-nav">
+                <ul class="nav in side-menu">
+                    <?php if($_SESSION['profissionais_cargo'] != 'funcionario'): ?>
+	                <li class="<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'unidades') echo 'active'?>">
+	                	<a href="/unidades" class="ripple">
+	                		<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'unidades') echo '<span class="color-color-scheme">' ?>
+	                		<i class="list-icon material-icons">location_city</i> 
+	                		<span class="hide-menu">Unidades</span>
+	                		<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'unidades') echo '</span>' ?>
+	                	</a>
+	                </li>
+	                <li class="menu-item-has-children <?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'profissionais' || Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'funcoes' || Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'atribuicoes' || Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'tabela-avaliacao') echo 'active'?>">
+                        <a href="javascript:void(0);" class="ripple">
+                            <?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'profissionais' || Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'funcoes' || Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'atribuicoes' || Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'tabela-avaliacao') echo '<span class="color-color-scheme">' ?>
+                            <i class="list-icon material-icons">group</i> 
+                            <span class="hide-menu">Cadastros</span>
+                            <?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'profissionais' || Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'funcoes' || Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'atribuicoes' || Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'tabela-avaliacao') echo '</span>' ?>
+                        </a>
+                        <ul class="list-unstyled sub-menu">
+                            <li><a href="/profissionais/index/profissionais_tipo/colaborador">Colaboradores CLT</a>
+                            </li>
+                            <li><a href="/tabela-avaliacao">Tabela de Avaliação</a>
+                            </li>
+                            <li><a href="/funcoes">Funções</a>
+                            </li>
+                            <li><a href="/atribuicoes">Atribuições</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <?php endif; ?>
+	              	<li class="<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'tarefas') echo 'active'?>">
+	              		<a href="/tarefas" class="ripple">
+	              			<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'tarefas') echo '<span class="color-color-scheme">' ?>
+	              			<i class="list-icon material-icons" style="width: 24px">list_alt</i> 
+	              			<span class="hide-menu ">Tarefas</span>
+	              			<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'tarefas') echo '</span>' ?>
+	              		</a>
+	              	</li>
+                    <?php if($_SESSION['profissionais_cargo'] != 'funcionario'): ?>
+	              	<li class="<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'relatorios') echo 'active'?>">
+	              		<a href="/relatorios" class="ripple">
+	              			<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'relatorios') echo '<span class="color-color-scheme">' ?>
+	              			<i class="list-icon material-icons" style="width: 24px">insert_chart_outlined</i> 
+	              			<span class="hide-menu">Relatórios</span>
+	              			<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'relatorios') echo '</span>' ?>
+	              		</a>
+	              	</li>
+                    <?php endif; ?>
+	              	<li class="menu-item-has-children"><a href="javascript:void(0);" class="ripple"><i class="list-icon material-icons">folder</i> <span class="hide-menu">Documentos</span></a>
+	                    <ul class="list-unstyled sub-menu">
+	                    		<?php
+													if (isset($this->menuSub) && count($this->menuSub) > 0) {
+														foreach ($this->menuSub as $subItem => $subValue){
+															foreach ($this->menu as $item => $value) {
+																if ($subValue['fk_menu_id'] == $value['menu_id'])
+																	$this->menu[$item]['submenu'][$subValue['menusub_id']] = $subValue;
+															}
+														}
+													}
+													
+													if (isset($this->menu) && count($this->menuSub) > 0) {
+														foreach ($this->menu as $item => $value) {
+													?>
+													<?php if ($value['menu_tem_sub'] == "1"){ ?>
+													<li class="menu-item-has-children"><a href="javascript:void(0);"><?php echo ($value['menu_text']) ?></a>
+	                            <ul class="list-unstyled sub-menu">
+	                            		<?php foreach($value['submenu'] as $subItem => $subValue) { ?>
+	                                <li><a href="<?php echo $subValue['menusub_url'] ?>" target="_blank"><?php echo $subValue['menusub_text'] ?></a>
+	                                </li>
+	                              	<?php } ?>
+	                            </ul>
+	                        </li>
+													<?php }else{ ?>
+	                        <li><a href="<?php echo ($value['menu_url']) ?>" target="_blank"><?php echo ($value['menu_text']) ?></a>
+	                        </li>
+													<?php	
+													}	
+													}
+													}
+													?>
+	                        </li>
+	                    </ul>
+	                </li>
+                    <?php if($_SESSION['profissionais_cargo'] != 'funcionario'): ?>
+	                <li class="<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'menudoc') echo 'active'?>">
+	                	<a href="/menudoc" class="ripple">
+	                		<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'menudoc') echo '<span class="color-color-scheme">' ?>
+	                		<i class="list-icon material-icons">create_new_folder</i> 
+	                		<span class="hide-menu">Adicionar Documentos</span>
+	                		<?php if(Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'menudoc') echo '</span>' ?>
+	                	</a>
+	                </li>
+                    <?php endif; ?>
+	                <li><a href="/login/logout"><i class="list-icon material-icons">settings_power</i> <span class="hide-menu">Sair</span></a>
+	                </li>
+                </ul>
+                <!-- /.side-menu -->
+            </nav>
+            <!-- /.sidebar-nav -->
+        </aside>
+        <!-- /.site-sidebar -->
+        <main class="main-wrapper clearfix">
+        	<?php echo $this->layout()->content ?>
+        </main>
+        <!-- /.main-wrappper -->
+    </div>
+    <!-- /.content-wrapper -->
+    <!-- FOOTER -->
+    <footer class="footer text-center clearfix">2019 © BNK Tecnologia</footer>
+    </div>
+    <!--/ #wrapper -->
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.2/umd/popper.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.77/jquery.form-validator.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/4.1.3/mediaelementplayer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/metisMenu/2.7.0/metisMenu.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.4/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Counter-Up/1.0.0/jquery.counterup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+    <script src="assets/vendors/charts/utils.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+    <script src="assets/vendors/charts/excanvas.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mithril/1.1.1/mithril.js"></script>
+    <script src="assets/vendors/theme-widgets/widgets.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clndr/1.4.7/clndr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.25/daterangepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script> -->
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/custom.js"></script>
+</body>
+</html> 

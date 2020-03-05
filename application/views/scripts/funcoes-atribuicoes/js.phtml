@@ -1,0 +1,133 @@
+<script>
+    var fk_funcoes_id = <?php echo $this->fk_funcoes_id?>;
+    var idRandom = <?php echo $idRandom?>;
+    var idFormFuncoesAtribuicoes = 0;
+    
+    var tfaTable;
+        
+    function alterarRegistroGridFuncoesAtribuicoes(funcoes_atribuicoes_id, fk_atribuicoes_id){
+        idFormFuncoesAtribuicoes = funcoes_atribuicoes_id;
+        $('input[id^="funcoes_atribuicoes_id"]').val(idFormFuncoesAtribuicoes);
+        $("#fk_atribuicoes_id").val(fk_atribuicoes_id);     
+    }
+    
+    /**
+     *@method excluirRegistroGridFuncoesAtribuicoes(id);
+     **/
+    function excluirRegistroGridFuncoesAtribuicoes(idSelecionado){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            $.ajax({
+                url: "/funcoes-atribuicoes/excluir",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           atualizarGridFuncoesAtribuicoes(null);
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+                }
+            });
+        }
+    }
+    function atualizarGridFuncoesAtribuicoes(dados){
+		/*
+        $.ajax({
+            url: "/funcoes-atribuicoes/pesquisar/fk_funcoes_id/"+fk_funcoes_id,
+            data: dados,
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                $("#gridFuncoesAtribuicoes"+idRandom).data("kendoGrid").dataSource.data([ ]);
+                var viewModel = new kendo.observable(source);
+                $("#gridFuncoesAtribuicoes"+idRandom).data("kendoGrid").dataSource.data(viewModel.dados);
+            }
+        });
+		*/
+
+
+		tfaTable.fnClearTable(this);
+		
+		$.ajax({
+			url:"/funcoes-atribuicoes/pesquisar/fk_funcoes_id/"+fk_funcoes_id,
+			data: dados,
+			dataType: "json",
+			type: "POST",
+			success: function(source){
+				var oSettings = tfaTable.fnSettings();
+				if (source.dados){
+					for (var i=0; i<source.dados.length; i++)
+					{
+						var addData = [];
+						addData.push(source.dados[i].fk_atribuicoes_id);
+						addData.push(source.dados[i].atribuicoes_nome);
+						addData.push('<a href="#" onclick="alterarRegistroGridFuncoesAtribuicoes(\''+source.dados[i].funcoes_atribuicoes_id+'\',\''+source.dados[i].fk_atribuicoes_id+'\',\''+source.dados[i].funcoes_metas_qtde+'\')"><i class="fa fa-edit fa-fw"></i></a>');
+						addData.push('<a href="#" onclick="excluirRegistroGridFuncoesAtribuicoes(\''+source.dados[i].funcoes_atribuicoes_id+'\')"><i class="fa fa-eraser fa-fw"></i></a>');
+						tfaTable.fnAddData(addData);
+
+					}
+				}
+				oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+				tfaTable.fnDraw();
+			}
+		});
+
+    }
+
+    $(document).ready(function() {
+
+		$(document).on("hidden.bs.modal", function (e) {
+			$(e.target).removeData("bs.modal").find(".modal-content").empty();
+		});
+		
+        tfaTable = $('#dataTables-funcoes-atribuicoes').dataTable( 
+
+			{
+				"bPaginate": true,
+				"iDisplayLength" : 10,
+				"sPaginationType": "full_numbers",
+				"oLanguage": {
+					"sLengthMenu":   "Mostrar&nbsp; _MENU_&nbsp; registros",
+					"sZeroRecords":  "N&atilde;o foram encontrados resultados",
+					"sInfo": "Registros de _START_ a _END_ de um total de _TOTAL_",
+					"sInfoEmpty": "Nenhum registro para exibir",
+					"sSearch" : "Pesquisar: &nbsp;",
+					"sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+					"oPaginate": {
+					"sFirst":    null,
+					"sPrevious": "Anterior",
+					"sNext":     "Seguinte",
+					"sLast":     null
+					}
+
+				}
+			}
+
+		);
+		
+        $('#btnAdicionarFuncoesAtribuicoes').click(function (){
+            //Carrega os dados do formulário
+            var dadosForm = arrayToObject( $('form[id^="frmFuncoesAtribuicoes"]').serializeArray() );
+            $.ajax({
+                url: "/funcoes-atribuicoes/salvar",
+                data: {dadosForm: dadosForm},
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           $('#fk_atribuicoes_id').val('');
+                           atualizarGridFuncoesAtribuicoes(null);
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+                }
+            });
+		});
+	});
+
+</script>

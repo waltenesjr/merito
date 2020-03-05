@@ -1,0 +1,133 @@
+<?php echo $this->doctype(); ?>
+<html lang="pt-Br">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+        <script type="text/javascript" charset="utf-8"> 
+
+		function imprimirMelhoresProfFunc (valores) {
+				var largura  = 800;
+				var altura   = 850;
+				var esquerda = (screen.width - largura) / 2;
+				var topo     = (screen.height - altura) / 2;
+
+				window.open('relatorios/imprimir-melhor-prof-func/'+valores, 'Relatório', 'scrollbars=yes,width='+largura+',height='+altura+',top='+topo+',left='+esquerda);					
+			}
+
+            $(function() {
+                $('form').submit(function () { return false; });
+            
+                $( '.txt_data' ).kendoDatePicker({
+					culture: "pt-BR",
+					format: "yyyy-MM-dd",
+					    change: function() {
+						var value = this.value();
+						$(this).val(value);
+					}
+				});
+				
+				$('#btnGerarMelhorProfFunc').click(function(){
+					if ( $("#data_ini").val() != "" && $("#data_fim").val() != "" ) {
+						var data_ini = new Date ($("#data_ini").val());
+						var data_fim = new Date ($("#data_fim").val());
+					}					
+					if ($("#data_ini").val() == "") {
+						$().msgbox('alerta', 'Informe a data inicial.');
+					} else if ($("#data_fim").val() == "") {
+						$().msgbox('alerta', 'Informe a data final.');
+					} else if (data_ini.getTime() > data_fim.getTime()) {
+						$().msgbox('alerta', 'Data inicial maior que a data final.');
+					} else {
+						var valores = $('#relatorio_melhor_prof_func').serialize();
+						
+						valores = valores.replace(/%2F/g,'-');
+                        valores = valores.replace(/&/g,'/');
+                        valores = valores.replace(/=/g,'/');
+						
+						imprimirMelhoresProfFunc (valores) ;
+					}
+					
+				});
+									if ( $("#data_ini").val() != "" && $("#data_fim").val() != "" ) {
+						var data_ini = new Date ($("#data_ini").val());
+						var data_fim = new Date ($("#data_fim").val());
+					}
+				
+            });
+        </script>
+
+        <style type="text/css">
+            .tabela_melhor_prof_func {width:100%}
+            .tabela_melhor_prof_func td { padding:2px 0 2px 0; vertical-align:middle }
+            .tabela_melhor_prof_func td.label_form { width: 15%; text-align:left; padding:3px 4px 3px 0; font-weight:bold } 
+
+            
+
+        </style>
+
+    </head>
+    <body>
+        <div>&nbsp;</div>
+        <div style="float: right;"><?php echo (isset($this->msg)) ? $this->msg : ''; ?></div>
+
+        <fieldset class="ui-corner-all">
+            <legend class="legenda"><strong>Relatório melhores profissionais X função</strong></legend>
+            <form action="#" method="post" name="relatorioMelhorProfFunc" id="relatorio_melhor_prof_func">
+                
+                <table class="tabela_melhor_prof_func" border="0">
+
+                    <tr>
+                        <td class="label_form">Período:</td>
+                        <td>
+                            <div id="busca" style="width:320px; float: left" >
+
+                                <input id="data_ini" name="data_ini" type="text" class="txt_data ui-corner-all" value="" size="14"/>
+                                -
+                                <input id="data_fim" name="data_fim" type="text" class="txt_data ui-corner-all" value="" size="14"/>
+                            </div>
+                        </td>
+                    </tr> 
+					<tr>
+						<td class="label_form" style="width: 1%">Unidade:</td>
+						<td>
+							<select name="fk_unidades_id" id="fk_unidades_id" style="width: 308px">
+								<option></option>
+								<?php
+									if(isset($this->unidades) && sizeof($this->unidades) > 0){
+										foreach($this->unidades as $item){
+											echo '<option value="'.$item['unidades_id'].'">'.$item['unidades_nome'].'</option>';
+										}
+									}
+								?>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="label_form" style="width: 1%">Função:</td>
+						<td>
+							<select name="fk_funcoes_id" id="fk_funcoes_id" style="width: 308px">
+								<option></option>
+								<?php
+									if(isset($this->funcoes) && sizeof($this->funcoes) > 0){
+										foreach($this->funcoes as $item){
+											echo '<option value="'.$item['funcoes_id'].'">'.$item['funcoes_descricao'].'</option>';
+										}
+									}
+								?>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="label_form" style="width: 1%">&nbsp;</td>
+						<td>
+							<div style="width:310px; float: left; text-align:right;">
+								<button class="k-button" id="btnGerarMelhorProfFunc">Gerar</button>
+							</div>
+						</td>
+					</tr>
+                </table>
+            </form> 
+        </fieldset> 
+
+    </body>
+</html>

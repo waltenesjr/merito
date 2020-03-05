@@ -1,0 +1,457 @@
+<?php 
+    require_once 'js.phtml';
+    
+    $arr = explode(' ',new Zend_Date());
+    $arrDt = explode('/',$arr[0]);
+?>
+
+<input type="hidden" name="tabela_avaliacoes_timestamp" id="tabela_avaliacoes_timestamp" value="<?php echo $arrDt[2].'-'.$arrDt[1].'-'.$arrDt[0];?>"/>
+<table style="width: 100%" class="tabela-avaliacao-selecao">
+    <tr>
+        <td style="width: 1%">Unidade:</td>
+        <td>
+            <select name="fk_unidades_id" id="fk_unidades_id" style="width: 100%">
+                <option></option>
+                <?php
+                    if(isset($this->unidades) && sizeof($this->unidades) > 0){
+                        foreach($this->unidades as $item){
+                            echo '<option value="'.$item['unidades_id'].'">'.$item['unidades_nome'].'</option>';
+                        }
+                    }
+                ?>
+            </select>
+        </td>
+        <td style="width: 1%">Função:</td>
+        <td>
+            <select name="fk_funcoes_id" id="fk_funcoes_id" style="width: 100%"><option></option></select>
+        </td>
+        <td style="width: 1%">Profissional:</td>
+        <td>
+            <select name="fk_profissionais_id" id="fk_profissionais_id" style="width: 100%"><option></option></select>
+        </td>
+        <td width="100px">
+            <button id="btnPesquisar" class="k-button"><span class="k-icon k-i-search"></span> Pesquisar</button>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="7" class="painel-avaliacoes" style="border-top: 1px solid #ccc; height: 500px;">
+            <table id="tabela-painel-avaliacoes" style="width: 100%; display: none">
+                <tr>
+                    <td width="70%" align="center" valign="top">
+                        <ul>
+                            <li id="btnTarefasDiarias" class="menu selecionado">Diária</li>
+                            <li id="btnTarefasMensal" class="menu">Mensal</li>
+                            <li id="btnTarefasTrimestral" class="menu">Trimestral</li>
+                            <li id="btnTarefasSimestral" class="menu">Semestral</li>
+                        </ul>
+                        <div style="clear: both"></div>
+                        
+                        
+                        <!-- 
+                        ************************************************
+                                        PAINEL DIÁRIO
+                        ************************************************
+                        -->
+                        <div id="painel-diario">
+                            <p>
+                                Atribuição <span id='data-tratamento-dados'></span> 
+                                <button class="k-button" id="btnRegistrosAtribuicoes"><span class="k-icon k-i-expand"></span> Registros de Atribuições</button>
+                            </p>
+                            <div style="border: 1px solid #ccc; height: 320px; padding: 3px; overflow: auto">
+                                
+                                
+                                <!-- 
+                                ************************************************
+                                As atribuições são inseridas neste elemento DOM
+                                ************************************************
+                                -->
+                                <table width="100%" id="lista-atruibuicoes"></table>
+                                
+                                
+                                
+                            </div>
+                            <div>
+                                <table>
+                                    <tr>
+                                        <td>Atribuição diária:</td>
+                                        <td id="up-nota"></td>
+                                        <td id="up-descricao">Ainda não foi definido atribuições.</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    
+                        <!-- 
+                        ************************************************
+                                        PAINEL MENSAL
+                        ************************************************
+                        -->
+                        <div id="painel-mensal" style="display: none">
+                            <div style="border: 1px solid #ccc; padding: 3px;">
+                                <!-- 
+                                ************************************************
+                                As atribuições são inseridas neste elemento DOM
+                                ************************************************
+                                -->
+
+                                <div width="100%" id="lista-atruibuicoes-mensal">
+                                    <div id="calendar"></div>
+                                    <style scoped>
+                                        #calendar {
+                                            width: 240px;
+                                            text-align: center;
+                                        }
+                                        #calendar .k-content {
+                                            height: 200px;
+                                        }
+                                        #calendar,
+                                        #calendar .k-content,
+                                        #calendar .k-header,
+                                        #calendar th,
+                                        #calendar .k-link,
+                                        #calendar .k-state-hover,
+                                        #calendar .k-state-selected,
+                                        #calendar .k-state-focused {
+                                            background: #ccc;
+                                            border-color: transparent;
+                                            color: #fff;
+                                            box-shadow: none;
+                                        }
+                                        #calendar .k-content .k-state-hover,
+                                        #calendar .k-content .k-state-focused {
+                                            font-size: 11px;
+                                            font-weight: bold;
+                                        }
+                                        #calendar .k-state-selected, #calendar .k-state-selected.k-state-focused {
+                                            font-size: 14px;
+                                            font-weight: bold;
+                                        }
+                                        #calendar .k-content .k-link {
+                                            padding: 0;
+                                            min-height: 30px;
+                                            line-height: 30px;
+                                        }
+                                        #calendar th {
+                                            padding-top: 20px;
+                                            color: #000;
+                                        }
+                                        #calendar td.k-other-month .k-link {
+                                            color: #000;
+                                        }
+                                        #calendar th,
+                                        #calendar td {
+                                            text-align: center;
+                                        }
+
+                                        /* Template Days */
+                                        .exhibition, .party, .cocktail {
+                                                width: 30px;
+                                                height: 30px;
+                                                margin: auto;
+                                                line-height: 30px;
+                                        }
+                                        .exhibition {
+                                            background-color: #fff;
+                                            color: #000;
+                                        }
+                                        .party {
+                                            background-color: #70c114;
+                                        }
+                                        .cocktail {
+                                            background-color: #00a1e8;
+                                        }
+
+										.hoje {
+											border-color:#FF00FF;
+											border-width:2px;
+											border-style:solid;
+										}
+
+										.mensal_azul {
+										   background-color: #6600FF  !important;
+										}
+                                        .mensal_verde {
+                                           background-color: #00bf00;
+                                        }
+                                         .mensal_amarelho {
+                                           background-color: #FFFF40  !important;
+                                        }
+                                         .mensal_laranja {
+                                           background-color: #FFB240 !important;
+                                        }
+                                         .mensal_vermelho {
+                                           background-color: #FF0033 !important;
+                                        }
+ 
+
+                                    </style>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                        <!-- 
+                        ************************************************
+                                        PAINEL TRIMESTRAL
+                        ************************************************
+                        -->
+                        <div id="painel-trimestral" style="display: none">
+                            <div style="border: 1px solid #ccc; height: 320px; padding: 3px; overflow: auto">
+                               <div width="100%" id="lista-atruibuicoes-trimestral">
+                                    <div id="calendar1"></div>
+                                    <div id="calendar2"></div>
+                                    <div id="calendar3"></div>
+
+                                    <style scoped>
+                                        #calendar1, #calendar2, #calendar3  {
+                                            width: 212px;
+                                            text-align: center;
+                                        }
+                                        #calendar1 .k-content, #calendar2 .k-content, #calendar3 .k-content {
+                                            height: 200px;
+                                        }
+                                        #calendar1, #calendar2, #calendar3,
+                                        #calendar1 .k-content, #calendar2 .k-content, #calendar3 .k-content,
+                                        #calendar1 .k-header, #calendar2 .k-header, #calendar3 .k-header,
+                                        #calendar1 th, #calendar2 th, #calendar3 th,
+                                        #calendar1 .k-link, #calendar2 .k-link, #calendar3 .k-link,
+                                        #calendar1 .k-state-hover, #calendar2 .k-state-hover, #calendar3 .k-state-hover,
+                                        #calendar1 .k-state-selected, #calendar2 .k-state-selected, #calendar3 .k-state-selected,
+                                        #calendar1 .k-state-focused, #calendar2 .k-state-focused, #calendar3 .k-state-focused {
+                                            background: #ccc;
+                                            border-color: transparent;
+                                            color: #fff;
+                                            box-shadow: none;
+                                        } 
+                                        #calendar1 .k-content .k-state-hover, #calendar2 .k-content .k-state-hover, #calendar3 .k-content .k-state-hover,
+                                        #calendar1 .k-content .k-state-focused, #calendar2 .k-content .k-state-focused, #calendar3 .k-content .k-state-focused {
+                                            font-size: 11px;
+                                            font-weight: bold;
+                                        }
+                                        #calendar1 .k-state-selected, #calendar2 .k-state-selected, #calendar3  .k-state-selected, #calendar1 .k-state-selected.k-state-focused, #calendar2 .k-state-selected.k-state-focused, #calendar3  .k-state-selected.k-state-focused {
+                                            font-size: 14px;
+                                            font-weight: bold;
+                                        }
+                                        #calendar1 .k-content .k-link, #calendar2 .k-content .k-link, #calendar3 .k-content .k-link {
+                                            padding: 0;
+                                            min-height: 30px;
+                                            line-height: 30px;
+                                        }
+                                        #calendar1 th, #calendar2 th, #calendar3 th {
+                                            padding-top: 20px;
+                                            color: #000;
+                                        }
+                                        #calendar1 td.k-other-month .k-link, #calendar2 td.k-other-month .k-link, #calendar3 td.k-other-month .k-link {
+                                            color: #000;
+                                        }
+                                        #calendar1 th, #calendar2 th, #calendar3 th,
+                                        #calendar1 td, #calendar2 td, #calendar3 td {
+                                            text-align: center;
+                                        }
+
+                                        /* Template Days */
+                                        .exhibition, .party, .cocktail {
+                                                width: 30px;
+                                                height: 30px;
+                                                margin: auto;
+                                                line-height: 30px;
+                                        }
+                                        .exhibition {
+                                            background-color: #fff;
+                                            color: #000;
+                                        }
+                                        .party {
+                                            background-color: #70c114;
+                                        }
+                                        .cocktail {
+                                            background-color: #00a1e8;
+                                        }
+
+					.mensal_azul {
+					   background-color: #6600FF  !important;
+					}
+                                        .mensal_verde {
+                                           background-color: #00bf00;
+                                        }
+                                         .mensal_amarelho {
+                                           background-color: #FFFF40  !important;
+                                        }
+                                         .mensal_laranja {
+                                           background-color: #FFB240 !important;
+                                        }
+                                         .mensal_vermelho {
+                                           background-color: #FF0033 !important;
+                                        }
+ 
+
+                                    </style>
+				</div> 
+                            </div>
+                        </div>
+                    
+                        
+                        <!-- 
+                        ************************************************
+                                        PAINEL SIMESTRAL
+                        ************************************************
+                        -->
+                        <div id="painel-simestral" style="display: none">
+                            <div style="border: 1px solid #ccc; height: 530px; padding: 3px; overflow: auto">
+
+							<table style="width: 100%;">
+								<tr>
+									<td style="text-align: left">
+										<button class="k-button" id="btnBackCalendar">&lt;</button>
+									</td>
+									<td style="text-align: right">
+										<button class="k-button" id="btnForwardCalendar">&gt;</button>
+									</td>
+								</tr>
+							</table>
+
+							<div style="clear:both"></div>
+                                    <div id="calendar11"></div>
+                                    <div id="calendar12"></div>
+                                    <div id="calendar13"></div>
+                                    <div style="margin-top:5px;" id="calendar14"></div>
+                                    <div style="margin-top:5px;" id="calendar15"></div>
+                                    <div style="margin-top:5px;" id="calendar16"></div>
+
+                                    <style scoped>
+                                        #calendar11, #calendar12, #calendar13, #calendar14, #calendar15, #calendar16  {
+                                            width: 212px;
+                                            text-align: center;
+                                        }
+                                        #calendar11 .k-content, #calendar12 .k-content, #calendar13 .k-content, #calendar14 .k-content, #calendar15 .k-content, #calendar16 .k-content {
+                                            height: 200px;
+                                        }
+                                        #calendar11, #calendar12, #calendar13, #calendar14, #calendar15, #calendar16,
+                                        #calendar11 .k-content, #calendar12 .k-content, #calendar13 .k-content, #calendar14 .k-content, #calendar15 .k-content, #calendar16 .k-content,
+                                        #calendar11 .k-header, #calendar12 .k-header, #calendar13 .k-header, #calendar14 .k-header, #calendar15 .k-header, #calendar16 .k-header,
+                                        #calendar11 th, #calendar12 th, #calendar13 th, #calendar14 th, #calendar15 th, #calendar16 th,
+                                        #calendar11 .k-link, #calendar12 .k-link, #calendar13 .k-link, #calendar14 .k-link, #calendar15 .k-link, #calendar16 .k-link,
+                                        #calendar11 .k-state-hover, #calendar12 .k-state-hover, #calendar13 .k-state-hover, #calendar14 .k-state-hover, #calendar15 .k-state-hover, #calendar16 .k-state-hover,
+                                        #calendar11 .k-state-selected, #calendar12 .k-state-selected, #calendar13 .k-state-selected, #calendar14 .k-state-selected, #calendar15 .k-state-selected, #calendar16 .k-state-selected,
+                                        #calendar11 .k-state-focused, #calendar12 .k-state-focused, #calendar13 .k-state-focused, #calendar14 .k-state-focused, #calendar15 .k-state-focused, #calendar16 .k-state-focused {
+                                            background: #ccc;
+                                            border-color: transparent;
+                                            color: #fff;
+                                            box-shadow: none;
+                                        } 
+                                        #calendar11 .k-content .k-state-hover, #calendar12 .k-content .k-state-hover, #calendar13 .k-content .k-state-hover, #calendar14 .k-content .k-state-hover, #calendar15 .k-content .k-state-hover, #calendar16 .k-content .k-state-hover,
+                                        #calendar11 .k-content .k-state-focused, #calendar12 .k-content .k-state-focused, #calendar13 .k-content .k-state-focused, #calendar14 .k-content .k-state-focused, #calendar15 .k-content .k-state-focused, #calendar16 .k-content .k-state-focused {
+                                            font-size: 11px;
+                                            font-weight: bold;
+                                        }
+                                        #calendar11 .k-state-selected, #calendar12 .k-state-selected, #calendar13  .k-state-selected, #calendar11 .k-state-selected.k-state-focused, #calendar12 .k-state-selected.k-state-focused, #calendar13  .k-state-selected.k-state-focused, #calendar14  .k-state-selected.k-state-focused, #calendar15  .k-state-selected.k-state-focused, #calendar16  .k-state-selected.k-state-focused {
+                                            font-size: 14px;
+                                            font-weight: bold;
+                                        }
+                                        #calendar11 .k-content .k-link, #calendar12 .k-content .k-link, #calendar13 .k-content .k-link , #calendar14 .k-content .k-link , #calendar15 .k-content .k-link , #calendar16 .k-content .k-link {
+                                            padding: 0;
+                                            min-height: 30px;
+                                            line-height: 30px;
+                                        }
+                                        #calendar11 th, #calendar12 th, #calendar13 th , #calendar14 th , #calendar15 th , #calendar16 th {
+                                            padding-top: 20px;
+                                            color: #000;
+                                        }
+                                        #calendar11 td.k-other-month .k-link, #calendar12 td.k-other-month .k-link, #calendar13 td.k-other-month .k-link , #calendar14 td.k-other-month .k-link , #calendar15 td.k-other-month .k-link , #calendar16 td.k-other-month .k-link {
+                                            color: #000;
+                                        }
+                                        #calendar11 th, #calendar12 th, #calendar13 th, #calendar14 th, #calendar15 th, #calendar16 th,
+                                        #calendar11 td, #calendar12 td, #calendar13 td, #calendar14 td, #calendar15 td, #calendar16 td {
+                                            text-align: center;
+                                        }
+
+
+                                        /* Template Days */
+                                        .exhibition, .party, .cocktail {
+                                                width: 30px;
+                                                height: 30px;
+                                                margin: auto;
+                                                line-height: 30px;
+                                        }
+                                        .exhibition {
+                                            background-color: #fff;
+                                            color: #000;
+                                        }
+                                        .party {
+                                            background-color: #70c114;
+                                        }
+                                        .cocktail {
+                                            background-color: #00a1e8;
+                                        }
+
+					.mensal_azul {
+					   background-color: #6600FF  !important;
+					}
+                                        .mensal_verde {
+                                           background-color: #00bf00;
+                                        }
+                                         .mensal_amarelho {
+                                           background-color: #FFFF40  !important;
+                                        }
+                                         .mensal_laranja {
+                                           background-color: #FFB240 !important;
+                                        }
+                                         .mensal_vermelho {
+                                           background-color: #FF0033 !important;
+                                        }
+ 
+
+                                    </style>
+				</div> 
+                            </div>
+                        </div>
+                    </td>
+                    <td style="background: #8D8C8B; border-left: 1px solid #aaa">
+                        <table style="width: 100%; text-align: left">
+                            <tr>
+                                <td rowspan="4" style="width: 40%; text-align: center"><img src="imagens/sem_foto.png" width="130" id="imgProfissional"/></td>
+                                <td align="center">
+                                    <input type="hidden" name="idProfissionalSelecionado" id="idProfissionalSelecionado" valeu="0"/>
+                                    <h3 id="nomeProfissional"></h3>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td align="center" id="nomeUnidade"></td>
+                            </tr>
+                            <tr>
+                                <td align="center" id="nomeFuncao"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><hr/></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+					<div style="padding-top:4px; float:left; width:240px;">Detalhes:</div>
+					<div id="getSalarioEmpregado" style="float:left;">
+						<button class="k-button" id="btnSalarioEmpregado">
+							R$
+						</button>
+					</div>
+				</td>
+                            </tr>
+                            <tr><td style="height: 140px"></td></tr>
+                            <tr>
+                                <td colspan="2"><hr/></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" align="center"><span id='data-tratamento-dados-right'></span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <table style="width: 100%; text-align: left" id="tabela-ultimos-itens-avaliados"></table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

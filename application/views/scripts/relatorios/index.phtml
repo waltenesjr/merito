@@ -1,0 +1,51 @@
+<?php
+	if( isset($this->permissao["profissionais_cargo"]) && $this->permissao["profissionais_cargo"] == "funcionario"){	
+		unset ($this->permissao["fk_unidades_id"]);
+		unset ($this->permissao["profissionais_cargo"]);
+		unset ($this->permissao["profissionais_id"]);
+		
+    echo Zend_Json_Encoder::encode($this->permissao);
+}else{
+   
+?>
+<?php 
+
+    require_once 'js.phtml';
+    
+    $arr = explode(' ',new Zend_Date());
+    $arrDt = explode('/',$arr[0]);
+?>
+
+<!-- Page Title Area -->
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Relatórios</h5>
+    </div>
+</div>
+<!-- /.page-title -->
+<!-- =================================== -->
+<!-- Different data widgets ============ -->
+<!-- =================================== -->
+<div class="widget-list">
+    <div class="row">
+        <div class="col-md-12 widget-holder">
+            <div class="widget-bg">
+                <div>
+                    <button onclick="window.location.href = '/relatorios/melhor-prof/'" id="btnMelhorProf" class="btn btn-info btn-rounded ripple" type="button">Maiores Notas</button>
+					<button onclick="window.location.href = '/relatorios/melhor-prof-func/'" id="btnMelhorProfFunc" class="btn btn-info btn-rounded ripple" type="button">Maiores Notas X Função</button>
+					<button onclick="window.location.href = '/relatorios/pior-prof/'" id="btnPiorProf" class="btn btn-info btn-rounded ripple" type="button">Menores Notas</button>
+					<button onclick="window.location.href = '/relatorios/pior-prof-func/'" id="btnPiorProfFunc" class="btn btn-info btn-rounded ripple" type="button">Menores Notas X Função</button>
+					<button onclick="window.location.href = '/relatorios/prof-aval/'" id="btnProfAval" class="btn btn-info btn-rounded ripple" type="button">Profissionais X Avaliação</button>
+					<button onclick="window.location.href = '/relatorios/media-unidades/'" id="btnMediaUnidades" class="btn btn-info btn-rounded ripple" type="button">Média unidades</button>
+					<button onclick="window.location.href = '/relatorios/manual/'" id="btnManual" class="btn btn-info btn-rounded ripple" type="button">Manual de Funções</button>
+                </div>
+            </div>
+            <!-- /.widget-bg -->
+        </div>
+        <!-- /.widget-holder -->
+    </div>
+    <!-- /.row -->
+</div>
+<?php
+}
+?>

@@ -1,0 +1,87 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo '<p class="msgPermissao alerta">'.$this->permissao["mensagem"].'</p>';
+}else{
+   
+?>
+
+<script>
+    $(function(){
+		
+        $('#saveAtribuicao').click(function (e){
+			e.preventDefault();
+			
+			var dadosForm = arrayToObject( $('#frmAtribuicoes').serializeArray() );
+			
+			$.ajax({
+                url: '/atribuicoes/salvar',
+                data: {dadosForm:dadosForm},
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                     $.map(source, function (val,i){
+                        if(i == 'sucesso'){
+                            tratarMsgRetorno(source);
+                            window.location.href = '/atribuicoes';
+						}
+						if(i == 'erro'){
+                            tratarMsgRetorno(source);
+                        }
+                     });
+                },
+                error: function(source){
+					console.log(source);
+                }
+            });
+        });
+    });
+
+</script>
+
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Atribuições</h5>
+    </div>
+</div>
+<div class="widget-list">
+  <div class="row">
+      <div class="col-md-12 widget-holder">
+          <div class="widget-bg">
+              <div class="widget-body clearfix">
+                  <h5 class="box-title mr-b-0">Informações</h5>
+                  <form id="frmAtribuicoes" name="frmAtribuicoes">
+                  		<input type="hidden" name="atribuicoes_id" id="atribuicoes_id" readonly="readonly" value="<?php echo (isset($this->dados["atribuicoes_id"]) && $this->dados["atribuicoes_id"] > 0)?$this->dados["atribuicoes_id"]:"0"?>"/>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="atribuicoes_nome">Nome</label>
+                          <div class="col-md-9">
+                              <input class="form-control" placeholder="" type="text" id="atribuicoes_nome" name="atribuicoes_nome" value="<?php echo (isset($this->dados["atribuicoes_nome"]))?$this->dados["atribuicoes_nome"]:""?>">
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                          <label class="col-md-3 col-form-label" for="atribuicoes_descricao">Descrição</label>
+                          <div class="col-md-9">
+                          		<textarea class="form-control"name="atribuicoes_descricao" rows="10" id="atribuicoes_descricao"><?php echo (isset($this->dados["atribuicoes_descricao"]))?$this->dados["atribuicoes_descricao"]:""?></textarea>
+                              <!-- <input class="form-control" placeholder="" type="text" id="funcoes_descricao" name="funcoes_descricao" value="<?php echo (isset($this->dados["funcoes_descricao"]))?$this->dados["funcoes_descricao"]:""?>"> -->
+                          </div>
+                      </div>
+                      <div class="form-actions">
+                          <div class="form-group row">
+                              <div class="col-md-9 ml-md-auto btn-list">
+                                  <button class="btn btn-primary btn-rounded" type="button" id="saveAtribuicao">Salvar</button>
+                                  <button class="btn btn-outline-default btn-rounded" type="button" onclick="window.location.href = '/atribuicoes'">Cancelar</button>
+                              </div>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+              <!-- /.widget-body -->
+          </div>
+          <!-- /.widget-bg -->
+      </div>
+  </div>
+</div>
+
+<?php
+}
+?>

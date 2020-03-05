@@ -1,0 +1,161 @@
+<script>
+$(function(){
+	$("input[id^='clientes_telefone']").mask("(99) 9999-9999");
+
+	$("input[id^='clientes_cnpj']").mask("99.999.999/9999-99");
+	
+    $('#saveCliente').click(function (e){
+			e.preventDefault();
+
+			var $this = $(this);
+
+			$this.html('Processando...').attr('disabled', true);
+			
+			var dadosForm = arrayToObject( $('#frmClientes').serializeArray() );
+			
+			
+			$.ajax({
+        url: '/clientes/salvar',
+        data: {dados:dadosForm},
+        dataType: "json",
+        type: "POST",
+        success: function(source){
+        	$this.html('Salvar').attr('disabled', false);	
+          $.map(source, function (val,i){
+            if(i == 'sucesso')
+              window.location.href = '/login?solicitado';
+						if(i == 'erro'){
+              tratarMsgRetorno(source);
+            }
+         	});
+        },
+        error: function(source){
+        	$this.html('Salvar').attr('disabled', false);	
+					console.log(source);
+        }
+      });
+		
+    });
+
+	$("input[id^='clientes_cep']").mask("99999-999");
+
+	$('#clientes_cep').keyup(function() {
+			
+			press = this.value;
+			press = press.replace(/_/g,'');
+			
+			if (press.length == 9) {
+				$.ajax({
+					url:'/cep/busca',
+					data: { cep : press },
+					dataType:'html',
+					type:'POST',
+					beforeSend:function(){
+						
+						//mostrarCarregando();
+						
+						$('#clientes_logradouro').val('Aguarde...');
+						$('#clientes_bairro').val('Aguarde...');
+						// $('#fk_municipios_codigo_ibge').val('Aguarde...');
+						
+					},
+					success: function(data, textStatus){
+						
+						var obj = $.parseJSON(data);
+						console.log(obj);
+						
+						if(obj.ok) {
+							$('#clientes_logradouro').val(obj.dados.tipo+' '+obj.dados.logradouro);
+							$('#clientes_bairro').val(obj.dados.bairro);
+							$('#clientes_uf').val(obj.dados.uf).trigger('change');
+							setTimeout(function(){
+								$('#municipios_codigo_ibge option').each(function(){
+									if($(this).html().normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase() == obj.dados.cidade.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()){
+										$(this).prop('selected', true);
+										$('#fk_municipios_codigo_ibge').val($(this).val());
+									}
+								});
+							}, 500);
+							
+							$('#profissionais_uf').val(obj.dados.uf);
+							
+						} else if (obj.alerta) {
+							
+							//notificacao(obj.alerta,'alerta');
+							
+							$().msgbox("erro", obj.alerta);
+							
+							// $('#clientes_logradouro').val('');
+							// $('#clientes_bairro').val('');
+							// $('#fk_municipios_codigo_ibge').val('');
+							
+						} else if (obj.erro) {
+							notificacao(obj.erro,'erro');
+						}
+					},
+					error: function(xhr, er){
+						//notificacao('Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.','erro');
+						$().msgbox("erro", 'Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.');
+					},
+					complete: function() {
+						//sumirCarregando();
+					}
+				});
+			}
+		});
+
+		$('#clientes_uf').change(function() {
+			
+			$.ajax({
+				url:'/municipios/getMunicipios',
+				data: { uf : this.value },
+				dataType:'html',
+				type:'POST',
+				beforeSend:function(){
+				},
+				success: function(data, textStatus){
+
+					var obj = $.parseJSON(data);
+					
+					if(obj.dados) {
+						$('#municipios_codigo_ibge option:not([value=""])').remove();
+						obj.dados.forEach(function(cidade){
+							$('#municipios_codigo_ibge').append($('<option/>').html(cidade.municipios_descricao).val(cidade.municipios_codigo_ibge));
+						});
+						
+					} else if (obj.alerta) {
+						
+						$().msgbox("erro", obj.alerta);
+						
+					} else if (obj.erro) {
+						notificacao(obj.erro,'erro');
+					}
+				},
+				error: function(xhr, er){
+					//notificacao('Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.','erro');
+					$().msgbox("erro", 'Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.');
+				},
+				complete: function() {
+					//sumirCarregando();
+				}
+			});
+
+		});
+
+	$('#municipios_codigo_ibge').change(function() { 
+			$('#fk_municipios_codigo_ibge').val(this.value);
+		});
+
+	function nomalizeStr(str){
+		return str.toLowerCase().replace(/ /g, '').replace(/[^\w\s]/gi, '').normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+	}
+
+	$('#clientes_empresa').change(function(){
+		$('#clientes_identificador').val(nomalizeStr(this.value));
+	});
+	$('#clientes_identificador').change(function(){
+		$(this).val(nomalizeStr(this.value));
+	});
+});
+    
+</script>

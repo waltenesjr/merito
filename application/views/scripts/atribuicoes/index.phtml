@@ -1,0 +1,70 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo Zend_Json_Encoder::encode($this->permissao);
+}else{
+    $idRandom = rand(0,999999);
+?>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.15/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.15/js/jquery.dataTables.min.js"></script>
+<?php require_once 'js.phtml'; ?>
+
+<!-- Page Title Area -->
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Atribuições</h5>
+    </div>
+</div>
+<!-- /.page-title -->
+<!-- =================================== -->
+<!-- Different data widgets ============ -->
+<!-- =================================== -->
+<div class="widget-list">
+    <div class="row">
+        <div class="col-md-12 widget-holder">
+            <div class="widget-bg">
+                <div class="widget-heading clearfix">
+                    <h5>Listagem</h5>
+                </div>
+                <div>
+                    <button class="btn btn-info btn-rounded ripple" onclick="window.location.href = '/atribuicoes/form'"><i class="material-icons list-icon">add</i><span>Novo</span></button>
+                </div>
+                <!-- /.widget-heading -->
+                <div class="widget-body clearfix">
+                    <table class="table table-striped table-responsive" id="dataTables-atribuicoes">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th style="text-align: center;">Alterar</th>
+                                <th style="text-align: center;">Excluir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (isset($this->dados['dados']) && count($this->dados['dados'])) {
+                                foreach($this->dados['dados'] as $item => $value){ ?>
+                                <tr>
+                                    <td><?php echo($value['atribuicoes_id']); ?></td>
+                                    <td><?php echo($value['atribuicoes_nome']); ?></td>
+                                    <td align="center"><button type="button" class="btn btn-color-scheme btn-circle btn-sm" onclick="window.location.href = '/atribuicoes/form/atribuicoes_id/<?php echo($value['atribuicoes_id']); ?>/'"><i class="material-icons list-icon">create</i></button></td>
+                                    <td align="center"><button type="button" class="btn btn-danger btn-circle btn-sm" href="#" onclick="excluirRegistroGridFuncoes('<?php echo($value['atribuicoes_id']); ?>')" ><i class="material-icons list-icon">clear</i></button></td>
+                                </tr>       
+                            <?php } 
+                            } ?>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.widget-body -->
+            </div>
+            <!-- /.widget-bg -->
+        </div>
+        <!-- /.widget-holder -->
+    </div>
+    <!-- /.row -->
+</div>
+
+
+<?php
+}
+?>

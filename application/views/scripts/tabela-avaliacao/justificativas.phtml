@@ -1,0 +1,99 @@
+
+<script>
+
+    $(function (){
+        
+        //Tratamentos diversos ao formulário
+        $('form').submit(function () { return false; });
+                        
+        $('#btnSalvar').click(function (){
+            //Carrega os dados do formulário
+            var dadosForm = arrayToObject( $('#frmJustificativas').serializeArray() );
+            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	   if ( ($('#tabela_avaliacoes_justificativas_porque').val() == "") || ($('#tabela_avaliacoes_justificativas').val() == "")  ) {
+		$().msgbox("erro", "Informe da justificativa.");
+		return false ;
+	   }
+	   var url = "";
+	   // Avaliaçao + Justificativa
+	   if( (typeof dadosForm.nota != "undefined") && (typeof dadosForm.fk_profissionais_id != "undefined") && (typeof dadosForm.fk_atribuicoes_id != "undefined") ) {
+		url = "/tabela-avaliacao/set-justiaval" ;
+
+	   } else {
+
+		url = "/tabela-avaliacao/set-justificativas" ;
+	   }
+           $.ajax({
+                   url: url,
+                   data: {dadosForm: dadosForm},
+                   dataType: "json",
+                   type: "POST",
+                   success: function(source){
+               
+                       tratarMsgRetorno(source);
+                       $('#btnCancelar').click();
+                       showPainelDiario () ;
+                 
+                   },
+                   error: function(){
+                       $().msgbox("erro", "Desculpe! Não foi possível realizar a operação solicitada.");
+                   }
+           });
+			
+        });
+        
+        $('#btnCancelar').click(function (){
+            window.parent.$("div[id^='winJustificativas']").data("kendoWindow").close();
+            return false;
+        });
+    });
+</script>
+
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title">Registros de Atribui&ccedil;&atilde;o</h4>
+          </div>
+          <div class="modal-body">
+			<form role="form" id="frmJustificativas" name="frmJustificativas">
+    <input type="hidden" name="fk_tabela_avaliacoes_id" id="fk_tabela_avaliacoes_id" value="<?php echo $this->fk_tabela_avaliacoes_id;?>"/>
+<?php if ( ((isset($this->nota_avaliacao)) && ($this->nota_avaliacao != "")) && ((isset($this->fk_profissionais_id)) && ($this->fk_profissionais_id != "")) && ((isset($this->fk_atribuicoes_id)) && ($this->fk_atribuicoes_id != "")) )
+        {
+?>
+    <input type="hidden" name="nota" id="nota" value="<?php echo $this->nota_avaliacao;?>"/>
+    <input type="hidden" name="fk_profissionais_id" id="fk_profissionais_id" value="<?php echo $this->fk_profissionais_id;?>"/>
+    <input type="hidden" name="fk_atribuicoes_id" id="fk_atribuicoes_id" value="<?php echo $this->fk_atribuicoes_id;?>"/>
+    <input type="hidden" name="tabela_avaliacoes_timestamp" id="tabela_avaliacoes_timestamp" value="<?php echo $this->tabela_avaliacoes_timestamp;?>"/>
+<?php } ?>
+				<input type="hidden" name="atribuicoes_id" id="atribuicoes_id" readonly="readonly" value="<?php echo (isset($this->dados["atribuicoes_id"]) && $this->dados["atribuicoes_id"] > 0)?$this->dados["atribuicoes_id"]:"0"?>"/>
+				<div class="panel panel-info">
+					<div class="panel-body">
+						
+						<div class="form-group">
+							<div class="col-md-3">
+								<label>Por quê?</label>
+							</div>
+							<div class="col-md-12">
+		                        <textarea class="form-control" rows="6" cols="100" maxlength="2000" name="tabela_avaliacoes_justificativas_porque" id="tabela_avaliacoes_justificativas_porque"><?php echo (isset($this->dados[0]['porque']))?$this->dados[0]['porque']:'';?></textarea>
+							</div>	
+						</div>
+						
+						<div class="form-group">
+							<div class="col-md-3">
+								<label>Justificativa?</label>
+							</div>
+							<div class="col-md-12">
+		                        <textarea class="form-control" rows="6" cols="100" maxlength="2000" name="tabela_avaliacoes_justificativas" id="tabela_avaliacoes_justificativas"> <?php echo (isset($this->dados[0]['descricao']))?$this->dados[0]['descricao']:'';?></textarea>
+							</div>	
+						</div>
+						
+					</div>
+				</div>
+			</form>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-default">Cancelar</button>
+            <button type="button" data-dismiss="modal" class="btn btn-primary" id="btnSalvar">Salvar</button>
+          </div>
+

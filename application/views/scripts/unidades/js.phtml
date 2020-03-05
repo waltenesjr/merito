@@ -1,0 +1,75 @@
+<script>
+    //Esta variável controla quando vai ser selecionado o formulário para novo registro ou alterar registros
+    var idForm = 0
+    
+
+    $(document).ready(function() {
+
+		$(document).on("hidden.bs.modal", function (e) {
+			$(e.target).removeData("bs.modal").find(".modal-content").empty();
+		});
+				
+		$('#btFunc').click(function (){
+			window.location.href = '/profissionais/index/profissionais_cargo/funcionario';
+		});	
+
+	$('#dataTables-unidades').dataTable( 
+
+		{
+			"bPaginate": true,
+			"iDisplayLength" : 25,
+			"sPaginationType": "full_numbers",
+			"oLanguage": {
+				"sLengthMenu":   "Mostrar &nbsp; _MENU_ &nbsp;registros",
+				"sZeroRecords":  "N&atilde;o foram encontrados resultados",
+				"sInfo": "Mostrando registros de _START_ a _END_ de um total de _TOTAL_ registros",
+				"sInfoEmpty": "Nenhum registro para exibir",
+				"sSearch" : "Pesquisar: &nbsp;",
+				"sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+				"oPaginate": {
+				"sFirst":    null,
+				"sPrevious": "Anterior",
+				"sNext":     "Seguinte",
+				"sLast":     null
+				}
+			
+			}
+		}
+	
+	);
+	
+    });
+ 
+	function mostrarColaboradores (idSelecionado) {
+	
+		window.location.href = "/profissionais/index/profissionais_tipo/colaborador?fk_unidades_id="+idSelecionado+"&profissionais_status_input=Todos";
+		
+	}
+ 
+     function excluirRegistroGrid(idSelecionado){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            $.ajax({
+                url: "/unidades/excluir",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    console.log(source);
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           window.location.href = '/unidades';
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+                }
+            });
+        }
+    }
+ 
+	 $('body').on('hidden.bs.modal', '.modal', function () {
+		$(this).removeData('bs.modal');
+	});
+    
+</script>

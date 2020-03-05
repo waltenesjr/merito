@@ -1,0 +1,62 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo '<p class="msgPermissao alerta">'.$this->permissao["mensagem"].'</p>';
+}else{
+   
+?>
+<div>
+    <form name="frmProfissionaisMetas" id="frmProfissionaisMetas">
+        <input type="hidden" name="fk_profissionais_id" id="fk_profissionais_id" value="<?php echo (isset($this->fk_profissionais_id))?$this->fk_profissionais_id:""?>"/>
+        <input class="k-textbox" type="hidden" name="profissionais_metas_id" id="profissionais_metas_id" readonly="readonly" value="<?php echo (isset($this->dados["profissionais_metas_id"]) && $this->dados["profissionais_metas_id"] > 0)?$this->dados["profissionais_metas_id"]:"0"?>"/>
+        <fieldset class="fd-form"><legend>Dados Gerais:</legend>
+            <table style="width: 100%">
+                <tr style="font-weight: bold">
+                    <td>Profissional:</td>
+                    <td><?php echo $this->fk_profissionais_id." - ".(isset($this->profissionais_nome))?$this->profissionais_nome:""?></td>
+                </tr>
+                <tr>
+                    <td>Meta:</td>
+                    <td>
+                        <select name="fk_metas_id" id="fk_metas_id" style="width: 100%">
+                            <option>Selecione uma Meta</option>
+                            <?php
+                                if(sizeof($this->metas) > 0){
+                                    foreach($this->metas as $key=>$metas){
+                                        $selected = ($metas["metas_id"] == $this->dados['fk_metas_id'])?"selected='selected'":"";
+                                        echo "<option value='".$metas["metas_id"]."' ".$selected.">".$metas["metas_nome"]."</option>";
+                                    }
+                                }
+                            ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 10%">Cota:</td>
+                    <td>
+                        <input type="text" name="profissionais_metas_cota" id="profissionais_metas_cota" value="<?php echo (isset($this->dados["profissionais_metas_cota"]))?$this->dados["profissionais_metas_cota"]:"0"?>"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 10%">Quinzena:</td>
+                    <td>
+                        <input type="text" name="profissionais_metas_total_quinzena" id="profissionais_metas_total_quinzena" value="<?php echo (isset($this->dados["profissionais_metas_total_quinzena"]))?$this->dados["profissionais_metas_total_quinzena"]:"0"?>"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 10%">Mês:</td>
+                    <td>
+                        <input type="text" name="profissionais_metas_total_mes" id="profissionais_metas_total_mes" value="<?php echo (isset($this->dados["profissionais_metas_total_mes"]))?$this->dados["profissionais_metas_total_mes"]:"0"?>"/>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+        <div style="text-align: right">
+            <button class="k-button" id="btnSalvarProfissionaisMetas">Salvar</button>
+            <button class="k-button" id="btnCancelarProfissionaisMetas">Cancelar</button>
+        </div>
+    </form>
+</div>
+<?php
+}
+?>

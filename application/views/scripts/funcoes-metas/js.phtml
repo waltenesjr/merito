@@ -1,0 +1,141 @@
+<script>
+    var fk_funcoes_id = <?php echo $this->fk_funcoes_id;?>;
+    var idRandom = <?php echo $idRandom?>;
+    var idFormFuncoesMetas = 0;    
+
+	var tfmTable;
+
+    function alterarRegistroGridFuncoesMetas(funcoes_metas_id, fk_metas_id, qtde){
+        idFormFuncoesMetas = funcoes_metas_id;
+        $('input[id^="funcoes_metas_id"]').val(idFormFuncoesMetas);
+        $("#fk_metas_id").val(fk_metas_id);
+        $('#funcoes_metas_qtde').val(qtde);        
+    }
+    
+    /**
+     *@method excluirRegistroGridFuncoesMetas(id);
+     **/
+    function excluirRegistroGridFuncoesMetas(idSelecionado){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            $.ajax({
+                url: "/funcoes-metas/excluir",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           atualizarGridFuncoesMetas(null);
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+
+                    /*var viewModel = new kendo.observable(source);
+                    $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);*/
+                }
+            });
+        }
+    }
+    function atualizarGridFuncoesMetas(dados){
+        /*
+        $.ajax({
+            url: "/funcoes-metas/pesquisar/fk_funcoes_id/"+fk_funcoes_id,
+            data: dados,
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                $("#gridFuncoesMetas"+idRandom).data("kendoGrid").dataSource.data([ ]);
+                var viewModel = new kendo.observable(source);
+                $("#gridFuncoesMetas"+idRandom).data("kendoGrid").dataSource.data(viewModel.dados);
+            }
+        });
+        */
+
+		tfmTable.fnClearTable(this);
+		
+		$.ajax({
+			url: "/funcoes-metas/pesquisar/fk_funcoes_id/"+fk_funcoes_id,
+			data: dados,
+			dataType: "json",
+			type: "POST",
+			success: function(source){
+				var oSettings = tfmTable.fnSettings();
+				if (source.dados){
+					for (var i=0; i<source.dados.length; i++)
+					{
+						var addData = [];
+						addData.push(source.dados[i].fk_metas_id);
+						addData.push(source.dados[i].metas_nome);
+						addData.push(source.dados[i].funcoes_metas_qtde);
+						addData.push('<a href="#" onclick="alterarRegistroGridFuncoesMetas(\''+source.dados[i].funcoes_metas_id+'\',\''+source.dados[i].fk_metas_id+'\',\''+source.dados[i].funcoes_metas_qtde+'\')"><i class="fa fa-edit fa-fw"></i></a>');
+						addData.push('<a href="#" onclick="excluirRegistroGridFuncoesMetas(\''+source.dados[i].funcoes_metas_id+'\')"><i class="fa fa-eraser fa-fw"></i></a>');
+						tfmTable.fnAddData(addData);
+
+					}
+				}
+				oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+				tfmTable.fnDraw();
+			}
+		});
+
+    }
+
+    $(document).ready(function() {
+		
+		$(document).on("hidden.bs.modal", function (e) {
+			$(e.target).removeData("bs.modal").find(".modal-content").empty();
+		});
+		
+        tfmTable = $('#dataTables-funcoes-metas').dataTable( 
+
+			{
+				"bPaginate": true,
+				"iDisplayLength" : 10,
+				"sPaginationType": "full_numbers",
+				"oLanguage": {
+					"sLengthMenu":   "Mostrar&nbsp; _MENU_&nbsp; registros",
+					"sZeroRecords":  "N&atilde;o foram encontrados resultados",
+					"sInfo": "Registros de _START_ a _END_ de um total de _TOTAL_",
+					"sInfoEmpty": "Nenhum registro para exibir",
+					"sSearch" : "Pesquisar: &nbsp;",
+					"sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+					"oPaginate": {
+					"sFirst":    null,
+					"sPrevious": "Anterior",
+					"sNext":     "Seguinte",
+					"sLast":     null
+					}
+
+				}
+			}
+
+		);
+		
+		
+        $('#btnAdicionarFuncoesMetas').click(function (){
+            var dadosForm = arrayToObject( $('form[id^="frmFuncoesMetas"]').serializeArray() );
+            $.ajax({
+                url: "/funcoes-metas/salvar",
+                data: {dadosForm: dadosForm},
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           $("#fk_metas_id").val('');
+                           $('input[id^="funcoes_metas_qtde"]').val('0');
+                           atualizarGridFuncoesMetas(null);
+                           $('input[id^="funcoes_metas_id"]').val('0');
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+
+                }
+            });
+        });
+
+    });
+
+</script>

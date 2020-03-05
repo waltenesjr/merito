@@ -1,0 +1,45 @@
+<?php 
+//Valida a permissão de Visualização
+//if($this->permissao["status"] == false){
+//    echo '<p class="msgPermissao alerta">'.$this->permissao["mensagem"].'</p>';
+//}else{
+   
+?>
+
+<div>
+    <form name="frmMetasprofissionais" id="frmMetasprofissionais">
+
+        <input type="hidden" name="metasprofissional_id" id="metasprofissional_id" readonly="readonly" value="<?php echo (isset($this->dados["metasprofissional_id"]) && $this->dados["metasprofissional_id"] > 0)?$this->dados["metasprofissional_id"]:"0"?>"/>
+        <input type="hidden" name="metasprofissionais_status" id="metasprofissionais_status" value="Ativo"/>
+		<input type="hidden" name="fk_profissionais_id" id="fk_profissionais_id" value="<?php echo (isset($this->fk_profissionais_id))?$this->fk_profissionais_id:"0"?>"/>
+		<input type="hidden" name="fk_usuario_id" id="fk_usuario_id" value="<?php echo (isset($this->fk_usuario_id))?$this->fk_usuario_id:"0"?>"/>
+
+            <table style="width: 100%">
+                <tr>
+                    <td style="width: 10%">Descri&ccedil;&atilde;o:</td>
+                    <td style="width: 40%">
+                        <input class="k-textbox" type="text" name="metasprofissional_nome" id="metasprofissional_nome" style="width: 95%" value="<?php echo (isset($this->dados["metasprofissional_nome"]))?$this->dados["metasprofissional_nome"]:""?>" maxlength="50"/>
+                    </td>
+                    <td style="width: 10%">Meta para:</td>
+                    <td style="width: 30%">
+                        <input maxlength="10" type="text" name="data_para_day" id="data_para_day" style="width: 100%" value="<?php echo (isset($this->dados["day"]))?$this->dados["day"]:""?>"/>
+                    </td>
+                    <td style="width: 10%">
+                        <input class="k-textbox" type="text" name="data_para_hour" id="data_para_hour" style="width: 95%" value="<?php echo (isset($this->dados["hour"]))?$this->dados["hour"]:""?>"/>
+                    </td>
+                </tr>
+                <tr>
+					<td colspan="5">
+						<textarea name="metasprofissional_text" id="metasprofissional_text" class="k-textarea" style="width: 98%" rows="20"><?php echo (isset($this->dados['metasprofissional_text']))?$this->dados['metasprofissional_text']:""?></textarea>
+					</td>
+                </tr>
+            </table>
+        <div style="text-align: right">
+            <button class="k-button" id="btnSalvarMetasprofissionais">Salvar</button>
+            <button class="k-button" id="btnCancelarMetasprofissionais">Cancelar</button>
+        </div>
+    </form>
+</div>
+<?php
+//}
+?>

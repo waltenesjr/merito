@@ -1,0 +1,170 @@
+<script>
+    var idRandom = <?php echo $idRandom?>;
+    //Esta variável controla quando vai ser selecionado o formulário para novo registro ou alterar registros
+    var idFormProfissionaisMetas = 0
+    
+    /**
+     *@method alterarRegistroGridProfissionaisMetas(id);
+     **/
+    function alterarRegistroGridProfissionaisMetas(idSelecionado){
+        idFormProfissionaisMetas = idSelecionado;
+        $("a[id='btnFormularioProfissionaisMetas']").click();
+        
+    }
+    
+    function atualizarGridProfissionaisMetas(dados){
+        $.ajax({
+            url: "profissionais-metas/pesquisar",
+            data: {dados: dados, fk_profissionais_id: $('#fk_profissionais_id').val()},
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                //verifica se possui algum erro ou alerta
+                var errAlert = false
+                $.map(source, function (val,i){
+                   if(i == 'alerta' || i == 'erro'){
+                       errAlert = true;
+                   } 
+                });
+                if(errAlert){
+                    //Mostra os Alertas e Erros se houver
+                    tratarMsgRetorno(source);
+                }
+                
+                $("#gridProfissionaisMetas"+idRandom).data("kendoGrid").dataSource.data([ ]);
+                var viewModel = new kendo.observable(source);
+                $("#gridProfissionaisMetas"+idRandom).data("kendoGrid").dataSource.data(viewModel.dados);
+            }
+        });
+    }
+    
+    $(function(){
+        var winProfissionaisMetas = null;
+        
+        ///-- Carregando os botões padrões do módulo
+        
+        ///-- *************************
+        ///-- Botão Formulário
+        ///-- *************************
+        var btnFormulario = $('<a/>',{
+            addClass: 'k-button',
+            text: ' Novo',
+            id: 'btnFormularioProfissionaisMetas',
+            click: function (){
+                var idRandom = (Math.floor((Math.random()*1000)+1)).toString() + (Math.floor((Math.random()*1000)+1)).toString();
+                $('body').append('<div id="inputWindow'+idRandom+'"/>');
+                winProfissionaisMetas = $("#inputWindow"+idRandom)
+                .kendoWindow({
+                    content: 'profissionais-metas/form/profissionais_metas_id/'+idFormProfissionaisMetas+'/fk_profissionais_id/'+$('#fk_profissionais_id').val(),
+                    actions: ["Close"],
+                    width: 500,
+                    modal: true,
+                    title: "Formulário - Profissionais e Metas",
+                    visible: false,
+                    animation: {
+                        open: {
+                            effects: "slideIn:down fadeIn",
+                            duration: 500
+                        },
+                        close: {
+                            effects: "slide:up fadeOut",
+                            duration: 500
+                        }
+                    },
+                    activate: function(){
+                        $(this).html('');
+                        //Tratamentos diversos ao formulário
+                        $('form').submit(function () { return false; });
+                        $("select[id^='fk_metas_id']").kendoComboBox();
+                        $("#profissionais_metas_cota, #profissionais_metas_total_quinzena, #profissionais_metas_total_mes").kendoNumericTextBox({
+                            min: 0,
+                            max: 1000,
+                            step: 1,
+                            format: "#"
+                        });
+                        
+                        //Define os botões de ações dentro da win
+                        /// Botão Salvar
+                        $("button[id^='btnSalvarProfissionaisMetas']").click(function (){
+                            //Carrega os dados do formulário
+                            var dadosForm = arrayToObject( $('form[id^="frmProfissionaisMetas"]').serializeArray() );
+                            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                            $.ajax({
+                                url: "profissionais-metas/salvar",
+                                data: {dadosForm: dadosForm},
+                                dataType: "json",
+                                type: "POST",
+                                success: function(source){
+                                    $.map(source, function (val,i){
+                                       if(i == 'sucesso'){
+                                           winProfissionaisMetas.close();
+                                           atualizarGridProfissionaisMetas(null);
+                                       } 
+                                    });
+                                    tratarMsgRetorno(source);
+                                    
+                                    /*var viewModel = new kendo.observable(source);
+                                    $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);*/
+                                }
+                            });
+                            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                            
+                            
+                        }).prepend($('<span/> ',{addClass: 'k-icon k-i-tick'}));
+                        /// Botão Cancelar
+                        $("button[id^='btnCancelarProfissionaisMetas']").click(function (){
+                            winProfissionaisMetas.close();
+                            
+                            
+                            
+                        }).appendTo($('<span/> ',{addClass: 'k-icon k-i-close'}));
+                    }
+                })
+                .data("kendoWindow")
+                .center();
+                
+                //Tratamento para o top
+                var wrapper = winProfissionaisMetas.wrapper;
+                wrapper.css({top: 25});
+                
+                winProfissionaisMetas.open();    
+                
+                idFormProfissionaisMetas = 0;
+                
+                
+            }
+        //Adicionado o icone
+        }).prepend($('<span/>',{addClass: 'k-icon k-i-plus'}));
+        
+        $("div[id^='botoesModuloProfissionaisMetas']").html('');
+        //Limpa e Adiciona os botões no local indicado
+        $("#botoesModuloProfissionaisMetas"+idRandom).html(btnFormulario);
+        
+        
+        
+        ///-- *************************
+        ///-- Grid de Dados
+        ///-- *************************
+        ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        atualizarGridProfissionaisMetas();
+        $("#gridProfissionaisMetas"+idRandom).kendoGrid({
+            dataSource: {
+              type: "odata",
+              transport: {
+                  read: {	
+                      
+                  }
+              },
+              pageSize: 5
+            },
+            rowTemplate: kendo.template($("#rowTemplateProfissionaisMetas"+idRandom).html()),
+            pageable: true
+        });
+        
+        ///-- Tooltip 
+       $("#gridProfissionaisMetas"+idRandom).kendoTooltip({
+            filter: "a",
+            position: "top"
+        }).data("kendoTooltip");
+    });
+</script>

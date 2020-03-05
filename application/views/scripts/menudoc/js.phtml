@@ -1,0 +1,124 @@
+<script>
+
+    $(document).ready(function() {
+		
+		$(document).on("hidden.bs.modal", function (e) {
+			$(e.target).removeData("bs.modal").find(".modal-content").empty();
+		});
+		
+    	tfTable = $('#dataTables-documentos').dataTable({
+			"bPaginate": true,
+			"iDisplayLength" : 10,
+			"sPaginationType": "full_numbers",
+			"oLanguage": {
+				"sLengthMenu":   "Mostrar _MENU_ registros",
+				"sZeroRecords":  "N&atilde;o foram encontrados resultados",
+				"sInfo": "Mostrando registros de _START_ a _END_ de um total de _TOTAL_ registros",
+				"sInfoEmpty": "Nenhum registro para exibir",
+				"sSearch" : "Pesquisar",
+				"sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+				"oPaginate": {
+				"sFirst":    null,
+				"sPrevious": "Anterior",
+				"sNext":     "Seguinte",
+				"sLast":     null
+				}
+
+			}
+		});
+
+    });
+
+    function alterarRegistroGrid(idSelecionado){
+        idForm = idSelecionado;
+        $("[id='btnFormulario_menu']").attr("href", '/menudoc/form/menu_id/' + idForm);
+        $("[id='btnFormulario_menu']").click();
+        $("[id='btnFormulario_menu']").attr("href", '/menudoc/form/menu_id/0');
+        
+    }
+
+    
+    function excluirRegistroGrid(idSelecionado, menu_tem_sub){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            obj.menu_tem_sub = menu_tem_sub;
+            $.ajax({
+                url: "/menudoc/excluir",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    console.log(source);
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           if (menu_tem_sub == "1" ){
+								$.ajax({
+									url: "/menusubdoc/excluir",
+									data:  obj,
+									dataType: "json",
+									type: "POST",
+									success: function(source){
+										console.log(source);
+										$.map(source, function (val,i){
+										   if(i == 'sucesso'){
+											    window.location.href = '/menudoc';
+												tratarMsgRetorno(source);
+										   } 
+										});
+										
+										
+									}
+								});                           
+							} else {
+								window.location.href = '/menudoc';
+								tratarMsgRetorno(source);
+							}
+                       } 
+                    });
+                }
+            });
+        }
+    }
+
+    function excluirSubMenu(idSelecionado, id){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            $.ajax({
+                url: "/menusubdoc/excluir-id",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    console.log(source);
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+							$("#btnCancelar").click();
+							setTimeout(callWin, 1000, id);
+                       } 
+                    });
+                    
+                    tratarMsgRetorno(source);
+                }
+            });
+        }
+    }
+    
+    function atualizarGrid(dados){
+        $.ajax({
+            url: "menudoc/get-menus",
+            data: dados,
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+				
+				
+                $("#grid").data("kendoGrid").dataSource.data([ ]);
+                var viewModel = new kendo.observable(source);
+                $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);
+            }
+        });
+    }
+    
+</script>

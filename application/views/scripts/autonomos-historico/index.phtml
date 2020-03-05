@@ -1,0 +1,60 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo Zend_Json_Encoder::encode($this->permissao);
+}else{
+    $idRandom = rand(0,999999);
+?>
+<?php require_once 'js.phtml'; ?>
+
+<div style="padding: 10px">
+<input type="hidden" name="autonomos_historico_id" id="autonomos_historico_id" value="0"/>
+<fieldset class="fd-form">
+    <table>
+        <tr>
+            <td>Data:</td>
+            <td><input type="text" name="autonomos_historico_data" maxlength="10" id="autonomos_historico_data" value=""/></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Descrição:</td>
+            <td style="width: 70%">
+                <input class="k-textbox" type="text" name="autonomos_historico_descricao" id="autonomos_historico_descricao" style="width: 100%"/>
+            </td>
+            <td><button class="k-button" id="btnAdicionarAutonomosHistorico" title="Adicionar Informação"><span class="k-icon k-si-plus"></span> Adicionar</button></td>
+        </tr>
+    </table>
+</fieldset>
+<!-- Grid de dados do módulo -->
+<table id="gridAutonomosHistorico<?php echo $idRandom;?>">
+    <colgroup>
+        <col width="20%"/>
+        <col width="64%"/>
+        <col width="50px"/>
+        <col width="50px"/>
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Alterar</th>
+            <th>Excluir</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="4"></td>
+        </tr>
+    </tbody>
+</table>
+<script id="rowTemplateAutonomosHistorico<?php echo $idRandom;?>" type="text/x-kendo-tmpl">
+        <tr>
+                <td>#: autonomos_historico_data #</td>
+                <td>#: autonomos_historico_descricao #</td>
+                <td align="center"><a class="k-button" title="Alterar" onclick="alterarRegistroAutonomosHistoricoGrid('#: autonomos_historico_id #')"><span class="k-icon k-i-pencil"></span></a></td>
+                <td align="center"><a class="k-button" title="Excluir" onclick="excluirRegistroAutonomosHistoricoGrid('#: autonomos_historico_id #')"><span class="k-icon k-i-close"></span></a></td>
+       </tr>
+</script>
+<?php
+}
+?>

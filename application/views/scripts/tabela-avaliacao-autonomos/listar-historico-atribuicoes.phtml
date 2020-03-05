@@ -1,0 +1,95 @@
+<?php 
+//Valida a permissão de Visualização
+//if($this->permissao["status"] == false){
+//   echo Zend_Json_Encoder::encode($this->permissao);
+//}else{
+    $idRandom = rand(0,999999);
+?>
+
+<script>
+    var idRandom = <?php echo $idRandom?>;
+    $(function (){
+        ///-- *************************
+        ///-- Grid de Dados
+        ///-- *************************
+        ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        $("#gridRegistrosAtribicao"+idRandom).kendoGrid({
+            dataSource: {
+              type: "odata",
+              transport: {
+                  read: {	
+                      
+                  }
+              },
+              pageSize: 5
+            },
+            rowTemplate: kendo.template($("#rowTemplateRegistrosAtribicao"+idRandom).html()),
+            pageable: {
+                refresh: true,
+                pageSizes: true
+            }
+        });
+        
+        ///-- Tooltip 
+       $("#gridRegistrosAtribicao"+idRandom).kendoTooltip({
+            filter: "a",
+            position: "top"
+        }).data("kendoTooltip");
+        
+        atualizarGrid(null);
+    });
+    
+    function atualizarGrid(dados){
+        $.ajax({
+            url: 'tabela-avaliacao/get-registros-atribuicao/fk_profissionais_id/'+$('#fk_profissionais_id').val(),
+            data: dados,
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                console.log(source);
+                $("#gridRegistrosAtribicao"+idRandom).data("kendoGrid").dataSource.data([]);
+                var viewModel = new kendo.observable(source);
+                $("#gridRegistrosAtribicao"+idRandom).data("kendoGrid").dataSource.data(viewModel.dados);
+            }
+        });
+    }
+</script>
+
+<!-- Grid de dados do módulo -->
+<table id="gridRegistrosAtribicao<?php echo $idRandom;?>">
+    <colgroup>
+        <col width="30%"/>
+        <col width="30%"/>
+        <col width="30%"/>
+        <col width="10%"/>
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Atribuição</th>
+            <th>Atualização</th>
+            <th>Responsável</th>
+            <th align="center">Nota</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="3"></td>
+        </tr>
+    </tbody>
+</table>
+<script id="rowTemplateRegistrosAtribicao<?php echo $idRandom;?>" type="text/x-kendo-tmpl">
+        <tr>
+                <td>#: atribuicoes_nome #</td>
+                <td>#: fk_usuarios_data_operacao #</td>
+                <td>#: profissionais_nome #</td>
+                <td>
+                    <div class="#: tabela_avaliacoes_historico_nota #">
+                        <input type="radio" value="0" id="#: tabela_avaliacoes_historico_nota #" name="#: tabela_avaliacoes_historico_nota #" checked="checked" />
+                        <label for="#: tabela_avaliacoes_historico_nota #"></label>
+                    </div>
+                </td>
+       </tr>
+</script>
+<?php
+//}
+?>

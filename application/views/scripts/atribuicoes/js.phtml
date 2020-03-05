@@ -1,0 +1,62 @@
+<script>
+    var idRandom = <?php echo $idRandom?>;
+    //Esta variável controla quando vai ser selecionado o formulário para novo registro ou alterar registros
+    var idFormAtribuicoes = 0
+    
+    var taTable ;
+    
+    $(document).ready(function() {
+
+		$(document).on("hidden.bs.modal", function (e) {
+			$(e.target).removeData("bs.modal").find(".modal-content").empty();
+		});
+		
+    	taTable = $('#dataTables-atribuicoes').dataTable({
+			"bPaginate": true,
+			"iDisplayLength" : 10,
+			"sPaginationType": "full_numbers",
+			"oLanguage": {
+				"sLengthMenu":   "Mostrar&nbsp; _MENU_&nbsp; registros",
+				"sZeroRecords":  "N&atilde;o foram encontrados resultados",
+				"sInfo": "Mostrando registros de _START_ a _END_ de um total de _TOTAL_ registros",
+				"sInfoEmpty": "Nenhum registro para exibir",
+				"sSearch" : "Pesquisar: &nbsp;",
+				"sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+				"oPaginate": {
+				"sFirst":    null,
+				"sPrevious": "Anterior",
+				"sNext":     "Seguinte",
+				"sLast":     null
+				}
+
+			}
+		});
+
+    });
+    
+    
+    function excluirRegistroGridAtribuicoes(idSelecionado){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            $.ajax({
+                url: "/atribuicoes/excluir",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           window.location.href = '/atribuicoes';
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+
+                    /*var viewModel = new kendo.observable(source);
+                    $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);*/
+                }
+            });
+        }
+    }
+    
+</script>

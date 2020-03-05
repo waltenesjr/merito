@@ -1,0 +1,77 @@
+
+        <script type="text/javascript" charset="utf-8"> 
+
+		function imprimirManual (valores) {
+				var largura  = 800;
+				var altura   = 850;
+				var esquerda = (screen.width - largura) / 2;
+				var topo     = (screen.height - altura) / 2;
+
+				window.open('relatorios/imprimir-manual/'+valores, 'Relatório', 'scrollbars=yes,width='+largura+',height='+altura+',top='+topo+',left='+esquerda);					
+			}
+
+            $(function() {
+                $('form').submit(function () { return false; });
+				
+				$('#btnGerarManual').click(function(){
+
+					var valores = $('#relatorio_manual').serialize();
+					
+					valores = valores.replace(/%2F/g,'-');
+					valores = valores.replace(/&/g,'/');
+					valores = valores.replace(/=/g,'/');
+					
+					imprimirManual (valores) ;
+					
+				});
+				
+				
+            });
+        </script>
+
+
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Relatórios - Manual</h5>
+    </div>
+</div>
+<div class="widget-list">
+  <div class="row">
+      <div class="col-md-12 widget-holder">
+          <div class="widget-bg">
+          		<form role="form" name="relatorio_manual" id="relatorio_manual">
+									
+									<div class="form-group row">
+										<div class="col-md-2">
+											<label>Função:</label>
+										</div>
+										<div class="col-md-10">
+											<select name="fk_funcoes_id" id="fk_funcoes_id"  class="form-control">
+												<option></option>
+												<?php
+													if(isset($this->funcoes) && sizeof($this->funcoes) > 0){
+														foreach($this->funcoes as $item){
+															echo '<option value="'.$item['funcoes_id'].'">'.$item['funcoes_descricao'].'</option>';
+														}
+													}
+												?>
+											</select>
+										</div>	
+									</div>				
+									<div class="form-actions">
+                      <div class="form-group row">
+                          <div class="col-md-9 ml-md-auto btn-list">
+                              <button class="btn btn-primary btn-rounded" type="button" id="btnGerarManual">Gerar</button>
+                              <button class="btn btn-outline-default btn-rounded" type="button" onclick="window.location.href = '/relatorios'">Cancelar</button>
+                          </div>
+                      </div>
+                  </div>
+							</form>
+          <!-- /.widget-body -->
+          </div>
+          <!-- /.widget-bg -->
+      </div>
+  </div>
+</div>
+
+

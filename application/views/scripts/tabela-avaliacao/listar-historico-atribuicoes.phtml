@@ -1,0 +1,51 @@
+<?php 
+
+    $idRandom = rand(0,999999);
+?>
+
+<div id="page-wrapper">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		<h4 class="modal-title">Registro de Atribui&ccedil;&otilde;es</h4>
+	</div>
+	<div class="modal-body">	
+		<div class="row">
+
+			<div class="table-responsive">
+				<table class="table table-striped table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>Atribuição</th>
+							<th>Atualização</th>
+							<th>Responsável</th>
+							<th align="center">Nota</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php if (isset($this->dados['dados']) && count($this->dados['dados'])) {
+						foreach($this->dados['dados'] as $item => $value){ ?>
+						<tr>
+							<td><?php echo($value['atribuicoes_nome']); ?></td>
+							<td><?php echo($value['fk_usuarios_data_operacao']); ?></td>
+							<td><?php echo($value['profissionais_nome']); ?></td>
+
+							<td>
+								<div class="<?php echo($value['tabela_avaliacoes_historico_nota']); ?>">
+									<input type="radio" value="0" id="<?php echo($value['tabela_avaliacoes_historico_nota']); ?>" name="<?php echo($value['tabela_avaliacoes_historico_nota']); ?>" checked="checked" />
+									<label for="<?php echo($value['tabela_avaliacoes_historico_nota']); ?>"></label>
+								</div>
+							</td>
+						</tr>		
+					<?php } 
+						} ?>
+					</tbody>
+				</table>
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<?php
+//}
+?>

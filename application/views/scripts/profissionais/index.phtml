@@ -1,0 +1,173 @@
+<?php 
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo Zend_Json_Encoder::encode($this->permissao);
+}else{
+   
+?>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.15/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.15/js/jquery.dataTables.min.js"></script>
+<?php require_once 'js.phtml'; ?>
+
+<!-- Page Title Area -->
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Colaboradores</h5>
+    </div>
+</div>
+<!-- /.page-title -->
+<!-- =================================== -->
+<!-- Different data widgets ============ -->
+<!-- =================================== -->
+<div class="widget-list">
+    <div class="row">
+        <div class="col-md-12 widget-holder">
+            <div class="widget-bg">
+                <div class="widget-heading clearfix">
+                    <h5>Colaboradores</h5>
+                </div>
+                <div>
+                    <button class="btn btn-info btn-rounded ripple" onclick="window.location.href = '/profissionais/form'"><i class="material-icons list-icon">add</i><span>Novo</span></button>
+                    <button href="#" data-toggle="modal" data-target="#modalFiltrosProfissionais" class="btn btn-info btn-rounded ripple"><i class="material-icons list-icon">filter_list</i><span>Filtros</span></button>
+                    <button class="btn btn-info btn-rounded ripple" onclick="window.location.href = '/profissionais/index/profissionais_cargo/funcionario'"><i class="material-icons list-icon">filter_list</i><span>Funcionários</span></button>
+                    <button class="btn btn-info btn-rounded ripple" onclick="window.location.href = '/profissionais/index/profissionais_cargo/administrador'"><i class="material-icons list-icon">filter_list</i><span>Administradores</span></button>
+                    <button class="btn btn-info btn-rounded ripple" onclick="window.location.href = '/profissionais/index/profissionais_cargo/gerente'"><i class="material-icons list-icon">filter_list</i><span>Gerentes</span></button>
+                    <button class="btn btn-info btn-rounded ripple" onclick="window.location.href = '/profissionais/index/profissionais_cargo/supervisor'"><i class="material-icons list-icon">filter_list</i><span>Supervisores</span></button>
+                    <button class="btn btn-info btn-rounded ripple" onclick="window.location.href = '/profissionais/index/profissionais_status/Bloqueado'"><i class="material-icons list-icon">filter_list</i><span>Bloqueados</span></button>
+                </div>
+                <!-- /.widget-heading -->
+                <div class="widget-body clearfix">
+                    <table class="table table-striped table-responsive" id="dataTables-profissionais">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Imagem</th>
+                                <th>Nome</th>
+                                <th>Unidade</th>
+                                <th>Função</th>
+                                <th>Email</th>
+                                <th>Fixo 1</th>
+                                <th>Metas</th>
+                                <th style="text-align: center;">Alterar</th>
+                                <th style="text-align: center;">Excluir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (isset($this->dados['dados']) && count($this->dados['dados'])) {
+                                foreach($this->dados['dados'] as $item => $value){ ?>
+                                <tr>
+                                    <td><?php echo($value['profissionais_id']); ?></td>
+                                    <td><img src="/<?php echo($value['profissionais_img']); ?>" width="80px" class="imgProfissional" onclick="mostarAvaliacao_2('<?php echo($value['profissionais_id']); ?>', '<?php echo($value['funcoes_id']); ?>')"/></td>
+                                    <td><?php echo($value['profissionais_nome']); ?></td>
+                                    <td><?php echo($value['unidades_nome']); ?></td>
+                                    <td><?php echo($value['funcoes_descricao']); ?></td>
+                                    <td><?php echo($value['profissionais_email']); ?></td>
+                                    <td><?php echo($value['profissionais_fixo_1']); ?></td>
+                                    <td align="center"><button type="button" class="btn btn-info btn-circle btn-sm" onclick="window.location.href = '/metasprofissionais/index/fk_profissionais_id/<?php echo($value['profissionais_id']); ?>/'"><i class="material-icons list-icon">assignment</i></button></td>
+                                    <td align="center"><button type="button" class="btn btn-color-scheme btn-circle btn-sm" onclick="window.location.href = '/profissionais/form/profissionais_id/<?php echo($value['profissionais_id']); ?>/profissionais_tipo/colaborador/'"><i class="material-icons list-icon">create</i></button></td>
+                                    <td align="center"><button type="button" class="btn btn-danger btn-circle btn-sm" href="#" onclick="excluirRegistroGrid('<?php echo($value['profissionais_id']); ?>')" ><i class="material-icons list-icon">clear</i></button></td>
+
+
+                                </tr>       
+                            <?php } 
+                            } ?>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.widget-body -->
+            </div>
+            <!-- /.widget-bg -->
+        </div>
+        <!-- /.widget-holder -->
+    </div>
+    <!-- /.row -->
+</div>
+
+<script>
+    $(function(){
+        $('#getFiltros').click(function (e){
+            e.preventDefault();
+            var dadosForm = arrayToObject( $('#frmFiltrosProfissionais').serializeArray() );
+            console.log(dadosForm);
+            // return;
+            window.location.href =  '/profissionais/index/profissionais_id/'+dadosForm.profissionais_id+'/profissionais_nome/'+dadosForm.profissionais_nome+'/fk_unidades_id/'+dadosForm.fk_unidades_id+'/fk_funcoes_id/'+dadosForm.fk_funcoes_id+'/profissionais_status/'+dadosForm.profissionais_status+'/';
+        });
+    });
+</script>
+
+<div class="modal modal-info fade" id="modalFiltrosProfissionais">
+  <div class="modal-dialog srvdesk-small-modal">
+    <div class="modal-content">
+        <div class="modal-header text-inverse">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h5 class="modal-title" id="myMediumModalLabel">Filtros</h5>
+        </div>
+        <div class="modal-body">
+            <form role="form" id="frmFiltrosProfissionais" name="frmFiltrosProfissionais" class="form-horizontal">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Código:</label>
+                    <div class="col-md-10">
+                        <input class="form-control" type="text" name="profissionais_id" id="profissionais_id"/>
+                    </div>  
+                </div>          
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Nome:</label>
+                    <div class="col-md-10">
+                        <input class="form-control" type="text" name="profissionais_nome" id="profissionais_nome"/>
+                    </div>  
+                </div>          
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Unidade:</label>
+                    <div class="col-md-10">
+                          <select class="form-control" name="fk_unidades_id" id="fk_unidades_id">
+                          <option value="">Selecione uma unidade</option>
+                          <?php
+                            if(sizeof($this->unidades) > 0){
+                            foreach($this->unidades as $key=>$unidade){
+                            $selected = ($unidade["unidades_id"] == $this->dados['fk_unidades_id'])?"selected='selected'":"";
+                            echo "<option value='".$unidade["unidades_id"]."' ".$selected.">".$unidade["unidades_nome"]."</option>";
+                                     }
+                                }
+                            ?>
+                          </select>
+                    </div>  
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Função:</label>
+                    <div class="col-md-10">
+                       <select class="form-control" name="fk_funcoes_id" id="fk_funcoes_id">
+                          <option value="">Selecione uma função</option>
+                              <?php
+                                 if(sizeof($this->funcoes) > 0){
+                                 foreach($this->funcoes as $key=>$funcoes){
+                                 $selected = ($funcoes["funcoes_id"] == $this->dados['fk_funcoes_id'])?"selected='selected'":"";
+                                 echo "<option value='".$funcoes["funcoes_id"]."' ".$selected.">".$funcoes["funcoes_descricao"]."</option>";
+                                      }
+                                  }
+                              ?>
+                        </select>
+                    </div>  
+                </div>  
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Status:</label>
+                    <div class="col-md-10">
+                    <select class="form-control" name="profissionais_status" id="profissionais_status">
+                        <option value="">Todos</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Bloqueado">Bloqueado</option>
+                    </select>
+                    </div>  
+                </div>  
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-info" id="getFiltros">Pesquisar</button>
+            </div>
+    </div>
+  </div>
+</div>
+
+<?php
+}
+?>

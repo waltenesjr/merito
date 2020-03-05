@@ -1,0 +1,112 @@
+
+<?php
+
+    $html = $this->doctype();
+    $html .= '
+        <html lang="pt-Br">
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                <title>Mérito</title>
+            </head>
+
+            <body> 
+				<div id="cabecalho">
+                    <table border="0" width="100%">
+                        <thead>                      
+                            <tr>
+                                <td style="width=100%">
+                                    <img src="/imagens/logo.png">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width=100%">
+                                    &nbsp;
+                                </td>
+                            </tr>
+                            
+                        </thead>
+                    </table>
+                    <table border="0" width="100%">
+                        <thead>                      
+                            <tr>
+                                <td style="text-align: center; font-size:11px; width=100%">
+                                    
+                                    <b>RELATÓRIO MANUAL FUNÇÕES </b> 
+                                </td>
+                            </tr>
+                            
+                        </thead>
+                    </table>
+
+                </div>
+    
+            <table style="width: 100%">
+                <tr>
+                    <td style="width: 10%"><b>Descri&ccedil;&atilde;o:</b></td>
+                    <td style="width: 55%">';
+                        $html .= ((isset($this->dados["metasprofissional_nome"]))?$this->dados["metasprofissional_nome"]:"");
+                    $html .='</td>
+                    <td style="width: 15%"><b>Meta para:</b></td>
+                    <td style="width: 10%">';
+                        $html .= ((isset($this->dados["day"]))?$this->dados["day"]:"");
+                    $html .='</td>
+                    <td style="width: 10%">';
+                        $html .= ((isset($this->dados["hour"]))?$this->dados["hour"]:"");
+                    $html .='</td>
+                </tr>
+                <tr>
+					<td colspan="5">';
+						$html .= ((isset($this->dados['metasprofissional_text']))?$this->dados['metasprofissional_text']:"");
+					$html .='</td>
+                </tr>
+            </table>';
+
+           $html .= '
+           		<table border="0" width="100%;">
+					<thead>
+						<tr>
+							<td colspan="5">&nbsp;</td>
+						</tr>
+						<tr>
+							<td width="5%">&nbsp;</td>
+							<td width="33%" style="border-bottom: solid 1px black;">&nbsp;</td>
+							<td width="23%" >&nbsp;</td>
+							<td width="33%" style="border-bottom: solid 1px black;">&nbsp;</td>
+							<td width="5%">&nbsp;</td>
+						</tr>
+						<tr>
+							<td>&nbsp;</td>
+							<td style="font-size:11px;text-align:center;">'.$this->dados['criador'].'</td>
+							<td>&nbsp;</td>
+							<td style="font-size:11px;text-align:center;">'.$this->dados['prof'].'</td>
+							<td>&nbsp;</td>
+						</tr>
+						
+					</thead>
+				</table>
+           ';  
+            
+           $html .='            
+				<table border="0" width="100%;">
+					<thead>
+						<tr>
+							<td colspan="3">&nbsp;</td>
+						</tr>
+						<tr>
+							<td colspan="3" style="border-top: solid 1px black;"></td>
+						</tr>
+						<tr>
+							<td style="width=33%; font-size:10px;">'.date("d/m/Y").'</td>
+							<td style="width=33%"></td>
+							<td style="width=33%; font-size:10px;text-align:right;">Sistema Mérito - www.srvdesk.com.br (62) 3933 - 3375
+</td>
+						</tr>
+						
+					</thead>
+				</table>
+           </body>
+        </html>';
+
+	echo ($html);
+
+?>

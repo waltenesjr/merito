@@ -1,0 +1,36 @@
+<?php include 'js.phtml'; ?>
+
+<div class="col-10 ml-sm-auto col-sm-6 col-md-4 ml-md-auto login-center mx-auto">
+    <div class="navbar-header text-center">
+        <a href="index.html">
+            <img alt="" src="assets/demo/logo-expand-dark.png">
+        </a>
+    </div>
+    <!-- /.navbar-header -->
+    <form class="form-material" role="form">
+    	<div class="form-group">
+            <input type="text" placeholder="" class="form-control form-control-line" name="identificador" id="identificador" autofocus>
+            <label for="identificador">Identificador de acesso</label>
+        </div>
+        <div class="form-group">
+            <input type="text" placeholder="" class="form-control form-control-line" name="usuario" id="usuario">
+            <label for="usuario">CPF</label>
+        </div>
+        <div class="form-group">
+            <input type="password" placeholder="" class="form-control form-control-line" id="senha" name="senha">
+            <label for="senha">Senha</label>
+        </div>
+        <div class="form-group">
+            <button id="btnLogin" type="submit" class="btn btn-block btn-lg btn-color-scheme ripple">Entrar</button>
+        </div>
+        <!-- /.form-group -->
+    </form>
+    <!-- /.form-material -->
+    <!-- /.btn-list -->
+    <footer class="col-sm-12 text-center">
+        <hr>
+        <p>Ainda não tem uma conta? <a href="/clientes" class="text-primary m-l-5"><b>Solicitar acesso</b></a>
+        </p>
+    </footer>
+</div>
+<!-- /.login-center -->

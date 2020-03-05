@@ -1,0 +1,302 @@
+<?php 
+$MTarefasProfissionais = new Application_Model_DbTable_TarefasProfissionais();
+$MTarefasObservacoes = new Application_Model_DbTable_TarefasObservacoes();
+
+//Valida a permissão de Visualização
+if($this->permissao["status"] == false){
+    echo '<p class="msgPermissao alerta">'.$this->permissao["mensagem"].'</p>';
+}else{
+   
+?>
+
+<?php echo $this->headScript()->offsetSetFile(1, 'http://'.$_SERVER["HTTP_HOST"].'/js/jquery.maskedinput.min.js'); ?>
+<script>
+    $(function(){
+
+			$("input[id^='tarefas_fixo'], input[id^='tarefas_cel']").mask("(99) 9999-9999");
+			
+	    $('#saveTarefa').click(function (e){
+				e.preventDefault();
+
+				var dadosForm = arrayToObject( $('#frmTarefas').serializeArray() );
+				
+				$.ajax({
+	                url: '/tarefas/salvar',
+	                data: {dados:dadosForm, funcionarios:$('#tarefas_funcionarios').val()},
+	                dataType: "json",
+	                type: "POST",
+	                success: function(source){
+	                     $.map(source, function (val,i){
+							 
+	                        if(i == 'sucesso')
+	                            window.location.href = './tarefas';
+							if(i == 'erro'){
+	                            tratarMsgRetorno(source);
+	                        }
+	                     });
+	                },
+	                error: function(source){
+						console.log(source);
+	                }
+	            });
+				
+	    });
+
+	    $('#cancelarTarefa').click(function (e){
+				e.preventDefault();
+
+				var dadosForm = arrayToObject( $('#frmTarefas').serializeArray() );
+				
+				$.ajax({
+	                url: '/tarefas/salvarstatus',
+	                data: {dados:{
+	                	'tarefas_id': $('#tarefas_id').val(),
+	                	'tarefas_situacao': 'cancelada'
+	                }},
+	                dataType: "json",
+	                type: "POST",
+	                success: function(source){
+	                     $.map(source, function (val,i){
+							 
+	                        if(i == 'sucesso')
+	                            window.location.href = './tarefas';
+							if(i == 'erro'){
+	                            tratarMsgRetorno(source);
+	                        }
+	                     });
+	                },
+	                error: function(source){
+						console.log(source);
+	                }
+	            });
+				
+	    });
+
+	    $('#retomarTarefa').click(function (e){
+				e.preventDefault();
+
+				var dadosForm = arrayToObject( $('#frmTarefas').serializeArray() );
+				
+				$.ajax({
+	                url: '/tarefas/salvarstatus',
+	                data: {dados:{
+	                	'tarefas_id': $('#tarefas_id').val(),
+	                	'tarefas_situacao': 'andamento'
+	                }},
+	                dataType: "json",
+	                type: "POST",
+	                success: function(source){
+	                     $.map(source, function (val,i){
+							 
+	                        if(i == 'sucesso')
+	                            window.location.href = './tarefas';
+							if(i == 'erro'){
+	                            tratarMsgRetorno(source);
+	                        }
+	                     });
+	                },
+	                error: function(source){
+						console.log(source);
+	                }
+	            });
+				
+	    });
+
+	    $('#finalizarTarefa').click(function (e){
+				e.preventDefault();
+
+				var dadosForm = arrayToObject( $('#frmTarefas').serializeArray() );
+				
+				$.ajax({
+	                url: '/tarefas/salvarstatus',
+	                data: {dados:{
+	                	'tarefas_id': $('#tarefas_id').val(),
+	                	'tarefas_finalizada': 1,
+	                	'tarefas_finalizada_em': 'now',
+	                	'tarefas_situacao': 'concluida'
+	                }},
+	                dataType: "json",
+	                type: "POST",
+	                success: function(source){
+	                     $.map(source, function (val,i){
+							 
+	                        if(i == 'sucesso')
+	                            window.location.href = './tarefas';
+							if(i == 'erro'){
+	                            tratarMsgRetorno(source);
+	                        }
+	                     });
+	                },
+	                error: function(source){
+						console.log(source);
+	                }
+	            });
+				
+	    });
+
+    });
+</script>
+
+<div class="row page-title clearfix">
+    <div class="page-title-left">
+        <h5 class="mr-0 mr-r-5">Tarefas</h5>
+    </div>
+</div>
+<div class="widget-list">
+  <div class="row">
+      <div class="col-md-12 widget-holder">
+          <div class="widget-bg">
+              <div class="widget-body clearfix">
+              	<form role="form" id="frmTarefas" name="frmTarefas" class="form-horizontal">
+              		<input type="hidden" name="tarefas_id" id="tarefas_id" readonly="readonly" value="<?php echo (isset($this->dados["tarefas_id"]) && $this->dados["tarefas_id"] > 0)?$this->dados["tarefas_id"]:"0"?>"/>
+              		<h5 class="box-title mr-b-0">Informações</h5>
+              		<div class="form-group">
+										<label for="tarefas_nome" class="control-label col-sm-2">Nome:</label>
+										<div class="col-sm-10">
+											<input class="form-control" id="tarefas_nome" name="tarefas_nome" value="<?php echo (isset($this->dados["tarefas_nome"]))?$this->dados["tarefas_nome"]:""?>">
+										</div>	
+									</div>
+									<div class="form-group">
+										<label for="tarefas_status" class="control-label col-sm-2">Descrição:</label>
+										<div class="col-sm-10">
+											<textarea class="form-control" id="tarefas_descricao" name="tarefas_descricao" value="<?php echo (isset($this->dados["tarefas_descricao"]))?$this->dados["tarefas_descricao"]:""?>"><?php echo (isset($this->dados["tarefas_descricao"]))?$this->dados["tarefas_descricao"]:""?></textarea>
+										</div>
+									</div>
+									<div class="form-group">
+										<label for="tarefas_data_inicio" class="control-label col-sm-2">Data Início:</label>
+										<div class="col-sm-10">
+											<input class="form-control datepicker" data-date-format="dd/mm/yyyy" type="text" name="tarefas_data_inicio" id="tarefas_data_inicio" value="<?php echo (isset($this->dados["tarefas_data_inicio"]))?$this->dados["tarefas_data_inicio"]:""?>"/>
+										</div>	
+									</div>
+									<div class="form-group">
+										<label for="tarefas_data_termino" class="control-label col-sm-2">Data Término:</label>
+										<div class="col-sm-10">
+											<input class="form-control datepicker" data-date-format="dd/mm/yyyy" type="text" name="tarefas_data_termino" id="tarefas_data_termino" value="<?php echo (isset($this->dados["tarefas_data_termino"]))?$this->dados["tarefas_data_termino"]:""?>"/>
+										</div>	
+									</div>
+									<div class="form-group">
+										<label for="tarefas_pontos" class="control-label col-sm-2">Pontos:</label>
+										<div class="col-sm-10">
+											<input type="number" class="form-control" id="tarefas_pontos" name="tarefas_pontos" value="<?php echo (isset($this->dados["tarefas_pontos"]))?$this->dados["tarefas_pontos"]:""?>">
+										</div>	
+									</div>
+									<h5 class="box-title mr-b-0">Envolvidos</h5>
+									<div class="form-group">
+										<label for="tarefas_nome" class="control-label col-sm-2">Gestor:</label>
+										<div class="col-sm-10">
+											<select class="form-control" name="tarefas_gestor_id" id="tarefas_gestor_id">
+												<option value="">Selecione o gestor da tarefa</option>
+												<?php
+													if(isset($this->gestores)){
+														foreach($this->gestores as $gestor){
+															$selected = ($gestor['profissionais_id'] == $this->dados["tarefas_gestor_id"])?"selected='selected'":"";
+															echo "<option value='".$gestor['profissionais_id']."' ".$selected.">".$gestor['profissionais_nome']."</option>";
+														}
+													}
+												?>
+											</select>
+										</div>	
+									</div>
+									<div class="form-group">
+										<label for="tarefas_nome" class="control-label col-sm-2">Profissionais:</label>
+										<div class="col-sm-10">
+											<select style="width: 100%" class="form-control select2" name="tarefas_funcionarios[]" id="tarefas_funcionarios" multiple="true" <?php if(isset($this->dados["tarefas_id"]) && $this->dados["tarefas_id"] > 0) echo 'disabled' ?>>
+												<option value="">Selecione os funcionários da tarefa</option>
+												<?php
+													if(isset($this->funcionarios)){
+														foreach($this->funcionarios as $funcionario){
+															$selected = "";
+															if(isset($this->dados["tarefas_id"]) && $this->dados["tarefas_id"] > 0){
+																$aux = $MTarefasProfissionais->getRegistros(array('tarefas_profissionais_tarefa_id' => $this->dados["tarefas_id"], 'tarefas_profissionais_profissional_id' => $funcionario['profissionais_id']));
+																if(!empty($aux))
+																	$selected = 'selected';
+															}
+																
+															echo "<option value='".$funcionario['profissionais_id']."' ".$selected.">".$funcionario['profissionais_nome']." - ".strtoupper($funcionario['profissionais_cargo'])."</option>";
+														}
+													}
+												?>
+											</select>
+										</div>	
+									</div>
+									<?php if((isset($this->dados["tarefas_id"]) && $this->dados["tarefas_id"] > 0)): ?>
+									<?php 
+									$acabou_tudo = 0; 
+									$funcionarios_tarefa = $MTarefasProfissionais->getRegistros(array('tarefas_profissionais_tarefa_id' => $this->dados["tarefas_id"])); 
+									$funcionarios_observacoes = $MTarefasObservacoes->getRegistros(array('tarefas_observacoes_tarefa_id' => $this->dados["tarefas_id"])); 
+									?>
+									<table class="table table-striped table-bordered table-hover">
+										<?php foreach ($funcionarios_tarefa as $funcionario_tarefa): ?>
+										<?php if($funcionario_tarefa['tarefas_profissionais_finalizada']) $acabou_tudo++; ?>
+										<tr>
+											<td><?php echo $funcionario_tarefa['profissionais_nome'] ?></td>
+											<td><?php echo $funcionario_tarefa['tarefas_profissionais_finalizada'] ? 'Finalizada em '.date("d/m/Y H:i", strtotime($funcionario_tarefa['tarefas_profissionais_finalizada_em'])) : 'Pendente' ?></td>
+										</tr>
+										<?php endforeach; ?>
+									</table>
+									<h4>Observações</h4>
+									<table class="table table-striped table-bordered table-hover">
+										<tr>
+											<th>Profissional</th>
+											<th>Mensagem</th>
+										</tr>
+										<?php foreach ($funcionarios_observacoes as $funcionarios_observacao): ?>
+										<tr>
+											<td><?php echo $funcionarios_observacao['profissionais_nome'] ?></td>
+											<td><?php echo $funcionarios_observacao['tarefas_observacoes_mensagem'] ?></td>
+										</tr>
+										<?php endforeach; ?>
+									</table>
+									<?php endif; ?>
+									<div class="form-actions">
+                      <div class="form-group row">
+                          <div class="col-md-9 ml-md-auto btn-list">
+                          		<button type="button" class="btn btn-rounded btn-default" onclick="window.location.href = '/tarefas'">Voltar</button>
+									            <button type="button" class="btn btn-rounded btn-primary" id="saveTarefa">Salvar Dados</button>
+									            <?php if((isset($this->dados["tarefas_id"]) && $this->dados["tarefas_id"] > 0)): ?>
+										            <?php if($this->dados["tarefas_situacao"] == 'andamento'): ?>
+											            <button type="button" class="btn btn-rounded btn-danger" id="cancelarTarefa">Cancelar Tarefa</button>
+											            <?php if($acabou_tudo == count($funcionarios_tarefa)): ?>
+											            	<button type="button" class="btn btn-rounded btn-success" id="finalizarTarefa">Finalizar Tarefa</button>
+											            <?php endif; ?>
+										            <?php endif; ?>
+										            <?php if($this->dados["tarefas_situacao"] == 'cancelada'): ?>
+										            	<button type="button" class="btn btn-rounded btn-primary" id="retomarTarefa">Retomar Tarefa</button>
+										            <?php endif ?>
+									          	<?php endif; ?>
+                          </div>
+                      </div>
+                  </div>
+                </form>
+							</div>
+              <!-- /.widget-body -->
+          </div>
+          <!-- /.widget-bg -->
+      </div>
+  </div>
+</div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css?teste" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js?teste"></script>
+
+<script>
+$(document).ready(function(){
+	setTimeout(function(){
+		$('.select2').select2();
+	}, 500);
+	$('.datepicker').datepicker({
+          dateFormat: 'dd/mm/yy',
+           dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+           dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S', 'D'],
+           dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+           monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+           monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+           nextText: 'Proximo',
+           prevText: 'Anterior'
+        });
+});
+</script>
+
+<?php
+}
+?>

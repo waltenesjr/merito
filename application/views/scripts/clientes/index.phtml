@@ -1,0 +1,98 @@
+<?php require_once 'js.phtml'; ?>
+
+<div class="col-10 ml-sm-auto col-sm-8 col-md-4 ml-md-auto login-center mx-auto">
+    <div class="navbar-header text-center">
+        <a href="index.html">
+            <img alt="" src="assets/demo/logo-expand-dark.png">
+        </a>
+    </div>
+    <!-- /.navbar-header -->
+    <form class="form-material" id="frmClientes" name="frmClientes">
+        <h4 class="text-uppercase">ACESSO AO SISTEMA</h4>
+        <p class="text-muted">Cadastra-se para solicitar acesso ao sistema, preencha seus dados:</p>
+        <h6 class="text-uppercase">Informações</h6>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="Nome" id="clientes_nome" name="clientes_nome">
+            <label>Nome</label>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="E-mail" id="clientes_email" name="clientes_email">
+            <label>E-mail</label>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="Telefone" id="clientes_telefone" name="clientes_telefone">
+            <label>Telefone</label>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="Empresa" id="clientes_empresa" name="clientes_empresa">
+            <label>Empresa</label>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="CNPJ" id="clientes_cnpj" name="clientes_cnpj">
+            <label>CNPJ</label>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="Identificador" id="clientes_identificador" name="clientes_identificador">
+            <label>Identificador</label>
+            <small>* este identificador será utilizado na url para acesso ao sistema</small>
+        </div>
+        <h6 class="text-uppercase">Endereço</h6>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="CEP" id="clientes_cep" name="clientes_cep">
+            <label>CEP</label>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="Bairro" id="clientes_bairro" name="clientes_bairro">
+            <label>Bairro</label>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="Logradouro" id="clientes_logradouro" name="clientes_logradouro">
+            <label>Logradouro</label>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="text" required="" placeholder="Complemento" id="clientes_complemento" name="clientes_complemento">
+            <label>Complemento</label>
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="clientes_uf" id="clientes_uf">
+                <option option="">Selecione a UF</option>
+                <?php
+                    if(isset($this->municipios_uf)){
+                        foreach($this->municipios_uf as $uf){
+                            $selected = ($uf['municipios_uf'] == $this->uf)?"selected='selected'":"";
+                            echo "<option value='".$uf['municipios_uf']."' ".$selected.">".$uf['municipios_uf']."</option>";
+                        }
+                    }
+                ?>
+            </select>
+            <label>UF</label>
+        </div>
+        <div class="form-group">
+            <input type="hidden" name="fk_municipios_codigo_ibge" id="fk_municipios_codigo_ibge" value="<?php echo $this->codigoIbge?>" />
+            <select class="form-control" name="municipios_codigo_ibge" id="municipios_codigo_ibge">
+                <option option="">Selecione a Cidade</option>
+                <?php
+                    if(isset($this->municipios_codigo_ibge)){
+                        foreach($this->municipios_codigo_ibge as $codigoIbge){
+                            $selected = ($codigoIbge['municipios_codigo_ibge'] == $this->codigoIbge)?"selected='selected'":"";
+                            echo "<option value='".$codigoIbge['municipios_codigo_ibge']."' ".$selected.">".$codigoIbge['municipios_descricao']."</option>";
+                        }
+                    }
+                ?>
+            </select>
+            <label>Cidade</label>
+        </div>
+        <!-- /.form-group -->
+        <div class="form-group text-center no-gutters mb-5">
+            <button class="btn btn-info btn-lg btn-block text-uppercase ripple" type="button" id="saveCliente">Salvar</button>
+        </div>
+    </form>
+    <!-- /.form-horzontal -->
+    <footer class="col-sm-12 text-center">
+        <hr>
+        <p>Já possui acesso? <a href="/login" class="text-primary m-l-5"><b>Entrar</b></a>
+        </p>
+    </footer>
+</div>
+<!-- /.login-center -->
+

@@ -1,0 +1,1411 @@
+<script>
+    var bloquearPesquisa = true;
+    $(function (){
+        //Monta os combobox
+        $("#fk_unidades_id, #fk_funcoes_id, #fk_autonomos_id").kendoComboBox({
+            placeholder: 'Selecione o item desejado...'
+        });
+        $("#fk_unidades_id, #fk_funcoes_id, #fk_autonomos_id").change(function (){
+            $('#tabela-painel-avaliacoes').css('display','none');
+        });
+        
+        //Busca funções
+        $("#fk_unidades_id").change(function (){
+            $('#fk_funcoes_id').data("kendoComboBox").setDataSource([]);
+            $('#fk_funcoes_id').data("kendoComboBox").dataSource.add({text: '', value: ''});
+            $('#fk_funcoes_id').data("kendoComboBox").select(0);
+            $('#fk_autonomos_id').data("kendoComboBox").setDataSource([]);
+            $('#fk_autonomos_id').data("kendoComboBox").dataSource.add({text: '', value: ''});
+            $('#fk_autonomos_id').data("kendoComboBox").select(0);
+            bloquearPesquisa = true;
+            $.ajax({
+                url:'funcoes/pesquisar',
+                dataType: "json",
+                type: "POST",
+                success: function (source){
+                    tratarMsgRetorno(source);
+                    if(source.dados){
+                        $('#fk_funcoes_id').data("kendoComboBox").setDataSource([]);
+                        $.map(source.dados, function(data){
+                            $('#fk_funcoes_id').data("kendoComboBox").dataSource.add({text: data.funcoes_descricao, value: data.funcoes_id});
+                        });
+                    }
+                }
+            });
+        });
+        //Busca profissionais
+        $("#fk_funcoes_id").change(function (){
+            $('#fk_autonomos_id').data("kendoComboBox").setDataSource([]);
+            $('#fk_autonomos_id').data("kendoComboBox").dataSource.add({text: '', value: ''});
+            $('#fk_autonomos_id').data("kendoComboBox").select(0);
+            bloquearPesquisa = true;
+            $.ajax({
+                url:'autonomos/pesquisar/fk_funcoes_id/'+$(this).val()+'/fk_unidades_id/'+$("#fk_unidades_id").val(),
+                dataType: "json",
+                type: "POST",
+                success: function (source){
+                    tratarMsgRetorno(source);
+                    if(source.dados){   
+                        $('#fk_autonomos_id').data("kendoComboBox").setDataSource([]);
+                        $.map(source.dados, function(data){
+                            $('#fk_autonomos_id').data("kendoComboBox").dataSource.add({text: data.autonomos_nome, value: data.autonomos_id});
+                        });
+                    }
+                }
+            });
+        });
+        $('#fk_autonomos_id').change(function (){
+            if($('#fk_autonomos_id').data('kendoComboBox').value() > 0)
+                bloquearPesquisa = false;
+        });
+        //Botão para pesquisar os dados do profissional selecionado
+
+        $('#btnPesquisar').click(function (){
+
+            if(bloquearPesquisa == false ){
+				if (prof_id != $('#fk_autonomos_id').val()) {
+					$('#calendar').empty().html("");
+					$('#calendar1').empty().html("");
+					$('#calendar2').empty().html("");
+					$('#calendar3').empty().html("");
+					$('#calendar11').empty().html("");
+					$('#calendar12').empty().html("");
+					$('#calendar13').empty().html("");
+					$('#calendar14').empty().html("");
+					$('#calendar15').empty().html("");
+					$('#calendar16').empty().html("");
+
+					$("#btnTarefasMensal").removeClass('selecionado');
+					$("#btnTarefasTrimestral").removeClass('selecionado');
+					$("#btnTarefasSimestral").removeClass('selecionado');
+					$("#btnTarefasDiarias").addClass('menu selecionado');
+
+					$('#painel-mensal').css('display','none');
+					$('#painel-trimestral').css('display','none');
+					$('#painel-simestral').css('display','none');
+
+					$('#painel-diario').css('display','');
+					
+					if (( $('#fk_unidades_id').val() != "<?php echo ($this->permissao["fk_unidades_id"]) ?>" ) && ("<?php echo ($this->permissao["profissionais_cargo"]); ?>" != "" ) ) {
+						$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+						return false ;
+					}
+				
+					showPainelDiario () ;
+				} else {
+					$().msgbox('alerta', 'Você não possui permissões para acessar o módulo ou ação solicitada.');
+					return false ;
+				}
+
+            }else{
+                $().msgbox('alerta', 'Informe os filtros para continuar.');
+            }
+        });
+        
+        $('#btnRegistrosAtribuicoes').click(function (){
+            //Montagem da janela
+            var winRegistrosAtribuicoes = $('<div id="winRegistrosAtribuicoes"></div>').appendTo('body')
+            .kendoWindow({
+                content: 'tabela-avaliacao-autonomos/listar-historico-atribuicoes',
+                actions: ["Close"],
+                width: 700,
+                modal: true,
+                title: "Registros de Atribuições",
+                visible: false,
+                animation: {
+                    open: {
+                        effects: "slideIn:down fadeIn",
+                        duration: 500
+                    },
+                    close: {
+                        effects: "slide:up fadeOut",
+                        duration: 500
+                    }
+                },
+                deactivate: function() {
+                    this.destroy();                                           
+                }
+            })
+            .data("kendoWindow")
+            .center();
+
+            //Tratamento para o top
+            var wrapper = winRegistrosAtribuicoes.wrapper;
+            wrapper.css({top: 15});
+
+            winRegistrosAtribuicoes.open();
+        });
+
+	$('#btnTarefasDiarias').click(function(){
+
+		$('#lista-atruibuicoes').empty().html("");
+
+		if($('#fk_autonomos_id').val() > 0){
+			//---------------------------------------------
+			// Busca dados para tabela de avaliação diária
+			//---------------------------------------------
+			$.ajax({
+				url:'tabela-avaliacao-autonomos/pesquisar/',
+				data:{ tabela_avaliacoes_timestamp: $('#tabela_avaliacoes_timestamp').val(), fk_autonomos_id: $('#fk_autonomos_id').val(), fk_funcoes_id: $('#fk_funcoes_id').val() },
+				dataType: "json",
+				type: "POST",
+				success: function (source){
+					tratarMsgRetorno(source);
+					//Tratamento dos dados caso exista
+					if(typeof source.dados === 'object'){
+						montarTabelaAvaliacoesProfissional(source);
+					}
+
+				}                    
+			});
+		   
+		}else{
+			$().msgbox('alerta', 'Informe o profissional para pesquisar.');
+		}
+
+	});
+
+        $('#btnTarefasDiarias,#btnTarefasMensal,#btnTarefasTrimestral,#btnTarefasSimestral').click(function (){
+            $('#btnTarefasDiarias,#btnTarefasMensal,#btnTarefasTrimestral,#btnTarefasSimestral').removeClass('menu');
+            $('#btnTarefasDiarias,#btnTarefasMensal,#btnTarefasTrimestral,#btnTarefasSimestral').removeClass('menu selecionado');
+            $('#btnTarefasDiarias, #btnTarefasMensal, #btnTarefasTrimestral, #btnTarefasSimestral').addClass('menu');
+            
+            $('#painel-diario, #painel-mensal, #painel-simestral, #painel-trimestral').css('display','none');
+            if($(this).attr('id') == 'btnTarefasDiarias')
+                $('#painel-diario').css('display','');
+            else if($(this).attr('id') == 'btnTarefasMensal') {
+				showPaneilMensal () ;
+            } else if($(this).attr('id') == 'btnTarefasTrimestral'){
+				showPaneilsTrimestral () ;
+
+            } else {
+				meses_index = 0 ;
+				showPaneilSemestral ();
+
+			}            
+            $(this).removeClass('menu');
+            $(this).addClass('menu selecionado');
+        });
+
+    })//;
+
+	var meses_index = 0 ;
+
+	$('#btnBackCalendar').click(function (){
+		meses_index -= 1 ;
+		showPaneilSemestral ()
+	});
+
+	$('#btnForwardCalendar').click(function (){
+		meses_index += 1 ;
+		showPaneilSemestral ()
+	});
+
+	function showPainelDiario () {
+		$('#tabela-painel-avaliacoes').css('display','none');
+		if($('#fk_autonomos_id').val() > 0){
+			$.ajax({
+				url:'tabela-avaliacao-autonomos/pesquisar/',
+				data:{ tabela_avaliacoes_timestamp: $('#tabela_avaliacoes_timestamp').val(), fk_autonomos_id: $('#fk_autonomos_id').val(), fk_funcoes_id: $('#fk_funcoes_id').val() },
+				dataType: "json",
+				type: "POST",
+				success: function (source){
+					tratarMsgRetorno(source);
+					//Tratamento dos dados caso exista
+					if(typeof source.dados === 'object'){
+						montarTabelaAvaliacoesProfissional(source);
+					}
+
+				}                    
+			});
+			
+		 
+			
+			
+		}else{
+			$().msgbox('alerta', 'Informe o profissional para pesquisar.');
+		}
+	}
+
+	function showPaneilMensal () {
+	
+		$('#calendar').empty().html("");
+
+		var avaliacoes = new Array();
+
+                    //---------------------------------------------
+                    // Busca dados para tabela de avaliação mensal
+                    //---------------------------------------------
+		var today = new Date();
+		var events = Array();
+
+                    $.ajax({
+                        url:'tabela-avaliacao-autonomos/pesquisar-mensal/',
+                        data:{ tabela_avaliacoes_timestamp: $('#tabela_avaliacoes_timestamp').val(), fk_autonomos_id: $('#fk_autonomos_id').val(), fk_funcoes_id: $('#fk_funcoes_id').val() },
+                        dataType: "json",
+                        type: "POST",
+                        success: function (source){
+				calendarMensalLoaded = true ;
+				if(typeof source.dados === 'object'){
+					var maxi ;
+                    $.each( source.dados, function( key, obj ) {
+						if (obj.max == 100)
+							maxi = 4 ;
+						else if (obj.max == 75)
+							maxi = 3 ;
+						else if (obj.max == 52)
+							maxi = 2 ;
+						else if (obj.max == 25)
+							maxi = 1 ;
+						else if (obj.max == 0)
+							maxi = 0 ;
+							
+						events.push(new Date(today.getFullYear(), today.getMonth(), key, 0,0, maxi, obj.min));
+                    });
+				}
+	                        $("#calendar").kendoCalendar({
+	                            culture: "pt-BR",
+	                            format: "dd/MM/yyyy",
+	                            min: new Date(today.getFullYear(), today.getMonth(), 1),
+	                            max: new Date(today.getFullYear(), today.getMonth()+1, 0),
+	                            value: today,
+	                            dates: events,
+	                            month: {
+	                                content : 
+	                                          '<div '+
+											  '# var today = new Date(); #' +
+											  '# if (today.getDate() >= data.value) { #' +
+											  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar\')" '+
+											  '# } #' +
+											  ' class="'+
+											  '# if (today.getDate() == data.value) { #'+
+											  " hoje "+
+											  '# } #'+
+											  '# $.each (data.dates, function (key, obj) { #' +
+											  '#   	var fecha = new Date (obj); #' +
+											  '#    if (fecha.getDate() == data.value) { #' +
+											  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+											  				"mensal_azul" +
+											  '# 		} else { #' +
+											  '#    		if (fecha.getMilliseconds() == 0) { #' +
+																"mensal_vermelho" +
+											  '#    	    } else if (fecha.getMilliseconds() == 25) {#' +
+																"mensal_laranja" +
+											  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+																"mensal_amarelho" +
+											  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+																"mensal_verde" +
+											  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+																"mensal_azul" +
+											  '#       		} else { #' +
+																"mensal_verde" +
+											  '#       		} #' +
+											  '#		} #' +
+											  '#    } #' +
+											  '# }); #' +
+	                                          ' mensal_verde">#= data.value #</div>'
+
+	                                   },
+	                            footer: false
+	                        });
+                        }                    
+                    });
+
+                $('#painel-mensal').css('display','');	
+		
+	}
+
+	function showPaneilsTrimestral () {
+	
+		var today = new Date();
+		var meses = Array();
+		var events = Array();
+
+		$('#calendar1').empty().html("");
+		$('#calendar2').empty().html("");
+		$('#calendar3').empty().html("");
+
+		$.ajax({
+			url:'tabela-avaliacao-autonomos/pesquisar-trimestral/',
+			data:{ tabela_avaliacoes_timestamp: $('#tabela_avaliacoes_timestamp').val(), fk_autonomos_id: $('#fk_autonomos_id').val(), fk_funcoes_id: $('#fk_funcoes_id').val() },
+			dataType: "json",
+			type: "POST",
+			success: function (source){
+				var tempMonth ;
+
+				var primero = today.getMonth()-2;
+				var segundo = today.getMonth()-1;
+				var tercero = today.getMonth();
+
+				events[primero] = Array();
+				events[segundo] = Array();
+				events[tercero] = Array();
+				if(typeof source.dados === 'object'){
+					var maxi ;
+                    $.each( source.dados, function( key, obj ) {
+
+							
+						tempMonth = key - 1 ;
+						
+						$.each( obj, function (key2, obj2) {
+						if (obj2.max == 100)
+							maxi = 4 ;
+						else if (obj2.max == 75)
+							maxi = 3 ;
+						else if (obj2.max == 52)
+							maxi = 2 ;
+						else if (obj2.max == 25)
+							maxi = 1 ;
+						else if (obj2.max == 0)
+							maxi = 0 ;
+							
+							meses.push(new Date(today.getFullYear(), tempMonth, key2, 0,0, maxi, obj2.min));
+						});
+
+						events[tempMonth]=meses;
+						meses = [];
+                    });
+				}
+
+
+				$("#calendar1").kendoCalendar({
+					        culture: "pt-BR",
+					        format: "dd/MM/yyyy",
+				                min: new Date(today.getFullYear(), today.getMonth()-2, 1),
+				                max: new Date(today.getFullYear(), today.getMonth()-1, 0),
+			                        value: today,
+			                        dates: events[primero],
+
+						month: {
+						    // template for dates in month view
+						    content:
+						    	  '<div '+
+								  '# var today = new Date(); #' +
+								  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar1\')" '+
+								  ' class="'+
+							      '# $.each (data.dates, function (key, obj) { #' +
+				        		  '#   	var fecha = new Date (obj); #' +
+								  '#    if (fecha.getDate() == data.value) { #' +	
+								  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+												"mensal_azul" +
+								  '# 		} else { #' +
+								  '#       		if (fecha.getMilliseconds() == 0) { #' +
+													"mensal_vermelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 25) {#' +
+													"mensal_laranja" +
+								  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+													"mensal_amarelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+													"mensal_verde" +
+								  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+													"mensal_azul" +
+								  '#       		} else { #' +
+													"mensal_verde" +
+								  '#       		} #' +
+								  '#    	} #' +
+								  '#    } #' +
+								  '# 	if ( today.getMonth() == fecha.getMonth() && today.getDate() == data.value ) { #' +
+											" hoje " +
+								  '# 	} #' +
+								  '# }); #' +
+					                          ' mensal_verde">#= data.value #</div>'
+						},
+
+						footer: false
+				});		
+				$("#calendar2").kendoCalendar({
+					        culture: "pt-BR",
+					        format: "dd/MM/yyyy",
+			                    	min: new Date(today.getFullYear(), today.getMonth()-1, 1),
+			                    	max: new Date(today.getFullYear(), today.getMonth(), 0),
+			                        value: today,
+			                        dates: events[segundo],
+
+						month: {
+						    // template for dates in month view
+						    content:
+
+						    	  '<div '+
+								  '# var today = new Date(); #' +
+								  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar2\')" '+
+								  ' class="'+
+							      '# $.each (data.dates, function (key, obj) { #' +
+				        		  '#   	var fecha = new Date (obj); #' +
+								  '#    if (fecha.getDate() == data.value) { #' +
+								  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+												"mensal_azul" +
+								  '# 		} else { #' +
+								  '#       		if (fecha.getMilliseconds() == 0) { #' +
+													"mensal_vermelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 25) {#' +
+													"mensal_laranja" +
+								  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+													"mensal_amarelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+													"mensal_verde" +
+								  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+													"mensal_azul" +
+								  '#       		} else { #' +
+													"mensal_verde" +
+								  '#       		} #' +
+								  '#    	} #' +
+								  '#    } #' +
+								  '# 	if ( today.getMonth() == fecha.getMonth() && today.getDate() == data.value ) { #' +
+											" hoje " +
+								  '# 	} #' +
+								  '# }); #' +
+					                          ' mensal_verde">#= data.value #</div>'
+						},
+
+
+						footer: false
+				});
+				
+				//var fecha = new Date(today.getFullYear(), today.getMonth()+1, 0)
+				//alert (fecha.toString());
+				
+				$("#calendar3").kendoCalendar({
+					        culture: "pt-BR",
+					        format: "dd/MM/yyyy",
+			                min: new Date(today.getFullYear(), today.getMonth(), 1),
+			                max: new Date(today.getFullYear(), today.getMonth(), 31),
+			                value: today,
+			                dates: events[tercero],
+
+							month: {
+						    // template for dates in month view
+								content: 
+						    	  '<div '+
+								  '# var today = new Date(); #' +
+								  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar3\')" '+
+								  ' class="'+
+							      '# $.each (data.dates, function (key, obj) { #' +
+				        		  '#   	var fecha = new Date (obj); #' +
+								  '#    if (fecha.getDate() == data.value) { #' +
+								  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+												"mensal_azul" +
+								  '# 		} else { #' +
+								  '#       		if (fecha.getMilliseconds() == 0) { #' +
+													"mensal_vermelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 25) {#' +
+													"mensal_laranja" +
+								  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+													"mensal_amarelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+													"mensal_verde" +
+								  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+													"mensal_azul" +
+								  '#       		} else { #' +
+													"mensal_verde" +
+								  '#       		} #' +
+								  '#    	} #' +
+								  '#    } #' +
+								  '# 	if ( today.getMonth() == fecha.getMonth() && today.getDate() == data.value ) { #' +
+											" hoje " +
+								  '# 	} #' +
+								  '# }); #' +
+					                          ' mensal_verde">#= data.value #</div>'
+							},
+
+
+						footer: false
+				});
+               }                    
+            });
+
+            $('#painel-trimestral').css('display','');	
+		
+	}
+
+	function showPaneilSemestral () {
+	
+				var today = new Date();
+				var meses = Array();
+				var events = Array();
+				
+				$('#calendar11').empty().html("");
+				$('#calendar12').empty().html("");
+				$('#calendar13').empty().html("");
+				$('#calendar14').empty().html("");
+				$('#calendar15').empty().html("");
+				$('#calendar16').empty().html("");
+
+
+				$.ajax({
+					url:'tabela-avaliacao-autonomos/pesquisar-semestral	/',
+					data:{ tabela_avaliacoes_timestamp: $('#tabela_avaliacoes_timestamp').val(), fk_autonomos_id: $('#fk_autonomos_id').val(), fk_funcoes_id: $('#fk_funcoes_id').val() },
+					dataType: "json",
+					type: "POST",
+					success: function (source){
+						var tempMonth ;
+
+						var primero = today.getMonth()-5+meses_index;
+						var segundo = today.getMonth()-4+meses_index;
+						var tercero = today.getMonth()-3+meses_index;
+						var quarto  = today.getMonth()-2+meses_index;
+						var quinto	= today.getMonth()-1+meses_index;
+						var sexto	= today.getMonth()+meses_index;
+
+						events[primero] = Array();
+						events[segundo] = Array();
+						events[tercero] = Array();
+						events[quarto]  = Array();
+						events[quinto]  = Array();
+						events[sexto]   = Array();
+						
+						if(typeof source.dados === 'object'){
+							var maxi ;
+							$.each( source.dados, function( key, obj ) {
+									tempMonth = key - 1 ;
+								
+								$.each( obj, function (key2, obj2) {
+									if (obj2.max == 100)
+										maxi = 4 ;
+									else if (obj2.max == 75)
+										maxi = 3 ;
+									else if (obj2.max == 52)
+										maxi = 2 ;
+									else if (obj2.max == 25)
+										maxi = 1 ;
+									else if (obj2.max == 0)
+										maxi = 0 ;
+									meses.push(new Date(today.getFullYear(), tempMonth, key2, 0,0, maxi, obj2.min));
+								});
+
+								events[tempMonth]=meses;
+								meses = [];
+							});
+						}
+
+
+
+						$("#calendar11").kendoCalendar({
+								culture: "pt-BR",
+								format: "dd/MM/yyyy",
+								min: new Date(today.getFullYear(), today.getMonth()-5+meses_index, 1),
+								max: new Date(today.getFullYear(), today.getMonth()-4+meses_index, 0),
+								value: today,
+								dates: events[primero],
+								month: {
+								// template for dates in month view
+									content: 
+						    	  '<div '+
+								  '# var today = new Date(); #' +
+								  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar11\')" '+
+								  ' class="'+
+							      '# $.each (data.dates, function (key, obj) { #' +
+				        		  '#   	var fecha = new Date (obj); #' +
+								  '#    if (fecha.getDate() == data.value) { #' +
+								  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+												"mensal_azul" +
+								  '# 		} else { #' +
+								  '#       		if (fecha.getMilliseconds() == 0) { #' +
+													"mensal_vermelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 25) {#' +
+													"mensal_laranja" +
+								  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+													"mensal_amarelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+													"mensal_verde" +
+								  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+													"mensal_azul" +
+								  '#       		} else { #' +
+													"mensal_verde" +
+								  '#       		} #' +
+								  '#    	} #' +
+								  '#    } #' +
+								  '# 	if ( today.getMonth() == fecha.getMonth() && today.getDate() == data.value ) { #' +
+											" hoje " +
+								  '# 	} #' +
+								  '# }); #' +
+					                          ' mensal_verde">#= data.value #</div>'
+					               },
+											
+								footer: false
+						});		
+						$("#calendar12").kendoCalendar({
+								culture: "pt-BR",
+								format: "dd/MM/yyyy",
+								min: new Date(today.getFullYear(), today.getMonth()-4+meses_index, 1),
+								max: new Date(today.getFullYear(), today.getMonth()-3+meses_index, 0),
+								value: today,
+								dates: events[segundo],
+								month: {
+								// template for dates in month view
+									content: 
+						    	  '<div '+
+								  '# var today = new Date(); #' +
+								  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar12\')" '+
+								  ' class="'+
+							      '# $.each (data.dates, function (key, obj) { #' +
+				        		  '#   	var fecha = new Date (obj); #' +
+								  '#    if (fecha.getDate() == data.value) { #' +
+								  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+												"mensal_azul" +
+								  '# 		} else { #' +
+								  '#       		if (fecha.getMilliseconds() == 0) { #' +
+													"mensal_vermelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 25) {#' +
+													"mensal_laranja" +
+								  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+													"mensal_amarelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+													"mensal_verde" +
+								  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+													"mensal_azul" +
+								  '#       		} else { #' +
+													"mensal_verde" +
+								  '#       		} #' +
+								  '#    	} #' +
+								  '#    } #' +
+								  '# 	if ( today.getMonth() == fecha.getMonth() && today.getDate() == data.value ) { #' +
+											" hoje " +
+								  '# 	} #' +
+								  '# }); #' +
+					                          ' mensal_verde">#= data.value #</div>'
+								},
+											
+								footer: false
+						});		
+						$("#calendar13").kendoCalendar({
+								culture: "pt-BR",
+								format: "dd/MM/yyyy",
+								min: new Date(today.getFullYear(), today.getMonth()-3+meses_index, 1),
+								max: new Date(today.getFullYear(), today.getMonth()-2+meses_index, 0),
+								value: today,
+								dates: events[tercero],
+								month: {
+								// template for dates in month view
+									content: 
+						    	  '<div '+
+								  '# var today = new Date(); #' +
+								  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar13\')" '+
+								  ' class="'+
+							      '# $.each (data.dates, function (key, obj) { #' +
+				        		  '#   	var fecha = new Date (obj); #' +
+								  '#    if (fecha.getDate() == data.value) { #' +
+								  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+												"mensal_azul" +
+								  '# 		} else { #' +
+								  '#       		if (fecha.getMilliseconds() == 0) { #' +
+													"mensal_vermelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 25) {#' +
+													"mensal_laranja" +
+								  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+													"mensal_amarelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+													"mensal_verde" +
+								  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+													"mensal_azul" +
+								  '#       		} else { #' +
+													"mensal_verde" +
+								  '#       		} #' +
+								  '#    	} #' +
+								  '#    } #' +
+								  '# 	if ( today.getMonth() == fecha.getMonth() && today.getDate() == data.value ) { #' +
+											" hoje " +
+								  '# 	} #' +
+								  '# }); #' +
+					                          ' mensal_verde">#= data.value #</div>'
+								},
+											
+								footer: false
+						});		
+						$("#calendar14").kendoCalendar({
+								culture: "pt-BR",
+								format: "dd/MM/yyyy",
+								min: new Date(today.getFullYear(), today.getMonth()-2+meses_index, 1),
+								max: new Date(today.getFullYear(), today.getMonth()-1+meses_index, 0),
+								value: today,
+								dates: events[quarto],
+								month: {
+								// template for dates in month view
+									content: 
+						    	  '<div '+
+								  '# var today = new Date(); #' +
+								  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar14\')" '+
+								  ' class="'+
+							      '# $.each (data.dates, function (key, obj) { #' +
+				        		  '#   	var fecha = new Date (obj); #' +
+								  '#    if (fecha.getDate() == data.value) { #' +
+								  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+												"mensal_azul" +
+								  '# 		} else { #' +
+								  '#       		if (fecha.getMilliseconds() == 0) { #' +
+													"mensal_vermelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 25) {#' +
+													"mensal_laranja" +
+								  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+													"mensal_amarelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+													"mensal_verde" +
+								  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+													"mensal_azul" +
+								  '#       		} else { #' +
+													"mensal_verde" +
+								  '#       		} #' +
+								  '#    	} #' +
+								  '#    } #' +
+								  '# 	if ( today.getMonth() == fecha.getMonth() && today.getDate() == data.value ) { #' +
+											" hoje " +
+								  '# 	} #' +
+								  '# }); #' +
+					                          ' mensal_verde">#= data.value #</div>'
+								},
+											
+								footer: false
+						});		
+						$("#calendar15").kendoCalendar({
+								culture: "pt-BR",
+								format: "dd/MM/yyyy",
+								min: new Date(today.getFullYear(), today.getMonth()-1+meses_index, 1),
+								max: new Date(today.getFullYear(), today.getMonth()+meses_index, 0),
+								value: today,
+								dates: events[quinto],
+								month: {
+								// template for dates in month view
+									content: 
+						    	  '<div '+
+								  '# var today = new Date(); #' +
+								  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar15\')" '+
+								  ' class="'+
+							      '# $.each (data.dates, function (key, obj) { #' +
+				        		  '#   	var fecha = new Date (obj); #' +
+								  '#    if (fecha.getDate() == data.value) { #' +
+								  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+												"mensal_azul" +
+								  '# 		} else { #' +
+								  '#       		if (fecha.getMilliseconds() == 0) { #' +
+													"mensal_vermelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 25) {#' +
+													"mensal_laranja" +
+								  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+													"mensal_amarelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+													"mensal_verde" +
+								  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+													"mensal_azul" +
+								  '#       		} else { #' +
+													"mensal_verde" +
+								  '#       		} #' +
+								  '#    	} #' +
+								  '#    } #' +
+								  '# 	if ( today.getMonth() == fecha.getMonth() && today.getDate() == data.value ) { #' +
+											" hoje " +
+								  '# 	} #' +
+								  '# }); #' +
+					                          ' mensal_verde">#= data.value #</div>'
+								},
+											
+								footer: false
+						});		
+						$("#calendar16").kendoCalendar({
+								culture: "pt-BR",
+								format: "dd/MM/yyyy",
+								min: new Date(today.getFullYear(), today.getMonth()+meses_index, 1),
+								max: new Date(today.getFullYear(), today.getMonth()+1+meses_index, 0),
+								value: today,
+								dates: events[sexto],
+								month: {
+								// template for dates in month view
+									content: 
+						    	  '<div '+
+								  '# var today = new Date(); #' +
+								  'onclick="mostraAvaliacoesDia(#= data.value #, \'calendar16\')" '+
+								  ' class="'+
+							      '# $.each (data.dates, function (key, obj) { #' +
+				        		  '#   	var fecha = new Date (obj); #' +
+								  '#    if (fecha.getDate() == data.value) { #' +
+								  '# 		if (fecha.getMilliseconds() >= 75 && fecha.getSeconds() == 4) { #' +
+												"mensal_azul" +
+								  '# 		} else { #' +
+								  '#       		if (fecha.getMilliseconds() == 0) { #' +
+													"mensal_vermelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 25) {#' +
+													"mensal_laranja" +
+								  '#       		} else if (fecha.getMilliseconds() == 50) {#' +
+													"mensal_amarelho" +
+								  '#       		} else if (fecha.getMilliseconds() == 75) {#' +
+													"mensal_verde" +
+								  '#       		} else if (fecha.getMilliseconds() == 100) {#' +
+													"mensal_azul" +
+								  '#       		} else { #' +
+													"mensal_verde" +
+								  '#       		} #' +
+								  '#    	} #' +
+								  '#    } #' +
+								  '# 	if ( today.getMonth() == fecha.getMonth() && today.getDate() == data.value ) { #' +
+											" hoje " +
+								  '# 	} #' +
+								  '# }); #' +
+					                          ' mensal_verde">#= data.value #</div>'
+								},
+											
+								footer: false
+						});
+
+
+
+					}                    
+				});
+
+				$('#painel-simestral').css('display','');
+		
+		
+	}
+
+    function mostrarDadosAtribuicao(id){
+        //Montagem da janela
+        var winFormAtribuicoes = $('<div id="winFormAtribuicoes"></div>').appendTo('body')
+        .kendoWindow({
+            content: 'atribuicoes/mostrar/atribuicoes_id/'+id,
+            actions: ["Close"],
+            width: 400,
+            modal: true,
+            title: "Detalhes da Atribuição",
+            visible: false,
+            animation: {
+                open: {
+                    effects: "slideIn:down fadeIn",
+                    duration: 500
+                },
+                close: {
+                    effects: "slide:up fadeOut",
+                    duration: 500
+                }
+            },
+            deactivate: function() {
+                this.destroy();                                           
+            }
+        })
+        .data("kendoWindow")
+        .center();
+
+        //Tratamento para o top
+        var wrapper = winFormAtribuicoes.wrapper;
+        wrapper.css({top: 15});
+
+        winFormAtribuicoes.open();
+    }
+    
+    function montarTabelaAvaliacoesProfissional(source){
+        $('#tabela-painel-avaliacoes').css('display','');
+        
+        //Tratamento para data atual selecionada
+        var arrTimestamp = (source.timestamp.split(" "))[0].split('/');
+        $('#data-tratamento-dados, #data-tratamento-dados-right').html(arrTimestamp[0]+' de '+toMes(arrTimestamp[1] - 1)+' de '+arrTimestamp[2]);
+        
+        
+        //**********************************************************************
+        //Montar a lista de atribuições
+        //**********************************************************************
+        if(source.dados.length > 0){
+            var trs = '';
+            var corLinha = '';
+            var menor = 100;
+            $.map(source.dados, function (d){
+                //Menor nota
+                if(d.nota < menor) menor = d.nota;
+                
+                corLinha = (corLinha == '#fff')?'#fcfcfc':'#fff';
+                //Montando a linha da atribuição
+                trs += '<tr bgcolor="'+corLinha+'">';
+                trs += '   <td width="60%">'+d.atribuicoes_nome+'</td>';
+                trs += '    <td align="center"><button class="k-button" onclick="mostrarDadosAtribuicao('+d.atribuicoes_id+')"><span class="k-icon k-i-note"></span></button></td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioVermelho_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 0)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'"'+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa(this,\'0\')"':'onclick="return false;"')+' id="radioVermelho_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioVermelho_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioLaranja_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 25)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa(this,\'25\')"':'onclick="return false;"')+' id="radioLaranja_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioLaranja_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioAmarelo_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 50)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa(this,\'50\')"':'onclick="return false;"')+' id="radioAmarelo_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioAmarelo_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center"> ';
+                trs += '        <div class="radioVerde_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 75)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtribuicaoProfissional(this,\'75\')"':'onclick="return false;"')+' id="radioVerde_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioVerde_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioAzul_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 100)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa(this,\'100\')"':'onclick="return false;"')+' id="radioAzul_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioAzul_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center"><button onclick="adicionarJustificativas('+d.id+')" class="k-button"><span class="k-icon k-i-funnel"></span></button></td>';
+                trs += '</tr>';
+            });
+            $('#lista-atruibuicoes').html(trs);
+            
+            $('#div_radio_x').removeClass();
+            //$('#div_radio_x').addClass(getClassRadioAtribuicoes(soma/source.dados.length)+'_x');
+            $('#div_radio_x').addClass(getClassRadioAtribuicoes(menor)+'_x');
+            
+            //Busca os Últmos inseridos
+            buscarUltimasAtribuicoesInseridas(3);
+        }
+        
+        
+        //**********************************************************************
+        //Montar a lista de informações do profissional a direita
+        //**********************************************************************
+        $('#tabela_avaliacoes_timestamp').val(arrTimestamp[2]+'-'+arrTimestamp[1]+'-'+arrTimestamp[0]);
+        //Montar a imagem
+        $('#imgProfissional').attr('src','imagens/autonomos/profissional_'+$('#fk_autonomos_id').val()+'.jpg');
+        //Nome do profissional
+        $('#nomeProfissional').html($('#fk_autonomos_id').data('kendoComboBox').text());
+        $('#idProfissionalSelecionado').val($('#fk_autonomos_id').data('kendoComboBox').value());
+        //Nome da Unidade
+        $('#nomeUnidade').html($('#fk_unidades_id').data('kendoComboBox').text());
+        //Nome da Função
+        $('#nomeFuncao').html($('#fk_funcoes_id').data('kendoComboBox').text());
+    }
+    
+    function adicionarJustificativas(id){
+        //Montagem da janela
+        var rid = Math.random();
+        var winJustificativas = $('<div id="winJustificativas'+rid+'"></div>').appendTo('body')
+        .kendoWindow({
+            content: 'tabela-avaliacao-autonomos/justificativas/fk_tabela_avaliacoes_id/'+id,
+            actions: ["Close"],
+            width: 500,
+            modal: true,
+            title: "Registros de Atribuições",
+            visible: false,
+            animation: {
+                open: {
+                    effects: "slideIn:down fadeIn",
+                    duration: 500
+                },
+                close: {
+                    effects: "slide:up fadeOut",
+                    duration: 500
+                }
+            },
+            deactivate: function() {
+                this.destroy();                                           
+            }
+        })
+        .data("kendoWindow")
+        .center();
+
+        //Tratamento para o top
+        var wrapper = winJustificativas.wrapper;
+        wrapper.css({top: 15});
+
+        winJustificativas.open();
+    }
+    
+    function definirAtribuicaoProfissional(obj,valor){
+        var arr = $(obj).attr('id').split('_');
+        var fk_atribuicoes_id = arr[1];
+        var fk_autonomos_id = $('#idProfissionalSelecionado').val();
+
+        $.ajax({
+            url:'tabela-avaliacao-autonomos/set-atribuicao',
+            data: {tabela_avaliacoes_timestamp: $('#tabela_avaliacoes_timestamp').val() ,fk_atribuicoes_id: fk_atribuicoes_id, fk_autonomos_id: fk_autonomos_id, tabela_avaliacoes_nota: valor},
+            dataType: "json",
+            type: "POST",
+            success: function (source){
+                //Busca os Últimos inseridos
+                buscarUltimasAtribuicoesInseridas(3);
+                
+                if(source.alerta || source.sucesso || source.erro)
+                    tratarMsgRetorno(source);
+            }
+        });
+    }
+    function definirAtrbutacaoProfissionalMaisJustificativa(obj, valor) {
+        //Montagem da janela
+        var arr = $(obj).attr('id').split('_');
+        var fk_atribuicoes_id = arr[1];
+        var fk_autonomos_id = $('#idProfissionalSelecionado').val();
+
+        var rid = Math.random();
+        var winJustificativas = $('<div id="winJustificativas'+rid+'"></div>').appendTo('body')
+        .kendoWindow({
+            content: 'tabela-avaliacao-autonomos/justificativas/fk_tabela_avaliacoes_id/0/nota/'+valor+'/fk_atribuicoes_id/'+fk_atribuicoes_id+'/fk_autonomos_id/'+fk_autonomos_id+'/tabela_avaliacoes_timestamp/'+$("#tabela_avaliacoes_timestamp").val(),
+            actions: ["Close"],
+            width: 500,
+            modal: true,
+            title: "Registros de Atribuições",
+            visible: false,
+            animation: {
+                open: {
+                    effects: "slideIn:down fadeIn",
+                    duration: 500
+                },
+                close: {
+                    effects: "slide:up fadeOut",
+                    duration: 500
+                }
+            },
+            deactivate: function() {
+                this.destroy();                                           
+            }
+        })
+        .data("kendoWindow")
+        .center();
+
+        //Tratamento para o top
+        var wrapper = winJustificativas.wrapper;
+        wrapper.css({top: 15});
+
+        winJustificativas.open();
+    }
+    
+    function getClassRadioAtribuicoes(nota){
+        if(nota == 0)
+            return 'radioVermelho';
+        else if(nota == 25)
+            return 'radioLaranjado';
+        else if(nota == 50)
+            return 'radioAmarelo';
+        else if(nota == 75)
+            return 'radioVerde';
+        else if(nota == 100)
+            return 'radioAzul';
+    }
+    
+    function buscarUltimasAtribuicoesInseridas(qtde){
+        $.ajax({
+            url:'tabela-avaliacao-autonomos/get-ultimos-inseridos/',
+            data:{ tah_timestamp: $('#tabela_avaliacoes_timestamp').val(), fk_autonomos_id: $('#fk_autonomos_id').val(), qtde: qtde },
+            dataType: "json",
+            type: "POST",
+            success: function (source){
+                tratarMsgRetorno(source);
+                
+                //Retorno dos dados caso exista
+                if(typeof source.dados === 'object')
+                    montarUltimasAtribuicoesInseridas(source.dados);
+            }
+        });
+    }
+    
+    function montarUltimasAtribuicoesInseridas(ultimos_inseridos){
+        var utrs = '';
+        var ultimoResponsavel = [];
+        if(ultimos_inseridos){
+                utrs += '<tr style="border: 1px solid #aaa; background: #666666; color: #fff;">';
+                utrs +=     '<td style="padding: 5px">Itens Avaliados</td>';
+                utrs +=     '<td style="padding: 5px" align="center">Atribuições</td>';
+                utrs += '</tr>';
+
+            var valor = '';
+            var cont = 0;
+            $.map(ultimos_inseridos, function(obj){
+                
+                //Armazena os dados do último profissional que atribuiu a nota para o profissional selecionado
+                if(cont++ == 0){
+                    ultimoResponsavel['tah_nota']   = obj.tah_nota;
+                    ultimoResponsavel['autonomos_nome']                 = obj.autonomos_nome;
+                    ultimoResponsavel['funcoes_descricao']                  = obj.funcoes_descricao;
+                    ultimoResponsavel['unidades_nome']                      = obj.unidades_nome;
+                }
+                
+                valor = getClassRadioAtribuicoes(obj.tah_nota)+'_'+obj.tah_id;
+                utrs += '<tr>';
+                utrs +=     '<td style="color: #fff">'+obj.atribuicoes_nome+'</td>';
+                utrs +=     '<td align="center">';
+                utrs +=         '<div class="'+valor+'a">';
+                utrs +=             '<input type="radio" value="0" id="'+valor+'a" name="'+valor+'a" checked="checked" />';
+                utrs +=             '<label for="'+valor+'"></label>';
+                utrs +=         '</div>';
+                utrs +=     '</td>';
+                utrs += '</tr>';
+            });
+            
+                utrs += '<tr style="border: 1px solid #aaa; background: #666666; color: #fff;">';
+                utrs +=     '<td style="padding: 5px">&nbsp;</td>';
+                utrs +=     '<td style="padding: 5px" align="center">&nbsp;</td>';
+                utrs += '</tr>';
+        }else{
+            utrs = '<tr><td>Não foi definido atribuições para este profissional na data informada.</td></tr>';
+        }
+
+        $('#tabela-ultimos-itens-avaliados').html(utrs);
+        
+        if(ultimoResponsavel['autonomos_nome'] != ''){
+            var valor = getClassRadioAtribuicoes(ultimoResponsavel['tah_nota'])+'_x';
+            var nota = '';
+                nota +=         '<div class="'+valor+'">';
+                nota +=             '<input type="radio" value="0" id="'+valor+'" name="'+valor+'" checked="checked" />';
+                nota +=             '<label for="'+valor+'"></label>';
+                nota +=         '</div>';
+            $('#up-nota').html(nota);
+            $('#up-descricao').html(' para '+ultimoResponsavel['autonomos_nome']+', '+ultimoResponsavel['funcoes_descricao']+', '+ultimoResponsavel['unidades_nome']);
+        }else{
+           $('#up-nota').html('');
+            $('#up-descricao').html('Não foi definido atribuições para este profissional na data informada.'); 
+        }
+        
+    }
+
+
+
+    $('#btnSalarioEmpregado').click(function (){
+        var winFormAtribuicoes = $('<div id="winFormAtribuicoes"></div>').appendTo('body')
+        .kendoWindow({
+            content: 'profissionais/mostrar-salario/fk_profisionais_id/'+$("#idProfissionalSelecionado").val(),
+            actions: ["Close"],
+            width: 300,
+            modal: true,
+            title: "Dados do funcionário",
+            visible: false,
+            animation: {
+                open: {
+                    effects: "slideIn:down fadeIn",
+                    duration: 500
+                },
+                close: {
+                    effects: "slide:up fadeOut",
+                    duration: 500
+                }
+            },
+            deactivate: function() {
+                this.destroy();                                           
+            }
+        })
+        .data("kendoWindow")
+        .center();
+
+        //Tratamento para o top
+        var wrapper = winFormAtribuicoes.wrapper;
+        wrapper.css({top: 150});
+
+        winFormAtribuicoes.open();
+    });
+
+    function mostraAvaliacoesDia(dia, calendar_str) {
+ 	//var calendar = $("#calendar").data("kendoCalendar");
+	var calendar = $("#" + calendar_str).data("kendoCalendar");
+    var current = calendar.current();
+
+	var data = new Date(current);
+	var year = data.getFullYear();
+	var month = data.getMonth() ;
+
+	month += 1 ;
+	var sMonth = month.toString();
+	var sDia = dia.toString();
+	if (sMonth.length == 1)
+	   sMonth = "0" + sMonth;
+	if (sDia.length == 1)
+	   sDia = "0" + sDia;
+	
+	var vData = year.toString() + '-' + sMonth.toString() + '-' + sDia.toString() ;
+	
+        var winFormAvaliacoesDia = $('<div id="winFormAvaliacoesDia"></div>').appendTo('body')
+        .kendoWindow({
+            content: 'tabela-avaliacao-autonomos/mostrar-dia/tabela_avaliacoes_timestamp/'+vData.toString()+'/fk_autonomos_id/'+$('#fk_autonomos_id').val()+'/fk_funcoes_id/'+$('#fk_funcoes_id').val(),
+            actions: ["Close"],
+            width: 600,
+            modal: true,
+            title: "Detalhes da Avaliaçao",
+            visible: false,
+            animation: {
+                open: {
+                    effects: "slideIn:down fadeIn",
+                    duration: 500
+                },
+                close: {
+                    effects: "slide:up fadeOut",
+                    duration: 500
+                }
+            },
+            deactivate: function() {
+				
+				if (calendar_str == "calendar") {
+					showPaneilMensal ();
+				} else if ( calendar_str == "calendar1" || calendar_str == "calendar2" || calendar_str == "calendar3" ) {
+					showPaneilsTrimestral ();
+				} else if ( calendar_str == "calendar11" || calendar_str == "calendar12" || calendar_str == "calendar13" || calendar_str == "calendar14" || calendar_str == "calendar15" || calendar_str == "calendar16" ) {
+					showPaneilSemestral () ;
+				}
+				
+                this.destroy();                                           
+            }
+        })
+        .data("kendoWindow")
+        .center();
+
+        //Tratamento para o top
+        var wrapper = winFormAvaliacoesDia.wrapper;
+        wrapper.css({top: 15});
+
+        winFormAvaliacoesDia.open();
+	
+    }
+
+
+    function montarTabelaAvaliacoesDiaProfissionalDATA(source, data){
+        //$('#tabela-painel-avaliacoes').css('display','');
+        
+        //Tratamento para data atual selecionada
+        //var arrTimestamp = (source.timestamp.split(" "))[0].split('/')
+        //$('#data-tratamento-dados, #data-tratamento-dados-right').html(arrTimestamp[0]+' de '+toMes(arrTimestamp[1])+' de '+arrTimestamp[2]);
+
+        //**********************************************************************
+        //Montar a lista de atribuições
+        //**********************************************************************
+        if(source.dados.length > 0){
+            var trs = '';
+            var corLinha = '';
+            var menor = 100;
+            $.map(source.dados, function (d){
+                //Menor nota
+                if(d.nota < menor) menor = d.nota;
+                
+                corLinha = (corLinha == '#fff')?'#fcfcfc':'#fff';
+                //Montando a linha da atribuição
+                trs += '<tr bgcolor="'+corLinha+'">';
+                trs += '   <td width="60%">'+d.atribuicoes_nome+'</td>';
+                trs += '    <td align="center"><button class="k-button" onclick="mostrarDadosAtribuicao('+d.atribuicoes_id+')"><span class="k-icon k-i-note"></span></button></td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioDiaVermelho_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 0)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'"'+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa_DATA(this,\'0\', var_data)"':'onclick="return false;"')+' id="radioDiaVermelho_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaVermelho_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioDiaLaranja_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 25)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa_DATA(this,\'25\', var_data)"':'onclick="return false;"')+' id="radioDiaLaranja_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaLaranja_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioDiaAmarelo_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 50)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtrbutacaoProfissionalMaisJustificativa_DATA(this,\'50\', var_data)"':'onclick="return false;"')+' id="radioDiaAmarelo_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaAmarelo_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center"> ';
+                trs += '        <div class="radioDiaVerde_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 75)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtribuicaoProfissional_DATA(this,\'75\', var_data)"':'onclick="return false;"')+' id="radioDiaVerde_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaVerde_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center">';
+                trs += '        <div class="radioDiaAzul_'+d.atribuicoes_id+'">';
+                trs += '            <input type="radio"'+((d.nota == 100)?' checked=\'checked\'':'')+' value="'+d.atribuicoes_id+'" '+(((typeof d.nota == "object") || (d.nota>=75) )?' onclick="definirAtribuicaoProfissional_DATA(this,\'100\', var_data)"':'onclick="return false;"')+' id="radioDiaAzul_'+d.atribuicoes_id+'" name="radio_'+d.atribuicoes_id+'" />';
+                trs += '            <label for="radioDiaAzul_'+d.atribuicoes_id+'"></label>';
+                trs += '        </div>';
+                trs += '    </td>';
+                trs += '    <td align="center"><button onclick="adicionarJustificativas('+d.id+')" class="k-button"><span class="k-icon k-i-funnel"></span></button></td>';
+                trs += '</tr>';
+            });
+            $('#lista-atruibuicoes-dia').html(trs);
+
+            //alert (trs);
+
+            $('#div_radio_x').removeClass();
+            //$('#div_radio_x').addClass(getClassRadioDiaAtribuicoes(soma/source.dados.length)+'_x');
+            $('#div_radio_x').addClass(getClassRadioDiaAtribuicoes(menor)+'_x');
+            
+            //Busca os Últmos inseridos
+            //buscarUltimasAtribuicoesInseridas(3);
+        }
+        
+        
+        //**********************************************************************
+        //Montar a lista de informações do profissional a direita
+        //**********************************************************************
+        //$('#tabela_avaliacoes_timestamp').val(arrTimestamp[2]+'-'+arrTimestamp[1]+'-'+arrTimestamp[0]);
+        //Montar a imagem
+        //$('#imgProfissional').attr('src','imagens/profissionais/profissional_'+$('#fk_autonomos_id').val()+'.jpg');
+        //Nome do profissional
+        //$('#nomeProfissional').html($('#fk_autonomos_id').data('kendoComboBox').text());
+        //$('#idProfissionalSelecionado').val($('#fk_autonomos_id').data('kendoComboBox').value());
+        //Nome da Unidade
+        //$('#nomeUnidade').html($('#fk_unidades_id').data('kendoComboBox').text());
+        //Nome da Função
+        //$('#nomeFuncao').html($('#fk_funcoes_id').data('kendoComboBox').text());
+    }
+
+    function definirAtribuicaoProfissional_DATA(obj,valor, data){
+
+        var arr = $(obj).attr('id').split('_');
+        var fk_atribuicoes_id = arr[1];
+        var fk_autonomos_id = $('#idProfissionalSelecionado').val();
+
+        $.ajax({
+            url:'tabela-avaliacao-autonomos/set-atribuicao-dia',
+            data: {tabela_avaliacoes_timestamp: data ,fk_atribuicoes_id: fk_atribuicoes_id, fk_autonomos_id: fk_autonomos_id, tabela_avaliacoes_nota: valor},
+            dataType: "json",
+            type: "POST",
+            success: function (source){
+                //Busca os Últimos inseridos
+                //buscarUltimasAtribuicoesInseridas(3);
+                
+                if(source.alerta || source.sucesso || source.erro)
+                    tratarMsgRetorno(source);
+            }
+        });
+ 
+  }
+
+    function definirAtrbutacaoProfissionalMaisJustificativa_DATA(obj, valor, data) {
+
+        //Montagem da janela
+        var arr = $(obj).attr('id').split('_');
+        var fk_atribuicoes_id = arr[1];
+        var fk_autonomos_id = $('#idProfissionalSelecionado').val();
+
+        var rid = Math.random();
+        var winJustificativas = $('<div id="winJustificativas'+rid+'"></div>').appendTo('body')
+        .kendoWindow({
+            content: 'tabela-avaliacao-autonomos/justificativas/fk_tabela_avaliacoes_id/0/nota/'+valor+'/fk_atribuicoes_id/'+fk_atribuicoes_id+'/fk_autonomos_id/'+fk_autonomos_id+'/tabela_avaliacoes_timestamp/'+data,
+            actions: ["Close"],
+            width: 500,
+            modal: true,
+            title: "Registros de Atribuições",
+            visible: false,
+            animation: {
+                open: {
+                    effects: "slideIn:down fadeIn",
+                    duration: 500
+                },
+                close: {
+                    effects: "slide:up fadeOut",
+                    duration: 500
+                }
+            },
+            deactivate: function() {
+                this.destroy();                                           
+            }
+        })
+        .data("kendoWindow")
+        .center();
+
+        //Tratamento para o top
+        var wrapper = winJustificativas.wrapper;
+        wrapper.css({top: 15});
+
+        winJustificativas.open();
+    }
+
+    function getClassRadioDiaAtribuicoes(nota){
+        if(nota ==0)
+            return 'radioDiaVermelho';
+        else if(nota == 25)
+            return 'radioDiaLaranjado';
+        else if(nota == 50)
+            return 'radioDiaAmarelo';
+        else if(nota == 75)
+            return 'radioDiaVerde';
+        else if(nota == 100)
+            return 'radioDiaAzul';
+    }
+
+</script>

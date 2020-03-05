@@ -1,0 +1,110 @@
+<script>
+var idRandom = <?php echo $idRandom?>;
+$(function(){
+    ///-- *************************
+    ///-- Grid de Dados
+    ///-- *************************
+    ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    atualizarGridAutonomosHistorico(null);
+    $("#gridAutonomosHistorico"+idRandom).kendoGrid({
+        dataSource: {
+          type: "odata",
+          transport: {
+              read: {	
+
+              }
+          },
+          pageSize: 5
+        },
+        rowTemplate: kendo.template($("#rowTemplateAutonomosHistorico"+idRandom).html()),
+        pageable: {
+            refresh: true,
+            pageSizes: true
+        }
+    });
+
+    ///-- Tooltip 
+   $("#gridAutonomosHistorico"+idRandom).kendoTooltip({
+        filter: "a",
+        position: "top"
+    }).data("kendoTooltip");
+    
+    $('button[id^="btnAdicionarAutonomosHistorico"]').click(function (){
+        var id = $('input[id^="autonomos_historico_id"]').val();
+        var data = $('input[id^="autonomos_historico_data"]').val();
+        var descricao = $('input[id^="autonomos_historico_descricao"]').val();
+        var autonomos_id = $('input[id^="autonomos_id"]').val();
+        $.ajax({
+            url: "autonomos-historico/salvar",
+            data: {
+                    autonomos_historico_id: id, 
+                    autonomos_historico_data: data, 
+                    autonomos_historico_descricao: descricao,
+                    fk_autonomos_id: autonomos_id
+                  },
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                $.map(source, function (val,i){
+                   if(i == 'sucesso'){
+                       $('input[id^="autonomos_historico_data"]').val('');
+                       $('input[id^="autonomos_historico_descricao"]').val('');
+                       atualizarGridAutonomosHistorico(null);
+                   } 
+                });
+                tratarMsgRetorno(source);
+            }
+        });
+    });
+    
+});
+
+function alterarRegistroAutonomosHistoricoGrid(autonomos_historico_id){
+    $.ajax({
+        url: "autonomos-historico/get-historico-pelo-id",
+        data: { autonomos_historico_id: autonomos_historico_id },
+        dataType: "json",
+        type: "POST",
+        success: function(source){
+            if(typeof source.erro != "undefined" || typeof source.alerta != "undefined")
+                tratarMsgRetorno(source);
+            else{
+                var arr = source.dados[0].autonomos_historico_data.split('-');
+                $('input[id^="autonomos_historico_id"]').val(autonomos_historico_id);
+                $('input[id^="autonomos_historico_data"]').val(arr[2]+'/'+arr[1]+'/'+arr[0]);
+                $('input[id^="autonomos_historico_descricao"]').val(source.dados[0].autonomos_historico_descricao);
+                atualizarGridAutonomosHistorico(null);
+            }
+        }
+    });
+}
+
+function excluirRegistroAutonomosHistoricoGrid(autonomos_historico_id){
+    if(confirm("Deseja mesmo excluir este registro?")){
+        $.ajax({
+            url: "autonomos-historico/excluir",
+            data: { id: autonomos_historico_id },
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                tratarMsgRetorno(source);
+                atualizarGridAutonomosHistorico(null);
+            }
+        });
+    }
+}
+
+function atualizarGridAutonomosHistorico(dados){
+    $.ajax({
+        url: "autonomos-historico/pesquisar/fk_autonomos_id/"+$('input[id^="autonomos_id"]').val(),
+        data: dados,
+        dataType: "json",
+        type: "POST",
+        success: function(source){
+            $("#gridAutonomosHistorico"+idRandom).data("kendoGrid").dataSource.data([]);
+            var viewModel = new kendo.observable(source);
+            $("#gridAutonomosHistorico"+idRandom).data("kendoGrid").dataSource.data(viewModel.dados);
+        }
+    });
+}
+</script>

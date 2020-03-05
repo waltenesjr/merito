@@ -1,0 +1,773 @@
+<script>
+    var autonomos_tipo = '<?php echo $this->autonomos_tipo;?>';
+    
+    //Esta variável controla quando vai ser selecionado o formulário para novo registro ou alterar registros
+    var idForm = 0;
+<?php
+
+	$arr = explode(' ',new Zend_Date());
+    $arrDt = explode('/',$arr[0]);
+
+?>
+
+    function mostarAvaliacao_2(idSelecionado, idFuncao){
+
+            $("#moduloCarregado").html('');
+            $("#botoesModulo").html('');
+            $("#contentPrincipal").html('');
+            
+            $(".menuItemSelecionado").removeClass('menuItemSelecionado');
+            
+                $.ajax(
+                    {
+                        url:"/tabela-avaliacao/",
+                        dataType:'html',
+                        type:'POST',
+                        beforeSend:function(){
+                            statusCarregando('');
+                        },
+                        success: function(data, textStatus){
+							
+							$('#calendar').empty().html("");
+							$('#calendar1').empty().html("");
+							$('#calendar2').empty().html("");
+							$('#calendar3').empty().html("");
+							$('#calendar11').empty().html("");
+							$('#calendar12').empty().html("");
+							$('#calendar13').empty().html("");
+							$('#calendar14').empty().html("");
+							$('#calendar15').empty().html("");
+							$('#calendar16').empty().html("");
+
+							$("#btnTarefasMensal").removeClass('selecionado');
+							$("#btnTarefasTrimestral").removeClass('selecionado');
+							$("#btnTarefasSimestral").removeClass('selecionado');
+							$("#btnTarefasDiarias").addClass('menu selecionado');
+
+							$('#painel-mensal').css('display','none');
+							$('#painel-trimestral').css('display','none');
+							$('#painel-simestral').css('display','none');
+
+							$('#painel-diario').css('display','');
+							
+							var profId, nomeProf, nomeUnidade, nomeFuncao, funcaoId, unidadeId;
+
+							$.ajax({
+								url:'autonomos/get-prof/',
+								data:{ fk_autonomos_id: idSelecionado },
+								dataType: "json",
+								type: "POST",
+								success: function (source){
+									
+									$.map(source, function (val, i){
+										
+										if (i=="autonomos_id"){
+											profId = val;
+										}
+										if (i=="autonomos_nome"){
+											nomeProf = val;
+										}
+										if (i=="unidades_nome"){
+											nomeUnidade = val;
+										}
+										if (i=="funcoes_descricao"){
+											nomeFuncao = val;
+										}
+										if (i=="fk_funcoes_id"){
+											funcaoId = val;
+										}
+										if (i=="fk_unidades_id"){
+											unidadeId = val;
+										}
+									});
+									
+									$("#fk_unidades_id").data("kendoComboBox").value(unidadeId);
+									
+									$('#fk_funcoes_id').data("kendoComboBox").setDataSource([]);
+									$('#fk_funcoes_id').data("kendoComboBox").dataSource.add({text: '', value: ''});
+									$('#fk_funcoes_id').data("kendoComboBox").select(0);
+									$('#fk_autonomos_id').data("kendoComboBox").setDataSource([]);
+									$('#fk_autonomos_id').data("kendoComboBox").dataSource.add({text: '', value: ''});
+									$('#fk_autonomos_id').data("kendoComboBox").select(0);
+									bloquearPesquisa = true;
+									$.ajax({
+										url:'funcoes/pesquisar',
+										dataType: "json",
+										type: "POST",
+										success: function (source){
+											tratarMsgRetorno(source);
+											if(source.dados){
+												$('#fk_funcoes_id').data("kendoComboBox").setDataSource([]);
+												$.map(source.dados, function(data){
+													$('#fk_funcoes_id').data("kendoComboBox").dataSource.add({text: data.funcoes_descricao, value: data.funcoes_id});
+												});
+												
+												$("#fk_funcoes_id").data("kendoComboBox").value(funcaoId);
+												
+												
+												$('#fk_autonomos_id').data("kendoComboBox").setDataSource([]);
+												$('#fk_autonomos_id').data("kendoComboBox").dataSource.add({text: '', value: ''});
+												$('#fk_autonomos_id').data("kendoComboBox").select(0);
+												bloquearPesquisa = true;
+												$.ajax({
+													url:'autonomos/pesquisar/fk_funcoes_id/'+funcaoId+'/fk_unidades_id/'+unidadeId,
+													dataType: "json",
+													type: "POST",
+													success: function (source){
+														tratarMsgRetorno(source);
+														if(source.dados){   
+															$('#fk_autonomos_id').data("kendoComboBox").setDataSource([]);
+															$.map(source.dados, function(data){
+																$('#fk_autonomos_id').data("kendoComboBox").dataSource.add({text: data.autonomos_nome, value: data.autonomos_id});
+															});
+															
+															$("#fk_autonomos_id").data("kendoComboBox").value(profId);
+															
+															bloquearPesquisa = false;
+															$("#btnPesquisar").click();
+															
+														}
+													}
+												});
+												
+											}
+										}
+									});
+									
+								}
+							});							
+							
+							
+							
+
+                            var permissao = null;
+                            if(data.substring(0,8) == '{"status')
+                                permissao = $.parseJSON(data);
+
+
+                            if(permissao == null){
+                                var controller = "tabela de avaliação";
+
+                                    $("#contentPrincipal").html('');
+                                    
+                                    $("#moduloCarregado").html("tabela de avaliação");
+                                    $("#contentPrincipal").html(data);
+                                    statusCarregando('none');
+
+                            }else{
+                                $().msgbox("alerta", permissao.mensagem);
+                            }
+
+                        },
+                        complete: function() {
+                            statusCarregando('none');
+                        },
+                        error: function(xhr, er){
+                            statusCarregando('none');
+                        }
+                    }
+                );
+       
+    }
+
+    
+    /**
+     *@method alterarRegistroGrid(id);
+     **/
+    function alterarRegistroGrid(idSelecionado){
+        idForm = idSelecionado;
+        $("a[id='btnFormulario']").click();
+    }
+    
+    var winMetasRegistro;
+    
+    /**
+     *@method definirMetasRegistroGrid(id);
+     **/
+    function definirMetasRegistroGrid(idSelecionado){
+        ///-- *************************
+        ///-- Botão Definir Metas
+        ///-- *************************
+        var btnDefinirMetas = $('<a/>',{
+            addClass: 'k-button',
+            text: ' Definir Metas',
+            name: 'btnDefinirMetas',
+            click: function (){
+                //Montagem da janela
+                winMetasRegistro = $('<div id="winMetasRegistro"></div>').appendTo('body')
+                .kendoWindow({
+                    content: 'metasautonomos/index/fk_autonomos_id/'+idSelecionado,
+                    actions: ["Close"],
+                    width: 800,
+                    modal: true,
+                    title: "Autonomos - Metas",
+                    visible: false,
+                    animation: {
+                        open: {
+                            effects: "slideIn:down fadeIn",
+                            duration: 500
+                        },
+                        close: {
+                            effects: "slide:up fadeOut",
+                            duration: 500
+                        }
+                    },
+                    deactivate: function() {
+						this.destroy();                                           
+                    }
+                })
+                .data("kendoWindow")
+                .center();
+                
+                //Tratamento para o top
+                var wrapper = winMetasRegistro.wrapper;
+                wrapper.css({top: 15});
+                
+                winMetasRegistro.open();
+                
+            }
+            
+        //Adiciona o icone
+        }).prepend($('<span/>',{addClass: 'k-icon k-i-insert-m'}));
+        
+        btnDefinirMetas.click();
+    }
+    
+    
+    /**
+     *@method excluirRegistroGrid(id);
+     **/
+    function excluirRegistroGrid(idSelecionado){
+        if(confirm("Deseja mesmo excluir o registro selecionado?")){
+            var obj = new Object();
+            obj.id = idSelecionado;
+            $.ajax({
+                url: "/autonomos/excluir",
+                data:  obj,
+                dataType: "json",
+                type: "POST",
+                success: function(source){
+                    $.map(source, function (val,i){
+                       if(i == 'sucesso'){
+                           atualizarGrid(null);
+                       } 
+                    });
+                    tratarMsgRetorno(source);
+
+                    /*var viewModel = new kendo.observable(source);
+                    $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);*/
+                }
+            });
+        }
+    }
+
+    function atualizarGrid(dados){
+		
+        $.ajax({
+            url: "autonomos/pesquisar/autonomos_tipo/"+autonomos_tipo,
+            data: dados,
+            dataType: "json",
+            type: "POST",
+            success: function(source){
+                $("#grid").data("kendoGrid").dataSource.data([]);
+                var viewModel = new kendo.observable(source);
+                $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);
+            }
+        });
+    }
+    
+    var win = null;
+    $(function(){
+        
+        ///-- Carregando os botões padrões do módulo
+        
+        ///-- *************************
+        ///-- Botão Formulário
+        ///-- *************************
+        var btnFormulario = $('<a/>',{
+            addClass: 'k-button',
+            text: ' Novo',
+            id: 'btnFormulario',
+            click: function (){
+                
+                var tipo = (autonomos_tipo == "autonomo")?"Autônomo":"Colaborador";
+                win = $("#inputWindow")
+                .kendoWindow({
+                    content: 'autonomos/form/autonomos_id/'+idForm+'/autonomos_tipo/'+autonomos_tipo,
+                    actions: ["Close"],
+                    width: 600,
+                    modal: true,
+                    title: "Formulário - Profissional "+tipo,
+                    visible: false,
+		    close: function(){
+			win.content(" ");
+		    },
+                    animation: {
+                        open: {
+                            effects: "slideIn:down fadeIn",
+                            duration: 500
+                        },
+                        close: {
+                            effects: "slide:up fadeOut",
+                            duration: 500
+                        }
+                    },
+                    refresh: function(){
+                        $(this).html('');
+                        
+                        
+                        
+                        //Tratamentos diversos ao formulário
+                        $('form').submit(function () { return false; });
+                        $("#tabstrip").css('display','');
+                        $("#autonomos_salario,#autonomos_alimentacao,#autonomos_transporte,#autonomos_impostos,#autonomos_porcentagem,#autonomos_comissao").maskMoney({symbol:'R$ ', thousands:'.', decimal:',', symbolStay: true});
+                        $("#tabstrip").kendoTabStrip({
+                            animation:  {
+                                open: {
+                                    effects: "fadeIn"
+                                }
+                            }
+                        });
+                        $("#fk_unidades_id, #fk_funcoes_id, #autonomos_status, #autonomos_sexo, #autonomos_cargo").kendoComboBox();
+                        $("input[id^='autonomos_fixo'], input[id^='autonomos_cel']").mask("(99) 9999-9999");
+                        $("#autonomos_cpf").mask("999.999.999-99");
+                        $("#autonomos_cnpj").mask("99.999.999/9999-99");
+                        $("#autonomos_data_nascimento, #autonomos_data_admissao, #autonomos_historico_data, #autonomos_dsaida, #autonomos_dentrada").mask("99/99/9999");
+                        $("#autonomos_data_nascimento, #autonomos_data_admissao, #autonomos_historico_data, #autonomos_dsaida, #autonomos_dentrada").kendoDatePicker({
+                            culture: "pt-BR",
+                            format: "dd/MM/yyyy"
+                        });
+                        
+                        $("#municipios_uf").kendoComboBox({
+                            select: function (e){
+                                var uf = (this.dataItem(e.item.index())).value;
+                                $.ajax({
+                                    url: "/municipios/get-municipios",
+                                    data:  {uf:uf},
+                                    dataType: "json",
+                                    type: "POST",
+                                    success: function(source){                                        
+                                        var obj = [];
+                                        $.map(source, function (val,i){
+                                           if(i == 'dados'){
+                                               $.each(val, function (p,d){
+                                                   obj.push({value:d.municipios_codigo_ibge, text:d.municipios_descricao})
+                                               });
+                                               $('#municipios_codigo_ibge').data("kendoComboBox").dataSource.data([]);
+                                               //var viewModel = new kendo.observable(source);
+                                               $('#municipios_codigo_ibge').data("kendoComboBox").dataSource.data(obj);
+                                               $('#municipios_codigo_ibge').data("kendoComboBox").select(0);
+                                               $('#fk_municipios_codigo_ibge').val(obj[0]["value"]);
+                                           }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                        
+                        $("#municipios_codigo_ibge").kendoComboBox({
+                            select: function (e){
+                                $("#fk_municipios_codigo_ibge").val( (this.dataItem(e.item.index())).value );
+                            }
+                        });
+                        $("input[id^='autonomos_cep']").mask("99999-999");
+
+						$('#autonomos_cep').keyup(function() {
+							
+							press = this.value;
+							press = press.replace(/_/g,'');
+							
+							if (press.length == 9) {
+								$.ajax({
+									url:'cep/busca',
+									data: { cep : press },
+									dataType:'html',
+									type:'POST',
+									beforeSend:function(){
+										
+										//mostrarCarregando();
+										
+										$('#autonomos_logradouro').val('Aguarde...');
+										$('#autonomos_bairro').val('Aguarde...');
+										$('#fk_municipios_codigo_ibge').val('Aguarde...');
+										$('#autonomos_uf').val('Aguarde...');
+										
+									},
+									success: function(data, textStatus){
+										
+										var obj = $.parseJSON(data);
+										
+										if(obj.ok) {
+											$('#autonomos_logradouro').val(obj.dados.tipo+' '+obj.dados.logradouro);
+											$('#autonomos_bairro').val(obj.dados.bairro);
+											$('#fk_municipios_codigo_ibge').val(obj.dados.cidade);
+											
+											$('#autonomos_uf').val(obj.dados.uf);
+											
+										} else if (obj.alerta) {
+											
+											//notificacao(obj.alerta,'alerta');
+											
+											$().msgbox("erro", obj.alerta);
+											
+											$('#autonomos_logradouro').val('');
+											$('#autonomos_bairro').val('');
+											$('#fk_municipios_codigo_ibge').val('');
+											$('#autonomos_uf').val('');
+											
+										} else if (obj.erro) {
+											notificacao(obj.erro,'erro');
+										}
+									},
+									error: function(xhr, er){
+										//notificacao('Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.','erro');
+										$().msgbox("erro", 'Erro ao tentar realizar esta operação!<br>Se persistir favor contatar o Suporte Técnico.');
+									},
+									complete: function() {
+										//sumirCarregando();
+									}
+								});
+							}
+						});
+
+                        
+                        $('#btnSelecionarImagem').click(function (){
+                            $('#autonomos_imagem_upload')
+                                .click()
+                                .change(function (){
+                                    $('#progressbar').html($(this).val());
+                                });
+                        });
+                        
+                        $(document).ready(function() {
+                            $("#panelbar").kendoPanelBar({
+                                expandMode: "single"
+                            });
+                        });
+                        
+                        $('#btnSelecionarTodasPermissoes').click(function (){
+                            //console.log($('input[id^="permissao_"]:checked' ).length);
+                            if($('input[id^="permissao_"]:checked' ).length > 0)
+                                $('input[id^="permissao_"]').prop('checked',false);
+                            else
+                                $('input[id^="permissao_"]').prop('checked',true);
+                        });
+                        
+                        
+                        //Define os botões de ações dentro da win
+                        /// Botão Salvar
+                        $("#btnSalvar").click(function (){
+                            
+                            
+                            /*
+							 *
+							 * Uncomment This !!!!!!!!!!!1
+							 *
+							 */
+                            
+                            
+
+                            //if(!valida_cnpj($('#autonomos_cnpj').val())){
+                            //    $().msgbox("alerta", "Informe um CNPJ válido.");
+                            //    return false;
+                            //}
+                            
+                            //Carrega os dados do formulário
+                            var dadosForm = arrayToObject( $('#frmAutonomos').serializeArray() );
+                            var permissoes = [];
+                            if($('input[id^="permissao_"]:checked' ).length > 0){
+                                $.map($('input[id^="permissao_"]:checked' ),function (val,i){
+                                    permissoes.push($(val).val());
+                                });
+                            }
+                            
+                            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                            $.ajax({
+                                url: "autonomos/salvar",
+                                data: {dadosForm: dadosForm, permissoes: permissoes},
+                                dataType: "json",
+                                type: "POST",
+                                success: function(source){
+                                    $.map(source, function (val,i){
+                                       if(i == 'sucesso'){
+                                           win.close();
+                                           atualizarGrid(null);
+                                       } 
+                                    });
+                                    tratarMsgRetorno(source);
+                                    
+                                    /*var viewModel = new kendo.observable(source);
+                                    $("#grid").data("kendoGrid").dataSource.data(viewModel.dados);*/
+                                },
+                                error: function(){
+                                    $().msgbox("erro", "Desculpe! Não foi possível realizar a operação solicitada.");
+                                }
+                            });
+                            ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                            
+                            
+                        }).prepend($('<span/> ',{addClass: 'k-icon k-i-tick'}));
+                        /// Botão Cancelar
+                        $("#btnCancelar").click(function (){
+                            win.close();
+                            
+                            
+                            
+                        }).prepend($('<span/> ',{addClass: 'k-icon k-i-close'}));
+                        
+                        
+                        var btnUpload=$('#btnSelecionarImagem');
+                        var status=$('#progressbar');
+                        new AjaxUpload(btnUpload, {
+                                //Controler que irá tratar o upload
+                                action: 'autonomos/carregar-imagens/autonomos_id/'+$('#autonomos_id').val(),
+                                //Nome da caixa de entrada do arquivo
+                                name: 'uploadfile',
+                                onSubmit: function(file, ext){
+                                        if (!(ext && /^(jpg|png|jpeg|gif)$/.test(ext))){ 
+                                            // verificar a extensão de arquivo válido
+                                            //console.log('Somente JPG, PNG ou GIF são permitidas');
+                                            $().msgbox("alerta", "Somente JPG, PNG ou GIF são permitidas.");
+                                            return false;
+                                        }
+                                        $('#progressbar').html('Enviando...');
+                                },
+                                onComplete: function(file, response){
+                                    var obj = $.parseJSON(response);
+                                    $.map(obj, function (val,i){
+                                       if(i == 'arquivo'){
+                                           $('#profissional_img').html('').hide(500,function (){
+                                                var rid = Math.random();
+                                                $('#profissional_img').html('<img id="img_prof" src="imagens/autonomos/'+val+'?rid='+rid+'" class="imgProfissional"/>');
+                                                $('#profissional_img').toggle(500); 
+                                           });                                           
+                                       }
+                                       if(i == 'sucesso'){
+                                           $('#progressbar').html('Imagem carregada com sucesso.');
+                                       } 
+                                    });
+                                    tratarMsgRetorno(obj);
+                                }
+                        });
+                    }
+                })
+                .data("kendoWindow")
+                .center();
+                
+                //Tratamento para o top
+                var wrapper = win.wrapper;
+                wrapper.css({top: 15});
+                
+                win.open();    
+                
+                idForm = 0;
+                
+                
+            }
+        //Adicionado o icone
+        }).prepend($('<span/>',{addClass: 'k-icon k-i-plus'}));
+        
+        
+        
+        
+        
+        
+        
+        ///-- *************************
+        ///-- Botão Filtros
+        ///-- *************************
+        var btnFiltros = $('<a/>',{
+            addClass: 'k-button',
+            text: ' Filtros',
+            name: 'btnFiltros',
+            click: function (){
+                //Montagem da janela
+                //var win_fitro = (Math.floor((Math.random()*1000)+1)).toString()+ (Math.floor((Math.random()*1000)+1)).toString();
+                var winFiltros = $('<div id="winFiltros"></div>').appendTo('body')
+                .kendoWindow({
+                    content: 'autonomos/filtros',
+                    actions: ["Close"],
+                    width: 350,
+                    modal: true,
+                    title: "Filtros - Autonomos",
+                    visible: false,
+                    animation: {
+                        open: {
+                            effects: "slideIn:down fadeIn",
+                            duration: 500
+                        },
+                        close: {
+                            effects: "slide:up fadeOut",
+                            duration: 500
+                        }
+                    },
+
+                    //Ações dentro da janela aberta
+                    refresh: function(){
+
+                        $(this).html('');
+                        $("#fk_unidades_id, #fk_funcoes_id").kendoComboBox();
+                        $("#autonomos_status").kendoComboBox();
+                        $("#autonomos_telefone").mask("(99) 9999-9999");
+                        $('form').submit(function () { return false; });
+                        
+                        //Aplico os botões de ações dentro da win
+                        $("#btnFiltrar").click(function (){
+							
+                            //Montando os parâmetros para carregar os dados com base nos filtros
+                            var dadosForm = arrayToObject( $('#frmFiltrosAutonomos').serializeArray() );
+
+                            atualizarGrid(dadosForm);
+                            
+                            $("#btnFechar").click();
+                            
+                        }).prepend($('<span/> ',{addClass: 'k-icon k-i-funnel'}));
+                        
+                        $("#btnFechar").click(function (){
+                            winFiltros.close();
+                        }).prepend($('<span/> ',{addClass: 'k-icon k-i-close'}));
+                        
+                    },
+                    deactivate: function() {
+						this.destroy();                                           
+                    }
+                })
+                .data("kendoWindow")
+                .center();
+                
+                //Tratamento para o top
+                var wrapper = winFiltros.wrapper;
+                wrapper.css({top: 15});
+                
+                winFiltros.open();
+                idForm = 0;
+            }
+            
+        //Adiciona o icone
+        }).prepend($('<span/>',{addClass: 'k-icon k-i-funnel'}));
+        
+        
+        
+        
+        /******
+         * Outros botões
+         **/
+        ///-- *************************
+        ///-- Botão Funções
+        ///-- *************************
+        var btnFuncoes = $('<a/>',{
+            addClass: 'k-button',
+            text: ' Funções',
+            name: 'btnFuncoes',
+            click: function (){
+                //Montagem da janela
+                //var winFuncoes = $("#inputWindow")
+                var winFuncoes = $('<div id="winFuncoes"></div>').appendTo('body').kendoWindow({
+                    content: '/funcoes/index/',
+                    actions: ["Close"],
+                    width: 800,
+                    modal: true,
+                    title: "Funções",
+                    visible: false,
+                    animation: {
+                        open: {
+                            effects: "slideIn:down fadeIn",
+                            duration: 500
+                        },
+                        close: {
+                            effects: "slide:up fadeOut",
+                            duration: 500
+                        }
+                    }
+                })
+                .data("kendoWindow")
+                .center();
+                
+                //Tratamento para o top
+                var wrapper = winFuncoes.wrapper;
+                wrapper.css({top: 15});
+                
+                winFuncoes.open();
+                
+            }
+            
+        //Adiciona o icone
+        }).prepend($('<span/>',{addClass: 'k-icon k-i-insert-m'}));
+        
+        ///-- *************************
+        ///-- Botão Atribuições
+        ///-- *************************
+        var btnAtribuicoes = $('<a/>',{
+            addClass: 'k-button',
+            text: ' Atribuições',
+            name: 'btnAtribuicoes',
+            click: function (){
+                //Montagem da janela
+                var winAtribuicoes = $('<div id="winAtribuicoes"></div>').appendTo('body')
+                .kendoWindow({
+                    content: '/atribuicoes',
+                    actions: ["Close"],
+                    width: 500,
+                    modal: true,
+                    title: "Atribuições",
+                    visible: false,
+                    animation: {
+                        open: {
+                            effects: "slideIn:down fadeIn",
+                            duration: 500
+                        },
+                        close: {
+                            effects: "slide:up fadeOut",
+                            duration: 500
+                        }
+                    }
+                })
+                .data("kendoWindow")
+                .center();
+                
+                //Tratamento para o top
+                var wrapper = winAtribuicoes.wrapper;
+                wrapper.css({top: 15});
+                
+                winAtribuicoes.open();
+                
+            }
+            
+        //Adiciona o icone
+        }).prepend($('<span/>',{addClass: 'k-icon k-i-insert-m'}));
+        
+        
+        //Limpa e Adiciona os botões no local indicado
+        $("#botoesModulo").html('').append(btnFormulario,' ',btnFiltros,' &nbsp;&nbsp; ',btnFuncoes,' ',btnAtribuicoes);
+        
+        
+        
+        ///-- *************************
+        ///-- Grid de Dados
+        ///-- *************************
+        ///-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        atualizarGrid(null);
+        $("#grid").kendoGrid({
+            dataSource: {
+              type: "odata",
+              transport: {
+                  read: {	
+                      
+                  }
+              },
+              pageSize: 5
+            },
+            rowTemplate: kendo.template($("#rowTemplate").html()),
+            pageable: {
+                refresh: true,
+                pageSizes: true
+            }
+        });
+        
+        ///-- Tooltip 
+       $("#grid").kendoTooltip({
+            filter: "a",
+            position: "top"
+        }).data("kendoTooltip");
+    });
+</script>
